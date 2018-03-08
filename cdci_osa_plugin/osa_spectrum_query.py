@@ -52,7 +52,7 @@ from cdci_data_analysis.analysis.queries import SpectrumQuery
 from cdci_data_analysis.analysis.products import SpectrumProduct,QueryProductList,QueryOutput
 from cdci_data_analysis.analysis.io_helper import FilePath
 
-from .osa_dispatcher import    OsaQuery
+from .osa_dataserve_dispatcher import    OsaDispatcher
 
 
 class IsgriSpectrumProduct(SpectrumProduct):
@@ -131,30 +131,24 @@ class OsaSpectrumQuery(SpectrumQuery):
 
         super(OsaSpectrumQuery, self).__init__(name)
 
+    def get_data_server_query(self, instrument,
+                              config=None):
 
-    def get_products(self,instrument,job,prompt_delegate,dump_json=False,use_dicosverer=False,config=None,out_dir=None,prod_prefix=None):
 
-
-        scwlist_assumption, cat, extramodules, inject=OsaQuery.get_osa_query_base(instrument)
+        scwlist_assumption, cat, extramodules, inject=OsaDispatcher.get_osa_query_base(instrument)
         E1=instrument.get_par_by_name('E1_keV').value
         E2=instrument.get_par_by_name('E2_keV').value
         target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2)
-        q=OsaQuery(config=config, target=target, modules=modules, assume=assume, inject=inject)
 
+        q=OsaDispatcher(config=config, target=target, modules=modules, assume=assume, inject=inject)
 
-        res = q.run_query( job=job, prompt_delegate=prompt_delegate)
-
-        if job.status != 'done':
-            prod_list = QueryProductList(prod_list=[], job=job)
-            return prod_list
-        else:
-           return self.build_product_list(job,res,out_dir,prod_prefix)
+        return q
 
 
     def set_instr_dictionaries(self,catalog,):
         raise RuntimeError('Must be specified for each instrument')
 
-    def process_product_method(self, instrument, job, prod_list):
+    def process_product_method(self, instrument, prod_list):
         for query_spec in prod_list.prod_list:
             query_spec.write()
 
@@ -175,18 +169,12 @@ class OsaSpectrumQuery(SpectrumQuery):
         query_out = QueryOutput()
 
         query_out.prod_dictionary['spectrum_name'] = _names
-
         query_out.prod_dictionary['ph_file_name'] = _pf_path
         query_out.prod_dictionary['arf_file_name'] = _arf_path
         query_out.prod_dictionary['rmf_file_name'] = _rmf_path
 
-        query_out.prod_dictionary['session_id'] = job.session_id
-        query_out.prod_dictionary['job_id'] = job.job_id
-
         query_out.prod_dictionary['download_file_name'] = 'spectra.tar.gz'
         query_out.prod_dictionary['prod_process_maessage'] = ''
-
-        print('--> send prog')
         return query_out
 
 
@@ -199,16 +187,16 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
 
 
 
-    def build_product_list(self,job,res,out_dir,prod_prefix):
+    def build_product_list(self,instrument,res,out_dir,prod_prefix='query_spectrum'):
 
         spectrum_list = IsgriSpectrumProduct.build_list_from_ddosa_res(res,
                                                                        out_dir=out_dir,
                                                                        prod_prefix=prod_prefix)
 
-        prod_list = QueryProductList(prod_list=spectrum_list,job=job)
 
 
-        return prod_list
+
+        return spectrum_list
 
     def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2):
         target = "ISGRISpectraSum"

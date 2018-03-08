@@ -38,11 +38,12 @@ import json
 # Project
 # relative import eg: from .mod import f
 import ddosaclient as dc
-
+import  logging
 import  simple_logger
 from cdci_data_analysis.analysis.queries import  *
 from cdci_data_analysis.analysis.job_manager import  Job
-
+from cdci_data_analysis.analysis.io_helper import FilePath
+from cdci_data_analysis.analysis.products import  QueryOutput
 import sys
 import traceback
 import time
@@ -70,10 +71,10 @@ from contextlib import contextmanager
 #     os.close(devnull)
 #     sys.stdout = os.fdopen(newstdout, 'w')
 
-def view_traceback():
-    ex_type, ex, tb = sys.exc_info()
-    traceback.print_tb(tb)
-    del tb
+#def view_traceback():
+#    ex_type, ex, tb = sys.exc_info()
+#    traceback.print_tb(tb)
+#    del tb
 
 
 
@@ -84,7 +85,7 @@ def view_traceback():
 
 
 
-class OsaQuery(object):
+class OsaDispatcher(object):
 
     def __init__(self,config=None,use_dicosverer=False,target=None,modules=[],assume=[],inject=[]):
         print('--> building class OsaQyery')
@@ -101,8 +102,8 @@ class OsaQuery(object):
             try:
                 c = discover_docker.DDOSAWorkerContainer()
 
-                self.url = c.url
-                self.ddcache_root_local = c.ddcache_root
+                self.data_server_url = c.data_server_url
+                self.dataserver_cache = c.dataserver_cache
                 print("===>managed to read from docker:")
 
 
@@ -113,8 +114,8 @@ class OsaQuery(object):
         elif config is not None:
             try:
                 # config=ConfigEnv.from_conf_file(config_file)
-                self.url = config.dataserver_url
-                self.ddcache_root_local = config.dataserver_cache
+                self.data_server_url = config.dataserver_url
+                self.dataserver_cache = config.dataserver_cache
 
             except Exception as e:
                 #print(e)
@@ -124,84 +125,106 @@ class OsaQuery(object):
                 raise RuntimeError("failed to use config ", e)
 
         else:
+            self.config()
 
-            raise RuntimeError('either you provide use_dicosverer=True or a config object')
 
-        print("url:", self.url)
-        print("ddcache_root:", self.ddcache_root_local)
+
+
+
+        print("dataserver_cache:", self.data_server_url)
+        print("dataserver_cache:", self.dataserver_cache)
         print('--> done')
 
 
-    def test_connection(self):
-        print ('--> start test connection')
-        #with silence_stdout():
 
-        remote = dc.RemoteDDOSA(self.url,self.ddcache_root_local)
+    def config(self):
+        self.data_server_name='ddosa'
+        self.data_server_locan_mnt_cache='/'
+        self.data_server_remote_cache='reduced/ddcache'
+        self.dummy_cache='dummy_prods'
+        self.data_server_url= 'intggcn01.isdc.unige.ch'
+        self.data_server_port= 32778
 
+        FilePath(file_dir=self.data_server_local_cache).mkdir()
+
+        self.dataserver_cache=os.path.join(self.data_server_remote_cache,self.data_server_local_cache)
+
+    def get_exception_status_message(self,e):
         status=''
-        try:
-            #with silence_stdout()\
-            # simple_logger.log()
-            # simple_logger.logger.setLevel(logging.ERROR)
-            # product = remote.query(target="ii_spectra_extract",
-            #                        modules=["ddosa", "git://ddosadm"],
-            #                        assume=["ddosa" + '.ScWData(input_scwid="035200230010.001")',
-            #                                'ddosa.ImageBins(use_ebins=[(20,40)],use_version="onebin_20_40")',
-            #                                'ddosa.ImagingConfig(use_SouFit=0,use_version="soufit0")'])
-            remote.poke()
-
-        except Exception as e:
-            #content = json.loads(e.content)
-
-            #status = content['result']['status']
-            print('e=> server connection status', e)
-
-            status='broken communication'
-            raise  RuntimeError('ddosa broken communication with message:',e)
-
-        print('--> end test connection')
+        if hasattr(e,'content'):
+            try:
+                content = json.loads(e.content)
+                status = content['result']['status']
+            except:
+                pass
 
         return status
 
-    def test_busy(self, max_trial=25, sleep_s=1):
+
+    def test_communication(self, max_trial=25, sleep_s=1,logger=None):
         print('--> start test busy')
-        simple_logger.log()
-        simple_logger.logger.setLevel(logging.ERROR)
-        remote = dc.RemoteDDOSA(self.url, self.ddcache_root_local)
-        status = ''
+        remote = dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache)
+
+        query_out = QueryOutput()
+
+        status = 0
+        message=''
+        debug_message = ''
+        connection_status_message=''
+        busy_exception=False
+
+
+
+
         time.sleep(sleep_s)
+
         for i in range(max_trial):
             time.sleep(sleep_s)
             try:
-                # with silence_stdout():
                 r = remote.poke()
-                print('remote poke ok')
-                status = ''
+                print('remote poke ok at trial',i)
+
+                query_out.set_status(status, message, debug_message=str(debug_message))
                 break
             except dc.WorkerException as e:
 
-                content = json.loads(e.content)
+                connection_status_message = self.get_exception_status_message(e)
+                query_out.set_query_exception(e, 'test busy',message='connection_status=%s'%connection_status_message,logger=logger)
+                busy_exception=True
 
-                status = content['result']['status']
-                print('e=>', i, status)
+            except Exception as e:
+                connection_status_message = self.get_exception_status_message(e)
 
-        if status == 'busy':
+                query_out.set_query_exception(e, 'test busy', message='connection_status=%s' % connection_status_message,
+                                              logger=logger)
+                raise RuntimeError('ddosa broken communication with message:', e)
+
+        if connection_status_message == 'busy' or busy_exception==True:
             print('server is busy')
+            query_out.set_query_exception(e, 'test busy',message='connection_status=%s'%connection_status_message,logger=logger)
             raise RuntimeError('ddosa server is busy')
+
 
         print('--> end test busy')
 
+        return query_out
 
-    def test_has_input_products(self,instrument):
+    def test_has_input_products(self,instrument,logger=None):
         print('--> start has input_products')
         RA = instrument.get_par_by_name('RA').value
         DEC = instrument.get_par_by_name('DEC').value
         radius = instrument.get_par_by_name('radius').value
         scw_list = instrument.get_par_by_name('scw_list').value
-        #print('scw_list', scw_list)
 
+        query_out = QueryOutput()
+
+        status=0
+        message = ''
+        debug_message = ''
+        has_input_products_message=''
+        prod_list=[]
         if scw_list is not None and scw_list != []:
-            return scw_list
+            prod_list=scw_list
 
         else:
             T1_iso = instrument.get_par_by_name('T1')._astropy_time.isot
@@ -219,69 +242,77 @@ class OsaQuery(object):
                                     use_max_pointings=50))' % (dict(RA=RA, DEC=DEC, radius=radius, T1=T1_iso, T2=T2_iso))]
 
 
-            remote = dc.RemoteDDOSA(self.url, self.ddcache_root_local)
+            remote = dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache)
 
             try:
                 product = remote.query(target=target,modules=modules,assume=assume)
-                return product.scwidlist
+                query_out.set_status(status, message, debug_message=str(debug_message))
+                prod_list= product.scwidlist
 
             except dc.WorkerException as e:
-                content = json.loads(e.content)
-
-                status = content['result']['status']
-                print('e=> server connection status', status)
-
-                return None
+                has_input_products_message = self.get_exception_status_message(e)
+                query_out.set_query_exception(e, 'test has input products', message='has input_products=%s' % has_input_products_message,
+                                             logger=logger)
 
 
+        return query_out,prod_list
 
 
-    def run_query(self,job,prompt_delegate=True):
+
+
+
+
+
+
+
+    def run_query(self,call_back_url,run_asynch=True,logger=None):
         res = None
+        status = 0
+        message = ''
+        debug_message = ''
+        query_out = QueryOutput()
         try:
-            #redirect_out('./')
-            #with silence_stdout():
+
             simple_logger.logger.setLevel(logging.ERROR)
 
-            if isinstance(job,Job):
-                pass
-            else:
-                raise RuntimeError('job object not passed')
 
             print('--osa disp--')
-            print('call_back_url',job.get_call_back_url())
-            print('*** prompt_delegate', prompt_delegate)
+            print('call_back_url',call_back_url)
+            print('*** run_asynch', run_asynch)
 
 
-            res= dc.RemoteDDOSA(self.url, self.ddcache_root_local).query(target=self.target,
+            res= dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache).query(target=self.target,
                                                     modules=self.modules,
                                                     assume=self.assume,
                                                     inject=self.inject,
-                                                    prompt_delegate = prompt_delegate,
-                                                    callback = job.get_call_back_url())
+                                                    prompt_delegate = run_asynch,
+                                                    callback = call_back_url)
 
 
 
-            print ('--> url for call_back',job.get_call_back_url())
+            print ('--> url for call_back',call_back_url)
             print("--> cached object in", res,res.ddcache_root_local)
-            job.set_done()
-        except dc.WorkerException as e:
+            query_out.set_status(status, message, debug_message=str(debug_message),job_status='done')
 
-            job.set_failed()
+            #job.set_done()
+        except dc.WorkerException as e:
+            run_query_message = self.get_exception_status_message(e)
+            query_out.set_query_exception(e, 'run query ',
+                                          message='run query message=%s' % run_query_message,
+                                          logger=logger)
+
+            query_out.set_status(status, message, debug_message=str(debug_message), job_status='failed')
+            #job.set_failed()
             print("ERROR->")
-            print (type(e),e)
-            print ("e", e)
-            e.display()
+            print ('Exception type',type(e))
+            print ("Excetption", e)
+
             raise RuntimeWarning('ddosa connection or processing failed',e)
 
         except dc.AnalysisDelegatedException as e:
+            query_out.set_status(status, message, debug_message=str(debug_message), job_status='submitted')
 
-            if isinstance(job,Job):
-                print('--> url for call_back', job.get_call_back_url())
-            else:
-                raise RuntimeError('job object not passed')
-
-        return res
+        return res,query_out
 
 
     @classmethod

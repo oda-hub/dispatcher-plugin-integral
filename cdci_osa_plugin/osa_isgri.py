@@ -35,14 +35,15 @@ __author__ = "Andrea Tramacere"
 # relative import eg: from .mod import f
 
 
+from cdci_osa_plugin import conf_file
 
 from cdci_data_analysis.analysis.queries import  *
 from cdci_data_analysis.analysis.instrument import Instrument
 
-from .osa_image_dispatcher import IsgriMosaicQuery
-from .osa_spectrum_dispatcher import IsgriSpectrumQuery
-from .osa_lightcurve_dispatcher import IsgriLightCurveQuery
-from .osa_dispatcher import OsaQuery
+from .osa_image_query import IsgriMosaicQuery
+from .osa_spectrum_query import IsgriSpectrumQuery
+from .osa_lightcurve_query import IsgriLightCurveQuery
+from .osa_dataserve_dispatcher import OsaDispatcher
 from .osa_common_pars import  osa_common_instr_query
 
 
@@ -50,8 +51,7 @@ from .osa_common_pars import  osa_common_instr_query
 
 
 
-
-def OSA_ISGRI():
+def osa_isgri_factory():
 
     src_query=SourceQuery('src_query')
 
@@ -86,10 +86,11 @@ def OSA_ISGRI():
     query_dictionary['isgri_lc'] = 'isgri_lc_query'
     query_dictionary['spectral_fit'] = 'spectral_fit_query'
 
-    return  Instrument('ISGRI',
+    return  Instrument('isgri',
+                       data_serve_conf_file=conf_file,
                        src_query=src_query,
                        instrumet_query=instr_query,
                        product_queries_list=[image,spectrum,light_curve,xspec_fit],
-                       data_server_query_class=OsaQuery,
+                       data_server_query_class=OsaDispatcher,
                        query_dictionary=query_dictionary)
 

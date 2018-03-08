@@ -36,23 +36,7 @@ __author__ = "Andrea Tramacere"
 # Project
 # relative import eg: from .mod import f
 
-from cdci_data_analysis.analysis.parameters import *
 
-
-def osa_common_instr_query():
-    #not exposed to frontend
-    #TODO make a special class
-    max_pointings=Integer(value=50,name='max_pointings')
-
-    radius = Angle(value=5.0, units='deg', name='radius')
-    E1_keV = SpectralBoundary(value=10., E_units='keV', name='E1_keV')
-    E2_keV = SpectralBoundary(value=40., E_units='keV', name='E2_keV')
-    spec_window = ParameterRange(E1_keV, E2_keV, 'spec_window')
-
-    instr_query_pars=[radius,max_pointings,spec_window]
-
-
-    return instr_query_pars
-
-
-
+from .osa_isgri import  osa_isgri_factory
+from .osa_jemx import osa_jemx_factory
+instr_factory_list=[osa_isgri_factory,osa_jemx_factory]

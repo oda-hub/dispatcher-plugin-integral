@@ -1,23 +1,3 @@
-"""
-Overview
---------
-   
-general info about this module
-
-
-Classes and Inheritance Structure
-----------------------------------------------
-.. inheritance-diagram:: 
-
-Summary
----------
-.. autosummary::
-   list of the module you want
-    
-Module API
-----------
-"""
-
 from __future__ import absolute_import, division, print_function
 
 from builtins import (bytes, str, open, super, range,
@@ -30,31 +10,30 @@ __author__ = "Andrea Tramacere"
 # absolute import rg:from copy import deepcopy
 
 # Dependencies
-# eg numpy 
+# eg numpy
 # absolute import eg: import numpy as np
+
+import  os
 
 # Project
 # relative import eg: from .mod import f
+from astropy.io import  fits as pf
 
-
-from astropy.io import fits as pf
-from cdci_data_analysis.analysis.io_helper import FitsFile
-from cdci_data_analysis.analysis.instrument import Instrument
-from cdci_data_analysis.analysis.queries import  *
+from cdci_data_analysis.analysis.queries import ImageQuery
 from cdci_data_analysis.analysis.products import QueryProductList,CatalogProduct,ImageProduct,QueryOutput
-from .osa_common_pars import  osa_common_instr_query
-from .osa_dispatcher import OsaQuery
+from cdci_data_analysis.analysis.catalog import BasicCatalog
+from cdci_data_analysis.analysis.io_helper import  FitsFile
 
 
+from .osa_catalog import  OsaIsgriCatalog,OsaJemxCatalog
+from .osa_dataserve_dispatcher import    OsaDispatcher
 
-
-
-class MyInstrImageProduct(ImageProduct):
+class OsaImageProduct(ImageProduct):
 
     def __init__(self,name,file_name,skyima,out_dir=None,prod_prefix=None):
         header = skyima.header
         data = skyima.data
-        super(MyInstrImageProduct, self).__init__(name,data=data,header=header,name_prefix=prod_prefix,file_dir=out_dir,file_name=file_name)
+        super(OsaImageProduct, self).__init__(name,data=data,header=header,name_prefix=prod_prefix,file_dir=out_dir,file_name=file_name)
         #check if you need to copy!
 
 
@@ -63,72 +42,36 @@ class MyInstrImageProduct(ImageProduct):
 
     @classmethod
     def build_from_ddosa_skyima(cls,name,file_name,skyima,out_dir=None,prod_prefix=None):
-        #skyima = pf.open(skyima)
-        skyima = FitsFile(skyima).open()
+        skyima=FitsFile(skyima).open()
         return  cls(name,skyima=skyima[4],out_dir=out_dir,prod_prefix=prod_prefix,file_name=file_name)
 
 
 
-def OSA_MYINSTR():
-    src_query = SourceQuery('src_query')
-
-    instr_query_pars = osa_common_instr_query()
-
-    instr_query = InstrumentQuery(
-        name='my_instr_parameters',
-        extra_parameters_list=instr_query_pars,
-        input_prod_list_name='scw_list',
-        input_prod_value=None,
-        catalog=None,
-        catalog_name='user_catalog')
-
-    #
-    #my_instr_image_query -> name given to this query
-    image=MyInstrMosaicQuery('my_instr_image_query')
-
-    # this dicts binds the product query name to the product name from frontend
-    # eg my_instr_image is the parameter passed by the fronted to access the
-    # the MyInstrMosaicQuery, and the dictionary will bing
-    query_dictionary={}
-    query_dictionary['my_instr_image'] = 'my_instr_image_query'
-
-    return  Instrument('OSA_MYINSTR',
-                       src_query=src_query,
-                       instrumet_query=instr_query,
-                       product_queries_list=[image],
-                       data_server_query_class=OsaQuery,
-                       query_dictionary=query_dictionary,
-                       max_pointings=50)
 
 
-
-class MosaicQuery(ImageQuery):
+class OsaMosaicQuery(ImageQuery):
 
     def __init__(self,name):
 
-        super(MosaicQuery, self).__init__(name)
+        super(OsaMosaicQuery, self).__init__(name)
 
 
-    def get_products(self,instrument,job,prompt_delegate,dump_json=False,use_dicosverer=False,config=None,out_dir=None,prod_prefix='query_spectrum'):
-        scwlist_assumption, cat, extramodules, inject=OsaQuery.get_osa_query_base(instrument)
+    def get_data_server_query(self,instrument,
+                              config=None):
+
+
+        scwlist_assumption, cat, extramodules, inject=OsaDispatcher.get_osa_query_base(instrument)
         E1=instrument.get_par_by_name('E1_keV').value
         E2=instrument.get_par_by_name('E2_keV').value
         target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2)
-        q=OsaQuery(config=config, target=target, modules=modules, assume=assume, inject=inject)
 
-        #import sys
-        #print ('ciccio',target,modules,assume,inject)
+        q=OsaDispatcher(config=config, target=target, modules=modules, assume=assume, inject=inject)
 
-        res = q.run_query( job=job, prompt_delegate=prompt_delegate)
-
-        if job.status != 'done':
-            prod_list = QueryProductList(prod_list=[], job=job)
-            return prod_list
-        else:
-           return self.build_product_list(job,res,out_dir,prod_prefix)
+        return q
 
 
-    def process_product(self, instrument, job, prod_list):
+
+    def process_product(self, instrument, prod_list):
 
         query_image = prod_list.get_prod_by_name('mosaic_image')
         query_catalog = prod_list.get_prod_by_name('mosaic_catalog')
@@ -152,13 +95,7 @@ class MosaicQuery(ImageQuery):
 
         query_out.prod_dictionary['image'] = html_fig
         query_out.prod_dictionary['catalog'] = query_catalog.catalog.get_dictionary()
-        # TODO: use query_image.file_path.path -> DONE AND PASSED
-        # print ("########## TESTING TODO: use query_image.file_path.path ", query_image.file_path.path)
         query_out.prod_dictionary['file_name'] = str(query_image.file_path.name)
-
-        query_out.prod_dictionary['session_id'] = job.session_id
-        query_out.prod_dictionary['job_id'] = job.job_id
-
         query_out.prod_dictionary['download_file_name'] = 'image.gz'
         query_out.prod_dictionary['prod_process_maessage'] = ''
 
@@ -168,9 +105,21 @@ class MosaicQuery(ImageQuery):
     def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2):
         raise RuntimeError('Must be specified for each instrument')
 
-class MyInstrMosaicQuery(MosaicQuery):
+
+
+
+
+
+
+
+
+
+
+
+
+class JemxMosaicQuery(OsaMosaicQuery):
     def __init__(self,name ):
-        super(MyInstrMosaicQuery, self).__init__(name)
+        super(JemxMosaicQuery, self).__init__(name)
 
 
     def get_dummy_products(self, instrument, config=None, **kwargs):
@@ -187,19 +136,52 @@ class MyInstrMosaicQuery(MosaicQuery):
 
         return target, modules, assume
 
-    def build_product_list(self, job, res, out_dir, prod_prefix):
+    def build_product_list(self, instrument,res, out_dir, prod_prefix):
 
-        image = MyInstrMosaicQuery.build_from_ddosa_skyima('mosaic_image', 'jemx_query_mosaic.fits', res.skyima,
+        image = OsaImageProduct.build_from_ddosa_skyima('mosaic_image', 'jemx_query_mosaic.fits', res.skyima,
                                                         out_dir=out_dir, prod_prefix=prod_prefix)
         osa_catalog = CatalogProduct('mosaic_catalog', catalog=OsaJemxCatalog.build_from_ddosa_srclres(res.srclres),
                                      file_name='query_catalog.fits', name_prefix=prod_prefix, file_dir=out_dir)
 
-        prod_list = QueryProductList(prod_list=[image, osa_catalog], job=job)
+        prod_list = [image, osa_catalog]
 
         return prod_list
 
 
+class IsgriMosaicQuery(OsaMosaicQuery):
+    def __init__(self,name ):
+        super(IsgriMosaicQuery, self).__init__(name)
 
+
+
+
+
+    def build_product_list(self,instrument,res,out_dir,prod_prefix=None):
+        #print('ciccio', prod_prefix)
+
+        image = OsaImageProduct.build_from_ddosa_skyima('mosaic_image', 'isgri_query_mosaic.fits', res.skyima,
+                                                            out_dir=out_dir, prod_prefix=prod_prefix)
+        osa_catalog = CatalogProduct('mosaic_catalog',
+                                         catalog=OsaIsgriCatalog.build_from_ddosa_srclres(res.srclres),
+                                         file_name='query_catalog.fits', name_prefix=prod_prefix, file_dir=out_dir)
+
+        prod_list =  [image, osa_catalog]
+
+
+        return prod_list
+
+    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2):
+        print ('E1,E2',E1,E2)
+        target = "mosaic_ii_skyimage"
+        modules = ["git://ddosa", "git://ddosadm"] + extramodules
+        assume = ['ddosa.ImageGroups(input_scwlist=%s)' % scwlist_assumption,
+                  'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")'%dict(E1=E1,E2=E2),
+                  'ddosa.ImagingConfig(use_SouFit=0,use_version="soufit0")', ]
+            
+        
+
+    
+        return target,modules,assume
 
     def get_dummy_products(self, instrument, config, out_dir='./'):
 
@@ -229,25 +211,3 @@ class MyInstrMosaicQuery(MosaicQuery):
         prod_list = QueryProductList(prod_list=[image, catalog])
         return prod_list
 
-
-
-
-
-
-class MyInstrImageProduct(ImageProduct):
-
-    def __init__(self,name,file_name,skyima,out_dir=None,prod_prefix=None):
-        header = skyima.header
-        data = skyima.data
-        super(MyInstrImageProduct, self).__init__(name,data=data,header=header,name_prefix=prod_prefix,file_dir=out_dir,file_name=file_name)
-        #check if you need to copy!
-
-
-
-
-
-    @classmethod
-    def build_from_ddosa_skyima(cls,name,file_name,skyima,out_dir=None,prod_prefix=None):
-        #skyima = pf.open(skyima)
-        skyima = FitsFile(skyima).open()
-        return  cls(name,skyima=skyima[4],out_dir=out_dir,prod_prefix=prod_prefix,file_name=file_name)

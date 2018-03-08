@@ -35,25 +35,24 @@ __author__ = "Andrea Tramacere"
 # relative import eg: from .mod import f
 
 
-
+from cdci_osa_plugin import conf_file
 from cdci_data_analysis.analysis.queries import  *
 from cdci_data_analysis.analysis.instrument import Instrument
 
-from .osa_image_dispatcher import JemxMosaicQuery
-from .osa_dispatcher import OsaQuery
+from .osa_image_query import JemxMosaicQuery
+from .osa_dataserve_dispatcher import OsaDispatcher
 from .osa_common_pars import  osa_common_instr_query
 
-from cdci_data_analysis.analysis.parameters import *
 
 
 
-def OSA_JEMX():
+def osa_jemx_factory():
 
     src_query=SourceQuery('src_query')
 
     instr_query_pars = osa_common_instr_query()
-    inst_num = Name(vale='jemx1', name='jemx_num')
-    instr_query_pars.append(inst_num)
+    instr_num = Name(value='jemx1', name='jemx_num')
+    instr_query_pars.append(instr_num)
 
     instr_query = InstrumentQuery(
         name='isgri_parameters',
@@ -92,10 +91,11 @@ def OSA_JEMX():
     #query_dictionary['isgri_lc'] = 'isgri_lc_query'
     #query_dictionary['spectral_fit'] = 'spectral_fit_query'
 
-    return  Instrument('JEMX',
+    return  Instrument('jemx',
+                       data_serve_conf_file=conf_file,
                        src_query=src_query,
                        instrumet_query=instr_query,
                        #input_product_query=input_data,
                        product_queries_list=[image],
-                       data_server_query_class=OsaQuery,
+                       data_server_query_class=OsaDispatcher,
                        query_dictionary=query_dictionary)

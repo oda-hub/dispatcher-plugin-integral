@@ -38,6 +38,7 @@ setup(name='cdci_osa_plugin',
       author_email='andrea.tramacere@unige.ch',
       scripts=scripts_list,
       packages=packs,
+      package_data={'cdci_osa_plugin':['config_dir/*']},
       include_package_data=True,
       install_requires=install_req,
 )

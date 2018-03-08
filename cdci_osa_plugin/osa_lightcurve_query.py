@@ -49,7 +49,7 @@ from cdci_data_analysis.analysis.io_helper import FitsFile
 from cdci_data_analysis.analysis.queries import LightCurveQuery
 from cdci_data_analysis.analysis.products import LightCurveProduct,QueryProductList,QueryOutput
 
-from .osa_dispatcher import OsaQuery
+from .osa_dataserve_dispatcher import OsaDispatcher
 
 
 
@@ -99,39 +99,32 @@ class OsaLightCurveQuery(LightCurveQuery):
 
         super(OsaLightCurveQuery, self).__init__(name)
 
-    def get_products(self,instrument,job,prompt_delegate,dump_json=False,use_dicosverer=False,config=None,out_dir=None,prod_prefix=None):
+    def get_data_server_query(self, instrument,
+                              config=None):
 
-
-        scwlist_assumption, cat, extramodules, inject=OsaQuery.get_osa_query_base(instrument)
+        scwlist_assumption, cat, extramodules, inject=OsaDispatcher.get_osa_query_base(instrument)
         E1=instrument.get_par_by_name('E1_keV').value
         E2=instrument.get_par_by_name('E2_keV').value
         src_name = instrument.get_par_by_name('src_name').value
         delta_t = instrument.get_par_by_name('time_bin')._astropy_time_delta.sec
         target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,src_name,delta_t)
-        q = OsaQuery(config=config, target=target, modules=modules, assume=assume, inject=inject)
 
-        # import sys
-        #print('ciccio', target, modules, assume, inject)
 
-        res = q.run_query(job=job, prompt_delegate=prompt_delegate)
+        q = OsaDispatcher(config=config, target=target, modules=modules, assume=assume, inject=inject)
 
-        if job.status != 'done':
-            prod_list = QueryProductList(prod_list=[], job=job)
-            return prod_list
-        else:
-            return self.build_product_list(job,res,out_dir,prod_prefix,src_name)
+        return q
 
 
     def set_instr_dictionaries(self, extramodules,scwlist_assumption,E1,E2,src_name,delta_t):
         raise RuntimeError('Must be specified for each instrument')
 
-    def process_product_method(self, instrument, job, prod_list):
+    def process_product_method(self, instrument, prod_list):
         query_lc = prod_list.get_prod_by_name('isgri_lc')
 
         prod_dictionary = {}
-        # if query_lc is not None and query_lc.data is not None:
+        if query_lc is not None and query_lc.data is not None:
 
-        query_lc.write(overwrite=True)
+            query_lc.write(overwrite=True)
 
         query_out = QueryOutput()
 
@@ -139,15 +132,11 @@ class OsaLightCurveQuery(LightCurveQuery):
             html_fig = query_lc.get_html_draw()
             query_out.prod_dictionary['image'] = html_fig
             query_out.prod_dictionary['file_name'] = str(query_lc.file_path.name)
-            query_out.prod_dictionary['session_id'] = job.session_id
-            query_out.prod_dictionary['job_id'] = job.job_id
             query_out.prod_dictionary['download_file_name'] = 'light_curve.fits.gz'
             query_out.prod_dictionary['prod_process_maessage'] = ''
         else:
             query_out.prod_dictionary['image'] = None
             query_out.prod_dictionary['file_name'] = ''
-            query_out.prod_dictionary['session_id'] = ''
-            query_out.prod_dictionary['job_id'] = ''
             query_out.prod_dictionary['download_file_name'] = ''
             query_out.prod_dictionary[
                 'prod_process_maessage'] = 'no light curve produced for name %s', query_lc.src_name
@@ -163,7 +152,9 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
 
 
 
-    def build_product_list(self,job,res,out_dir,prod_prefix,src_name):
+    def build_product_list(self,instrument,res,out_dir,prod_prefix=None):
+
+        src_name = instrument.get_par_by_name('src_name').value
 
         lc = IsgriLigthtCurve.build_from_ddosa_res('isgri_lc', 'query_lc.fits',
                                                    res,
@@ -172,7 +163,7 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
                                                    out_dir=out_dir)
 
         # print('spectrum_list',spectrum_list)
-        prod_list = QueryProductList(prod_list=[lc],job=job)
+        prod_list=[lc]
 
 
         return prod_list
