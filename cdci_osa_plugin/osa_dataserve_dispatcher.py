@@ -280,6 +280,9 @@ class OsaDispatcher(object):
             print('call_back_url',call_back_url)
             print('*** run_asynch', run_asynch)
 
+            #from numpy import random
+            #s='ddosa.ScWData(use_version="v%i")'%random.randint(10000)
+            #self.assume.append('%s'%s)
 
             res= dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache).query(target=self.target,
                                                     modules=self.modules,
