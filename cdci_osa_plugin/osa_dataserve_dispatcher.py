@@ -44,7 +44,7 @@ from cdci_data_analysis.analysis.queries import  *
 from cdci_data_analysis.analysis.job_manager import  Job
 from cdci_data_analysis.analysis.io_helper import FilePath
 from cdci_data_analysis.analysis.products import  QueryOutput
-import sys
+import json
 import traceback
 import time
 
@@ -81,6 +81,20 @@ from contextlib import contextmanager
 
 
 
+
+
+
+class DDOSAException(Exception):
+
+    def __init__(self, message, debug_message):
+        super(DDOSAException, self).__init__(message)
+        self.debug_message=debug_message
+
+
+class DDOSAUnknownException(Exception):
+
+    def __init__(self, ):
+        super(DDOSAUnknownException, self).__init__('ddosa unknown exception','')
 
 
 
@@ -157,17 +171,26 @@ class OsaDispatcher(object):
                 status = content['result']['status']
             except:
                 pass
-
         return status
 
 
+    def get_exceptions_message(self,e):
+        message=None
+        if hasattr(e,'exceptions'):
+            try:
+                message = json.dumps(e.exceptions[0],ensure_ascii=False)
+            except :
+                pass
+        return message
+
+
     def test_communication(self, max_trial=25, sleep_s=1,logger=None):
-        print('--> start test busy')
+        print('--> start test connection')
         remote = dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache)
 
         query_out = QueryOutput()
 
-        status = 0
+
         message=''
         debug_message = ''
         connection_status_message=''
@@ -183,26 +206,52 @@ class OsaDispatcher(object):
             try:
                 r = remote.poke()
                 print('remote poke ok at trial',i)
-
-                query_out.set_status(status, message, debug_message=str(debug_message))
+                #DONE
+                query_out.set_done(message=message, debug_message=str(debug_message))
                 break
             except dc.WorkerException as e:
 
                 connection_status_message = self.get_exception_status_message(e)
-                query_out.set_query_exception(e, 'test busy',message='connection_status=%s'%connection_status_message,logger=logger)
+                query_out.set_query_exception(e, 'test connection',message='connection_status=%s'%connection_status_message,logger=logger)
                 busy_exception=True
 
             except Exception as e:
                 connection_status_message = self.get_exception_status_message(e)
+                # FAILED
+                 #query_out.set_failed('test connection',
+                 #                message='connection_status=%s' % connection_status_message,
+                 #                logger=logger,
+                 #                excep=e)
 
-                query_out.set_query_exception(e, 'test busy', message='connection_status=%s' % connection_status_message,
-                                              logger=logger)
-                raise RuntimeError('ddosa broken communication with message:', e)
+                run_query_message = 'Connection Error'
+                debug_message = self.get_exceptions_message(e)
+                # FAILED
+                query_out.set_failed('test connection',
+                                     message='connection_status=%s' % connection_status_message,
+                                     logger=logger,
+                                     excep=e,
+                                     e_message=run_query_message,
+                                     debug_message=debug_message)
+
+                raise DDOSAException('Connection Error',debug_message)
 
         if connection_status_message == 'busy' or busy_exception==True:
             print('server is busy')
-            query_out.set_query_exception(e, 'test busy',message='connection_status=%s'%connection_status_message,logger=logger)
-            raise RuntimeError('ddosa server is busy')
+            # FAILED
+            #query_out.set_failed('test busy',
+            #                 message='connection_status=%s'%connection_status_message,
+            #                 logger=logger,
+            #                 excep=e)
+
+            query_out.set_failed('test busy',
+                                 message='connection_status=%s' % connection_status_message,
+                                 logger=logger,
+                                 excep=e,
+                                 e_message='data server busy',
+                                 debug_message='data server busy')
+
+            raise DDOSAException('Connection Error', debug_message)
+
 
 
         print('--> end test busy')
@@ -218,7 +267,7 @@ class OsaDispatcher(object):
 
         query_out = QueryOutput()
 
-        status=0
+
         message = ''
         debug_message = ''
         has_input_products_message=''
@@ -230,7 +279,7 @@ class OsaDispatcher(object):
             T1_iso = instrument.get_par_by_name('T1')._astropy_time.isot
             T2_iso = instrument.get_par_by_name('T2')._astropy_time.isot
 
-
+            print ('input',RA,DEC,T1_iso,T2_iso)
 
             target = "ReportScWList"
             modules = ["git://ddosa", "git://ddosadm"] + ['git://rangequery']
@@ -246,14 +295,64 @@ class OsaDispatcher(object):
 
             try:
                 product = remote.query(target=target,modules=modules,assume=assume)
-                query_out.set_status(status, message, debug_message=str(debug_message))
+                #DONE
+                query_out.set_done(message=message, debug_message=str(debug_message))
                 prod_list= product.scwidlist
+                print ('ciccio scwlist for T1,T2',T1_iso,T2_iso,scw_list)
+                if len(prod_list)<1:
+                    run_query_message = 'scwlist empty'
+                    debug_message = ''
+                    # FAILED
+                    query_out.set_failed('test has input prods',
+                                         message=run_query_message,
+                                         logger=logger,
+                                         e_message=run_query_message,
+                                         debug_message='')
+
+                    raise DDOSAException('scwlist empty', '')
+
+
 
             except dc.WorkerException as e:
-                has_input_products_message = self.get_exception_status_message(e)
-                query_out.set_query_exception(e, 'test has input products', message='has input_products=%s' % has_input_products_message,
-                                             logger=logger)
+                run_query_message = 'WorkerException'
+                debug_message = self.get_exceptions_message(e)
+                # FAILED
+                query_out.set_failed('test has input prods',
+                                     message='has input_products=%s' % run_query_message,
+                                     logger=logger,
+                                     excep=e,
+                                     e_message=run_query_message,
+                                     debug_message=debug_message)
 
+                raise DDOSAException('WorkerException', debug_message)
+
+
+            except dc.AnalysisException as e:
+
+                run_query_message = 'AnalysisException'
+                debug_message = self.get_exceptions_message(e)
+
+                query_out.set_failed('test has input prods',
+                                     message='run query message=%s' % run_query_message,
+                                     logger=logger,
+                                     excep=e,
+                                     job_status='failed',
+                                     e_message=run_query_message,
+                                     debug_message=debug_message)
+
+                raise DDOSAException(message=run_query_message, debug_message=debug_message)
+
+            except Exception as e:
+                run_query_message = 'DDOSAUnknownException in test has input prods'
+                query_out.set_failed('test has input prods ',
+                                     message='run query message=%s' % run_query_message,
+                                     logger=logger,
+                                     excep=e,
+                                     job_status='failed',
+                                     e_message=run_query_message,
+                                     debug_message='')
+
+                raise DDOSAUnknownException()
 
         return query_out,prod_list
 
@@ -265,9 +364,21 @@ class OsaDispatcher(object):
 
 
 
-    def run_query(self,call_back_url,run_asynch=True,logger=None):
+    def run_query(self,call_back_url,run_asynch=True,logger=None,target=None,modules=None,assume=None):
+
+        if target is None:
+            target=self.target
+
+        if modules is None:
+            modules=self.modules
+
+        if assume is None:
+            assume=self.assume
+
+
+
         res = None
-        status = 0
+        #status = 0
         message = ''
         debug_message = ''
         query_out = QueryOutput()
@@ -280,13 +391,11 @@ class OsaDispatcher(object):
             print('call_back_url',call_back_url)
             print('*** run_asynch', run_asynch)
 
-            #from numpy import random
-            #s='ddosa.ScWData(use_version="v%i")'%random.randint(10000)
-            #self.assume.append('%s'%s)
 
-            res= dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache).query(target=self.target,
-                                                    modules=self.modules,
-                                                    assume=self.assume,
+
+            res= dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache).query(target=target,
+                                                    modules=modules,
+                                                    assume=assume,
                                                     inject=self.inject,
                                                     prompt_delegate = run_asynch,
                                                     callback = call_back_url)
@@ -295,25 +404,57 @@ class OsaDispatcher(object):
 
             print ('--> url for call_back',call_back_url)
             print("--> cached object in", res,res.ddcache_root_local)
-            query_out.set_status(status, message, debug_message=str(debug_message),job_status='done')
+            #DONE
+            query_out.set_done(message=message, debug_message=str(debug_message),job_status='done')
 
             #job.set_done()
+
+        except dc.AnalysisException as e:
+
+            run_query_message = 'AnalysisException'
+            debug_message=self.get_exceptions_message(e)
+
+            query_out.set_failed('run query ',
+                                 message='run query message=%s' % run_query_message,
+                                 logger=logger,
+                                 excep=e,
+                                 job_status='failed',
+                                 e_message=run_query_message,
+                                 debug_message=debug_message)
+
+            raise DDOSAException(message=run_query_message,debug_message=debug_message)
+
         except dc.WorkerException as e:
-            run_query_message = self.get_exception_status_message(e)
-            query_out.set_query_exception(e, 'run query ',
-                                          message='run query message=%s' % run_query_message,
-                                          logger=logger)
 
-            query_out.set_status(status, message, debug_message=str(debug_message), job_status='failed')
-            #job.set_failed()
-            print("ERROR->")
-            print ('Exception type',type(e))
-            print ("Excetption", e)
+            run_query_message = 'WorkerException'
+            debug_message = self.get_exceptions_message(e)
+            #FAILED
+            query_out.set_failed('run query ',
+                                 message='run query message=%s' % run_query_message,
+                                 logger=logger,
+                                 excep=e,
+                                 job_status='failed',
+                                 e_message=run_query_message,
+                                 debug_message=debug_message)
 
-            raise RuntimeWarning('ddosa connection or processing failed',e)
+            raise DDOSAException(message=run_query_message, errors=debug_message)
+
 
         except dc.AnalysisDelegatedException as e:
-            query_out.set_status(status, message, debug_message=str(debug_message), job_status='submitted')
+            # DONE DELEGATION
+            query_out.set_done(message=message, debug_message=str(debug_message), job_status='submitted')
+
+        except Exception as e:
+                run_query_message = 'DDOSAUnknownException in run_query'
+                query_out.set_failed('run query ',
+                                     message='run query message=%s' %run_query_message,
+                                     logger=logger,
+                                     excep=e,
+                                     job_status='failed',
+                                     e_message=run_query_message,
+                                     debug_message='')
+
+                raise DDOSAUnknownException(message=run_query_message)
 
         return res,query_out
 
