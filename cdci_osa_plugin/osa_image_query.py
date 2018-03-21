@@ -148,6 +148,35 @@ class JemxMosaicQuery(OsaMosaicQuery):
         return prod_list
 
 
+    def get_dummy_products(self, instrument, config, out_dir='./'):
+
+        dummy_cache = config.dummy_cache
+
+        failed = False
+        image = None
+        catalog = None
+
+        user_catalog = instrument.get_par_by_name('user_catalog').value
+
+        image = ImageProduct.from_fits_file(in_file='%s/jemx_query_mosaic.fits' % dummy_cache,
+                                            out_file_name='jemx_query_mosaic.fits',
+                                            prod_name='mosaic_image',
+                                            ext=0,
+                                            file_dir=out_dir)
+
+        catalog = CatalogProduct(name='mosaic_catalog',
+                                 catalog=BasicCatalog.from_fits_file('%s/query_catalog.fits' % dummy_cache),
+                                 file_name='query_catalog.fits',
+                                 file_dir=out_dir)
+
+        if user_catalog is not None:
+            print('setting from user catalog', user_catalog, catalog)
+            catalog.catalog = user_catalog
+
+        prod_list = QueryProductList(prod_list=[image, catalog])
+        return prod_list
+
+
 class IsgriMosaicQuery(OsaMosaicQuery):
     def __init__(self,name ):
         super(IsgriMosaicQuery, self).__init__(name)
