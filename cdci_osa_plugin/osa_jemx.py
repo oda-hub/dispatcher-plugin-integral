@@ -55,7 +55,7 @@ def osa_jemx_factory():
     instr_query_pars.append(instr_num)
 
     instr_query = InstrumentQuery(
-        name='isgri_parameters',
+        name='jemx_parameters',
         extra_parameters_list=instr_query_pars,
         input_prod_list_name='scw_list',
         input_prod_value=None,
@@ -72,7 +72,7 @@ def osa_jemx_factory():
     #                              get_dummy_products_method=get_osa_lightcurve_dummy_products,
     #                              process_product_method=process_osa_lc_products)
 
-    image=JemxMosaicQuery('isgri_image_query')
+    image=JemxMosaicQuery('jemx_image_query')
 
     #
     # spectrum=SpectrumQuery('isgri_spectrum_query', None,
