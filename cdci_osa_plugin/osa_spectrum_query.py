@@ -203,7 +203,7 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
 
 
         modules = ["ddosa", "git://ddosadm", "git://useresponse/cd7855bf7", "git://process_isgri_spectra/2200bfd",
-                   "git://rangequery"]
+                   "git://rangequery"]+extramodules
 
         assume = ['process_isgri_spectra.ScWSpectraList(input_scwlist=%s)'% (scwlist_assumption),
                   'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,E2=E2),
