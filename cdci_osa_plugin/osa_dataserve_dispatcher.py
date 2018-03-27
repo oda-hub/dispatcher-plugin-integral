@@ -463,9 +463,9 @@ class OsaDispatcher(object):
     def get_scwlist_assumption(cls, scw_list, T1, T2, RA, DEC, radius, use_max_pointings):
         if scw_list is not None and scw_list != []:
 
-            scwlist_assumption = ['IDScWList','ddosa.IDScWList(use_scwid_list=%s)' %  str(scw_list)]
+            scwlist_assumption = ['ddosa.IDScWList','ddosa.IDScWList(use_scwid_list=%s)' %  str(scw_list)]
         else:
-            scwlist_assumption = ['TimeDirectionScWList',
+            scwlist_assumption = ['ddosa.TimeDirectionScWList',
                                   'rangequery.TimeDirectionScWList(\
                                                   use_coordinates=dict(RA=%(RA)s,DEC=%(DEC)s,radius=%(radius)s),\
                                                   use_timespan=dict(T1="%(T1)s",T2="%(T2)s"),\
