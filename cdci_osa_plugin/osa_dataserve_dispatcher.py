@@ -283,12 +283,11 @@ class OsaDispatcher(object):
 
             target = "ReportScWList"
             modules = ["git://ddosa", "git://ddosadm"] + ['git://rangequery']
-            assume = ['rangequery.ReportScWList(\
-                                      input_scwlist=\
-                                      rangequery.TimeDirectionScWList(\
+            assume = ['rangequery.ReportScWList(input_scwlist=rangequery.TimeDirectionScWList)',
+                      'rangequery.TimeDirectionScWList(\
                                     use_coordinates=dict(RA=%(RA)s,DEC=%(DEC)s,radius=%(radius)s),\
                                     use_timespan=dict(T1="%(T1)s",T2="%(T2)s"),\
-                                    use_max_pointings=50))' % (dict(RA=RA, DEC=DEC, radius=radius, T1=T1_iso, T2=T2_iso))]
+                                    use_max_pointings=50)' % (dict(RA=RA, DEC=DEC, radius=radius, T1=T1_iso, T2=T2_iso))]
 
 
             remote = dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache)
