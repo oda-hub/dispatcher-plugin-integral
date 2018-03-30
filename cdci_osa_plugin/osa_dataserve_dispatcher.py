@@ -460,18 +460,16 @@ class OsaDispatcher(object):
 
     @classmethod
     def get_scwlist_assumption(cls, scw_list, T1, T2, RA, DEC, radius, use_max_pointings):
-        if scw_list is not None and scw_list != []:
 
+        if scw_list is not None and scw_list != []:
             scwlist_assumption = ['ddosa.IDScWList','ddosa.IDScWList(use_scwid_list=%s)' %  str(scw_list)]
         else:
-            scwlist_assumption = ['ddosa.TimeDirectionScWList',
+            scwlist_assumption = ['rangequery.TimeDirectionScWList',
                                   'rangequery.TimeDirectionScWList(\
                                                   use_coordinates=dict(RA=%(RA)s,DEC=%(DEC)s,radius=%(radius)s),\
                                                   use_timespan=dict(T1="%(T1)s",T2="%(T2)s"),\
                                                   use_max_pointings=%(use_max_pointings)d)\
                                               ' % (dict(RA=RA, DEC=DEC, radius=radius, T1=T1, T2=T2, use_max_pointings=use_max_pointings))]
-
-
 
         return scwlist_assumption
 
@@ -488,13 +486,13 @@ class OsaDispatcher(object):
         use_max_pointings = instrument.get_par_by_name('max_pointings').value
 
         extramodules = []
-        if scw_list is None or scw_list != []:
+        if scw_list is None or scw_list == []:
             T1_iso = instrument.get_par_by_name('T1')._astropy_time.isot
             T2_iso = instrument.get_par_by_name('T2')._astropy_time.isot
+            extramodules.append('git://rangequery')
         else:
             T1_iso = None
             T2_iso = None
-            extramodules = ['git://rangequery']
 
         scwlist_assumption = cls.get_scwlist_assumption(scw_list, T1_iso, T2_iso, RA, DEC, radius, use_max_pointings)
         cat = cls.get_instr_catalog(user_catalog)
