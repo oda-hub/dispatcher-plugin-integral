@@ -282,7 +282,7 @@ class OsaDispatcher(object):
             print ('input',RA,DEC,T1_iso,T2_iso)
 
             target = "ReportScWList"
-            modules = ["git://ddosa", "git://ddosadm"] + ['git://rangequery']
+            modules = ['git://rangequery']
             assume = ['rangequery.ReportScWList(input_scwlist=rangequery.TimeDirectionScWList)',
                       'rangequery.TimeDirectionScWList(\
                                     use_coordinates=dict(RA=%(RA)s,DEC=%(DEC)s,radius=%(radius)s),\

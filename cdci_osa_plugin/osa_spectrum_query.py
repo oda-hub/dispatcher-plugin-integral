@@ -202,10 +202,11 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
         target = "ISGRISpectraSum"
 
 
-        modules = ["ddosa", "git://ddosadm", "git://useresponse/cd7855bf7", "git://process_isgri_spectra/2200bfd",
-                   "git://rangequery"]+extramodules
+        modules = ["git://ddosa","git://useresponse/cd7855bf7", "git://process_isgri_spectra/osa10",
+                   "git://rangequery"]+extramodules+['git://ddosa_delegate']
 
-        assume = ['process_isgri_spectra.ScWSpectraList(input_scwlist=%s)'% (scwlist_assumption),
+        assume = ['process_isgri_spectra.ScWSpectraList(input_scwlist=%s)'% scwlist_assumption[0],
+                   scwlist_assumption[1],
                   'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,E2=E2),
                   'process_isgri_spectra.ISGRISpectraSum(use_extract_all=True)',
                   'ddosa.ImagingConfig(use_SouFit=0,use_DoPart2=1,use_version="soufit0_p2")',
