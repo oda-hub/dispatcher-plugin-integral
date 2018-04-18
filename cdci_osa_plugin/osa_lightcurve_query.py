@@ -173,13 +173,17 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
         print('-->src_name', src_name)
         target = "lc_pick"
 
-        modules = ["git://ddosa", "git://ddosadm"]
-        if extramodules is not None:
-            modules += extramodules
+        if extramodules is None:
+            extramodules=[]
 
-        assume = ['ddosa.LCGroups(input_scwlist=%s)' % scwlist_assumption,
+        modules = ["git://ddosa"]+extramodules+['git://ddosa_delegate']
+
+        assume = ['ddosa.LCGroups(input_scwlist=%s)' % scwlist_assumption[0],
+                  scwlist_assumption[1],
                   'ddosa.lc_pick(use_source_names=["%s"])' % src_name,
                   'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,
+                                                                                                           E2=E2),
+                  'ddosa.LCEnergyBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,
                                                                                                            E2=E2),
                   'ddosa.ImagingConfig(use_SouFit=0,use_version="soufit0_p2",use_DoPart2=1)',
                   'ddosa.CatForLC(use_minsig=3)',

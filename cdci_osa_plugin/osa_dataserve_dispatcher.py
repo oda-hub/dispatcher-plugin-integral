@@ -197,8 +197,6 @@ class OsaDispatcher(object):
         busy_exception=False
 
 
-
-
         time.sleep(sleep_s)
 
         for i in range(max_trial):
@@ -208,12 +206,13 @@ class OsaDispatcher(object):
                 print('remote poke ok at trial',i)
                 #DONE
                 query_out.set_done(message=message, debug_message=str(debug_message))
+                busy_exception=False
                 break
             except dc.WorkerException as e:
-
                 connection_status_message = self.get_exception_status_message(e)
                 query_out.set_query_exception(e, 'test connection',message='connection_status=%s'%connection_status_message,logger=logger)
                 busy_exception=True
+                print('remote poke not ok, trial',i,connection_status_message)
 
             except Exception as e:
                 connection_status_message = self.get_exception_status_message(e)
@@ -462,7 +461,7 @@ class OsaDispatcher(object):
     def get_scwlist_assumption(cls, scw_list, T1, T2, RA, DEC, radius, use_max_pointings):
 
         if scw_list is not None and scw_list != []:
-            scwlist_assumption = ['ddosa.IDScWList','ddosa.IDScWList(use_scwid_list=%s)' %  str(scw_list)]
+            scwlist_assumption = ['ddosa.IDScWList','ddosa.IDScWList(use_scwid_list=[%s])' % (", ".join(["\""+str(scw)+"\"" for scw in scw_list])) ]
         else:
             scwlist_assumption = ['rangequery.TimeDirectionScWList',
                                   'rangequery.TimeDirectionScWList(\

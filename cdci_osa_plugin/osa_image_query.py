@@ -128,15 +128,16 @@ class JemxMosaicQuery(OsaMosaicQuery):
 
     def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2):
         target = "mosaic_jemx"
-        modules = ["git://ddosa", "git://ddosadm", "git://ddjemx", 'git://rangequery'] + extramodules
+        modules = ["git://ddjemx","git://ddosa_delegate_ddjemx"] + extramodules
 
-        assume = ['ddjemx.JMXScWImageList(input_scwlist=%s)' % scwlist_assumption,
+        assume = ['ddjemx.JMXScWImageList(input_scwlist=%s)' % scwlist_assumption[0],
+                   scwlist_assumption[1],
                   'ddjemx.JEnergyBins(use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
                   'ddjemx.JEMX(use_num=2)']
 
         return target, modules, assume
 
-    def build_product_list(self, instrument,res, out_dir, prod_prefix):
+    def build_product_list(self, instrument,res, out_dir, prod_prefix=None):
 
         image = OsaImageProduct.build_from_ddosa_skyima('mosaic_image', 'jemx_query_mosaic.fits', res.skyima,
                                                         out_dir=out_dir, prod_prefix=prod_prefix)
