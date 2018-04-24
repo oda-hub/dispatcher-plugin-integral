@@ -140,7 +140,7 @@ class OsaLightCurveQuery(LightCurveQuery):
             query_out.prod_dictionary['file_name'] = ''
             query_out.prod_dictionary['download_file_name'] = ''
             query_out.prod_dictionary[
-                'prod_process_maessage'] = 'no light curve produced for name %s', query_lc.src_name
+                'prod_process_maessage'] = 'no light curve produced for name %s'%query_lc.src_name
         print('--> send prog')
         print('query_lc.data', query_out.prod_dictionary)
         return query_out
