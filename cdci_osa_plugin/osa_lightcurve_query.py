@@ -128,6 +128,7 @@ class OsaLightCurveQuery(LightCurveQuery):
 
         query_out = QueryOutput()
 
+        print('query_lc.data',query_lc.data)
         if query_lc.data is not None:
             html_fig = query_lc.get_html_draw()
             query_out.prod_dictionary['image'] = html_fig
@@ -141,7 +142,7 @@ class OsaLightCurveQuery(LightCurveQuery):
             query_out.prod_dictionary[
                 'prod_process_maessage'] = 'no light curve produced for name %s', query_lc.src_name
         print('--> send prog')
-
+        print('query_lc.data', query_out.prod_dictionary)
         return query_out
 
 class IsgriLightCurveQuery(OsaLightCurveQuery):
