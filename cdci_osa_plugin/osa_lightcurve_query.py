@@ -43,6 +43,7 @@ import ddosaclient as dc
 # Project
 # relative import eg: from .mod import f
 import  numpy as np
+from pathlib import Path
 
 from astropy.io import fits as pf
 from cdci_data_analysis.analysis.io_helper import FitsFile
@@ -91,6 +92,59 @@ class IsgriLigthtCurve(LightCurveProduct):
             lc = cls(name=name, data=data, header=header,file_name=file_name,out_dir=out_dir,prod_prefix=prod_prefix,src_name=src_name)
 
         return lc
+
+    @classmethod
+    def build_from_ddosa_res_new(cls,
+                             res,
+                             src_name='',
+                             prod_prefix=None,
+                             out_dir=None):
+
+        # hdu_list = pf.open(res.lightcurve)
+        #hdu_list = FitsFile(res.lightcurve).open()
+        #data = None
+        #header = None
+
+        #for hdu in hdu_list:
+        #   if hdu.name == 'ISGR-SRC.-LCR':
+        #        print('name', hdu.header['NAME'])
+        #        if hdu.header['NAME'] == src_name:
+        #            data = hdu.data
+        #            header = hdu.header
+
+        #   lc = cls(name=name, data=data, header=header, file_name=file_name, out_dir=out_dir, prod_prefix=prod_prefix,
+        #            src_name=src_name)
+
+
+
+        lc_list = []
+
+        if out_dir is None:
+            out_dir = './'
+
+        for source_name, lightcurve in res.extracted_sources:
+            print('lc file-->', getattr(res, lightcurve), lightcurve)
+
+            data = None
+            header = None
+
+            hdu_list = FitsFile(res.lightcurve).open()
+            for hdu in hdu_list:
+                if hdu.name == 'ISGR-SRC.-LCR':
+                    print('name', hdu.header['NAME'])
+
+                    data = hdu.data
+                    header = hdu.header
+
+            file_name = prod_prefix + '_' + Path(getattr(res, lightcurve)).resolve().stem
+
+            lc = cls(name=src_name, data=data, header=header, file_name=file_name, out_dir=out_dir, prod_prefix=prod_prefix,
+                     src_name=src_name)
+
+            lc_list.append(lc)
+
+        return lc_list
+
 
 
 class OsaLightCurveQuery(LightCurveQuery):
