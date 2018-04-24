@@ -133,8 +133,7 @@ class OsaLightCurveQuery(LightCurveQuery):
         query_out.prod_dictionary['image'] = None
         query_out.prod_dictionary['file_name'] = ''
         query_out.prod_dictionary['download_file_name'] = ''
-        query_out.prod_dictionary[
-            'prod_process_message'] = 'no light curve produced for name %s' % query_lc.src_name
+        query_out.prod_dictionary['prod_process_message'] = 'no light curve produced for name %s' % query_lc.src_name
 
         if query_lc is not None and query_lc.data is not None:
                 html_fig = query_lc.get_html_draw()
