@@ -118,8 +118,8 @@ class IsgriSpectrumProduct(SpectrumProduct):
                       arf_file=arf_filename,
                       out_dir=out_dir)
 
-            spec.set_arf_file(arf_kw='ANCRFILE',out_arf_file=out_arf_file)
-            spec.set_rmf_file(rmf_kw='RESPFILE',out_rmf_file=out_rmf_file)
+            spec.set_arf_file(arf_kw=out_arf_file.name,out_arf_file=out_arf_file)
+            spec.set_rmf_file(rmf_kw=out_rmf_file.name,out_rmf_file=out_rmf_file)
 
             spec_list.append(spec)
 
