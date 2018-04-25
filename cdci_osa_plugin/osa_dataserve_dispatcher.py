@@ -435,7 +435,7 @@ class OsaDispatcher(object):
                                  e_message=run_query_message,
                                  debug_message=debug_message)
 
-            raise DDOSAException(message=run_query_message, errors=debug_message)
+            raise DDOSAException(message=run_query_message, debug_message=debug_message)
 
 
         except dc.AnalysisDelegatedException as e:

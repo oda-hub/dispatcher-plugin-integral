@@ -174,7 +174,7 @@ class OsaSpectrumQuery(SpectrumQuery):
         query_out.prod_dictionary['rmf_file_name'] = _rmf_path
 
         query_out.prod_dictionary['download_file_name'] = 'spectra.tar.gz'
-        query_out.prod_dictionary['prod_process_maessage'] = ''
+        query_out.prod_dictionary['prod_process_message'] = ''
         return query_out
 
 

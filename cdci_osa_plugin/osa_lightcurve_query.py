@@ -121,27 +121,29 @@ class OsaLightCurveQuery(LightCurveQuery):
     def process_product_method(self, instrument, prod_list):
         query_lc = prod_list.get_prod_by_name('isgri_lc')
 
-        prod_dictionary = {}
+        #prod_dictionary = {}
+
         if query_lc is not None and query_lc.data is not None:
 
             query_lc.write(overwrite=True)
 
         query_out = QueryOutput()
 
-        if query_lc.data is not None:
-            html_fig = query_lc.get_html_draw()
-            query_out.prod_dictionary['image'] = html_fig
-            query_out.prod_dictionary['file_name'] = str(query_lc.file_path.name)
-            query_out.prod_dictionary['download_file_name'] = 'light_curve.fits.gz'
-            query_out.prod_dictionary['prod_process_maessage'] = ''
-        else:
-            query_out.prod_dictionary['image'] = None
-            query_out.prod_dictionary['file_name'] = ''
-            query_out.prod_dictionary['download_file_name'] = ''
-            query_out.prod_dictionary[
-                'prod_process_maessage'] = 'no light curve produced for name %s', query_lc.src_name
-        print('--> send prog')
+        #print('query_lc.data',query_lc.data)
+        query_out.prod_dictionary['image'] = None
+        query_out.prod_dictionary['file_name'] = ''
+        query_out.prod_dictionary['download_file_name'] = ''
+        query_out.prod_dictionary['prod_process_message'] = 'no light curve produced for name %s' % query_lc.src_name
 
+        if query_lc is not None and query_lc.data is not None:
+                html_fig = query_lc.get_html_draw()
+                query_out.prod_dictionary['image'] = html_fig
+                query_out.prod_dictionary['file_name'] = str(query_lc.file_path.name)
+                query_out.prod_dictionary['download_file_name'] = 'light_curve.fits.gz'
+                query_out.prod_dictionary['prod_process_message'] = ''
+
+
+        print('--> send prog')
         return query_out
 
 class IsgriLightCurveQuery(OsaLightCurveQuery):
