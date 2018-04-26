@@ -227,16 +227,16 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
     def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,src_name,delta_t):
         print('-->lc standard mode from scw_list', scwlist_assumption)
         print('-->src_name', src_name)
-        target = "lc_pick"
+        target = "ISGRILCSum"
 
         if extramodules is None:
             extramodules=[]
+        extramodules=["git://process_isgri_lc"]
 
         modules = ["git://ddosa"]+extramodules+['git://ddosa_delegate']
 
-        assume = ['ddosa.LCGroups(input_scwlist=%s)' % scwlist_assumption[0],
+        assume = ['process_isgri_lc.ScWLCList(input_scwlist=%s)' % scwlist_assumption[0],
                   scwlist_assumption[1],
-                  'ddosa.lc_pick(use_source_names=["%s"])' % src_name,
                   'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,
                                                                                                            E2=E2),
                   'ddosa.LCEnergyBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,
