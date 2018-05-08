@@ -49,6 +49,7 @@ from astropy.io import fits as pf
 from cdci_data_analysis.analysis.io_helper import FitsFile
 from cdci_data_analysis.analysis.queries import LightCurveQuery
 from cdci_data_analysis.analysis.products import LightCurveProduct,QueryProductList,QueryOutput
+from cdci_data_analysis.analysis.io_helper import FilePath
 
 from .osa_dataserve_dispatcher import OsaDispatcher
 
@@ -69,7 +70,7 @@ class IsgriLigthtCurve(LightCurveProduct):
 
 
     @classmethod
-    def build_from_ddosa_res(cls,
+    def build_from_ddosa_res_old(cls,
                              name,
                              file_name,
                              res,
@@ -94,7 +95,7 @@ class IsgriLigthtCurve(LightCurveProduct):
         return lc
 
     @classmethod
-    def build_from_ddosa_res_new(cls,
+    def build_from_ddosa_res(cls,
                              res,
                              src_name='',
                              prod_prefix=None,
@@ -136,9 +137,13 @@ class IsgriLigthtCurve(LightCurveProduct):
                     data = hdu.data
                     header = hdu.header
 
-            file_name = prod_prefix + '_' + Path(getattr(res, lightcurve)).resolve().stem
 
-            lc = cls(name=src_name, data=data, header=header, file_name=file_name, out_dir=out_dir, prod_prefix=prod_prefix,
+            file_name = prod_prefix + '_' + Path(getattr(res, lightcurve)).resolve().stem
+            file_path = FilePath(file_dir=out_dir, file_name=file_name).path
+
+
+
+            lc = cls(name=src_name, data=data, header=header, file_name=file_name, file_dir=out_dir, prod_prefix=prod_prefix,
                      src_name=src_name)
 
             lc_list.append(lc)
@@ -172,7 +177,7 @@ class OsaLightCurveQuery(LightCurveQuery):
     def set_instr_dictionaries(self, extramodules,scwlist_assumption,E1,E2,src_name,delta_t):
         raise RuntimeError('Must be specified for each instrument')
 
-    def process_product_method(self, instrument, prod_list):
+    def process_product_method_old(self, instrument, prod_list):
         query_lc = prod_list.get_prod_by_name('isgri_lc')
 
         #prod_dictionary = {}
@@ -198,6 +203,29 @@ class OsaLightCurveQuery(LightCurveQuery):
 
 
         print('--> send prog')
+        return query_out
+
+    def process_product_method(self, instrument, prod_list):
+
+        _names = []
+        _lc_file_name = []
+        _images=[]
+
+        for query_lc in prod_list.prod_list:
+            print ('name',query_lc.file_path.name)
+            print('file_path', query_lc.file_path.path)
+            query_lc.write()
+            _names.append(query_lc.name)
+            _lc_file_name.append(str(query_lc.file_path.name))
+            _images.append(query_lc.get_html_draw())
+        query_out = QueryOutput()
+
+        query_out.prod_dictionary['lc_name'] = _names
+        query_out.prod_dictionary['lc_file_name'] = _lc_file_name
+        query_out.prod_dictionary['image'] =  query_lc.get_html_draw()
+        query_out.prod_dictionary['download_file_name'] = 'light_curves.tar.gz'
+        query_out.prod_dictionary['prod_process_message'] = ''
+
         return query_out
 
 class IsgriLightCurveQuery(OsaLightCurveQuery):
@@ -227,20 +255,31 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
     def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,src_name,delta_t):
         print('-->lc standard mode from scw_list', scwlist_assumption)
         print('-->src_name', src_name)
-        target = "lc_pick"
+        #target = "lc_pick"
+        target = "ISGRILCSum"
 
         if extramodules is None:
             extramodules=[]
 
         modules = ["git://ddosa"]+extramodules+['git://ddosa_delegate']
 
-        assume = ['ddosa.LCGroups(input_scwlist=%s)' % scwlist_assumption[0],
+        #assume = ['ddosa.LCGroups(input_scwlist=%s)' % scwlist_assumption[0],
+        #          scwlist_assumption[1],
+        #          'ddosa.lc_pick(use_source_names=["%s"])' % src_name,
+        #          'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,
+        #                                                                                                    E2=E2),
+        #          'ddosa.LCEnergyBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,
+        #                                                                                                   E2=E2),
+        #          'ddosa.ImagingConfig(use_SouFit=0,use_version="soufit0_p2",use_DoPart2=1)',
+        #          'ddosa.CatForLC(use_minsig=3)',
+        #          'ddosa.LCTimeBin(use_time_bin_seconds=%f)' % delta_t]
+
+        assume = ['process_isgri_lc.ScWLCList(input_scwlist=%s)' % scwlist_assumption[0],
                   scwlist_assumption[1],
-                  'ddosa.lc_pick(use_source_names=["%s"])' % src_name,
                   'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,
                                                                                                            E2=E2),
                   'ddosa.LCEnergyBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,
-                                                                                                           E2=E2),
+                                                                                                              E2=E2),
                   'ddosa.ImagingConfig(use_SouFit=0,use_version="soufit0_p2",use_DoPart2=1)',
                   'ddosa.CatForLC(use_minsig=3)',
                   'ddosa.LCTimeBin(use_time_bin_seconds=%f)' % delta_t]
