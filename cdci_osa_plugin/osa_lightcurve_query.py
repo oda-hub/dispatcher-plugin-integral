@@ -121,6 +121,9 @@ class IsgriLigthtCurve(LightCurveProduct):
         if out_dir is None:
             out_dir = './'
 
+        if prod_prefix is None:
+            prod_prefix=''
+
         for source_name, lightcurve_attr in res.extracted_sources:
             lc_paht = getattr(res, lightcurve_attr)
             print('lc file-->', lc_paht, lightcurve_attr)
