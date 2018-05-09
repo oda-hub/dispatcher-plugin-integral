@@ -236,15 +236,12 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
 
         src_name = instrument.get_par_by_name('src_name').value
 
-        lc = IsgriLigthtCurve.build_from_ddosa_res('isgri_lc', 'query_lc.fits',
-                                                   res,
-                                                   src_name=src_name,
-                                                   prod_prefix=prod_prefix,
-                                                   out_dir=out_dir)
+        prod_list = IsgriLigthtCurve.build_from_ddosa_res(res,
+                                                          src_name=src_name,
+                                                          prod_prefix=prod_prefix,
+                                                          out_dir=out_dir)
 
         # print('spectrum_list',spectrum_list)
-        prod_list=[lc]
-
 
         return prod_list
 
