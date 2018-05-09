@@ -220,6 +220,7 @@ class OsaLightCurveQuery(LightCurveQuery):
             _images.append(query_lc.get_html_draw())
         query_out = QueryOutput()
 
+        query_out.prod_dictionary['name'] = _names
         query_out.prod_dictionary['lc_name'] = _names
         query_out.prod_dictionary['lc_file_name'] = _lc_file_name
         query_out.prod_dictionary['image'] =  query_lc.get_html_draw()
