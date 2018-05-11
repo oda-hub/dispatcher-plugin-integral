@@ -282,10 +282,10 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
                                                     ext=1,
                                                     file_dir=out_dir)
         print('name', query_lc.header['NAME'])
-
-        if src_name is not None:
-            if query_lc.header['NAME'] != src_name:
-                query_lc.data = None
+        query_lc=query_lc.header['NAME']
+        #if src_name is not None:
+        #    if query_lc.header['NAME'] != src_name:
+        #        query_lc.data = None
 
         prod_list = QueryProductList(prod_list=[query_lc])
 
