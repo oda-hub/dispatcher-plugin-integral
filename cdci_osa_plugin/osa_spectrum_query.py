@@ -57,7 +57,7 @@ from .osa_dataserve_dispatcher import    OsaDispatcher
 
 class IsgriSpectrumProduct(SpectrumProduct):
 
-    def __init__(self,name,file_name,data,header, rmf_file=None, arf_file=None,prod_prefix=None,out_dir=None):
+    def __init__(self,name,file_name,data,header, rmf_file=None, arf_file=None,prod_prefix=None,file_dir=None):
         super(IsgriSpectrumProduct, self).__init__(name,
                                                    data,
                                                    header,
@@ -65,7 +65,7 @@ class IsgriSpectrumProduct(SpectrumProduct):
                                                    in_rmf_file=rmf_file,
                                                    in_arf_file=arf_file,
                                                    name_prefix=prod_prefix,
-                                                   file_dir=out_dir)
+                                                   file_dir=file_dir)
 
 
 
@@ -101,12 +101,12 @@ class IsgriSpectrumProduct(SpectrumProduct):
             print ('out spec file_name',file_name)
 
             out_arf_file=prod_prefix+'_'+Path(getattr(res, arf_attr)).name
-            out_arf_file=FilePath(file_dir=out_dir,file_name=out_arf_file).path
-            print('out arf file_path', out_arf_file)
+            out_arf_file_path=FilePath(file_dir=out_dir,file_name=out_arf_file).path
+            print('out arf file_path', out_arf_file,out_arf_file_path)
 
             out_rmf_file=prod_prefix+'_'+Path(out_dir,getattr(res, rmf_attr)).name
-            out_rmf_file = FilePath(file_dir=out_dir,file_name=out_rmf_file).path
-            print('out rmf file_path', out_rmf_file)
+            out_rmf_file_path = FilePath(file_dir=out_dir,file_name=out_rmf_file).path
+            print('out rmf file_path', out_rmf_file,out_rmf_file_path)
 
             name=source_name
 
@@ -116,10 +116,14 @@ class IsgriSpectrumProduct(SpectrumProduct):
                       header=header,
                       rmf_file=rmf_filename,
                       arf_file=arf_filename,
-                      out_dir=out_dir)
+                      file_dir=out_dir)
 
-            spec.set_arf_file(arf_kw='ANCRFILE',out_arf_file=out_arf_file)
-            spec.set_rmf_file(rmf_kw='RESPFILE',out_rmf_file=out_rmf_file)
+            spec.set_arf_file(arf_kw='ANCRFILE', arf_kw_value='NONE', out_arf_file=out_arf_file_path)
+            spec.set_rmf_file(rmf_kw='RESPFILE', rmf_kw_value='NONE', out_rmf_file=out_rmf_file_path)
+            #spec.write()
+            # spec.del_haeder_kw('ANCRFILE')
+            # spec.del_haeder_kw('RESPFILE')
+
             spec_list.append(spec)
 
         return spec_list
@@ -249,27 +253,27 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
             data = spectrum.data
             header = spectrum.header
 
-            file_name =  Path(spec_file).name
+            file_name = Path(spec_file).name
 
             print('out spec file_name', file_name)
-            out_arf_file=Path(arf_filename).name
-            out_arf_file = str(Path(out_dir,out_arf_file))
+            _arf_file_name = Path(arf_filename).name
+            out_arf_file = str(Path(out_dir, _arf_file_name)).strip()
             print('out arf file_name', out_arf_file)
-            out_rmf_file = Path(rmf_filename).name
-            out_rmf_file = str(Path(out_dir,out_rmf_file)).strip()
+            _rmf_file_name = Path(rmf_filename).name
+            out_rmf_file = str(Path(out_dir, _rmf_file_name)).strip()
             print('out rmf file_name', out_rmf_file)
 
             name = header['NAME']
 
             spec = IsgriSpectrumProduct(name=name,
-                       file_name=file_name,
-                       data=data,
-                       header=header,
-                       rmf_file=rmf_filename,
-                       arf_file=arf_filename,
-                       out_dir=out_dir)
-            spec.set_arf_file(arf_kw='ANCRFILE', out_arf_file=out_arf_file.strip())
-            spec.set_rmf_file(rmf_kw='RESPFILE', out_rmf_file=out_rmf_file.strip())
+                                        file_name=file_name,
+                                        data=data,
+                                        header=header,
+                                        rmf_file=rmf_filename,
+                                        arf_file=arf_filename,
+                                        file_dir=out_dir)
+            spec.set_arf_file(arf_kw='ANCRFILE', arf_kw_value='NONE', out_arf_file=out_arf_file)
+            spec.set_rmf_file(rmf_kw='RESPFILE', rmf_kw_value='NONE', out_rmf_file=out_rmf_file)
             spec_list.append(spec)
 
 

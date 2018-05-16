@@ -95,8 +95,8 @@ class OsaMosaicQuery(ImageQuery):
 
         query_out.prod_dictionary['image'] = html_fig
         query_out.prod_dictionary['catalog'] = query_catalog.catalog.get_dictionary()
-        query_out.prod_dictionary['file_name'] = str(query_image.file_path.name)
-        query_out.prod_dictionary['download_file_name'] = 'image.gz'
+        query_out.prod_dictionary['file_name'] = [str(query_image.file_path.name), str(query_catalog.file_path.name)]
+        query_out.prod_dictionary['download_file_name'] = 'image.tgz'
         query_out.prod_dictionary['prod_process_message'] = ''
 
         return query_out
@@ -207,7 +207,8 @@ class IsgriMosaicQuery(OsaMosaicQuery):
         assume = ['ddosa.ImageGroups(input_scwlist=%s)' % scwlist_assumption[0],
                    scwlist_assumption[1],
                   'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")'%dict(E1=E1,E2=E2),
-                  'ddosa.ImagingConfig(use_SouFit=0,use_version="soufit0")', ]
+                  'ddosa.ImagingConfig(use_SouFit=0,use_version="soufit0")',
+                   ]
             
         
 
