@@ -285,13 +285,15 @@ class OsaDispatcher(object):
             modules = ['git://rangequery']
 
 
-            scwlist_assumption = cls.get_scwlist_assumption(None, T1_iso, T2_iso, RA, DEC, radius, use_max_pointings)
+            scwlist_assumption = OsaDispatcher.get_scwlist_assumption(None, T1_iso, T2_iso, RA, DEC, radius, use_max_pointings)
+            assume = ["rangequery.ReportScWList(input_scwlist=%s)"%scwlist_assumption[0],
+                      scwlist_assumption[1]]
 
 
             remote = dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache)
 
             try:
-                product = remote.query(target=target,modules=modules,assume=scwlist_assumption)
+                product = remote.query(target=target,modules=modules,assume=assume)
                 #DONE
                 query_out.set_done(message=message, debug_message=str(debug_message))
                 prod_list= product.scwidlist
