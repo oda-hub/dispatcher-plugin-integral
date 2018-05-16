@@ -43,11 +43,13 @@ import ddosaclient as dc
 # Project
 # relative import eg: from .mod import f
 import  numpy as np
+from pathlib import Path
 
 from astropy.io import fits as pf
 from cdci_data_analysis.analysis.io_helper import FitsFile
 from cdci_data_analysis.analysis.queries import LightCurveQuery
 from cdci_data_analysis.analysis.products import LightCurveProduct,QueryProductList,QueryOutput
+from cdci_data_analysis.analysis.io_helper import FilePath
 
 from .osa_dataserve_dispatcher import OsaDispatcher
 
@@ -68,7 +70,7 @@ class IsgriLigthtCurve(LightCurveProduct):
 
 
     @classmethod
-    def build_from_ddosa_res(cls,
+    def build_from_ddosa_res_old(cls,
                              name,
                              file_name,
                              res,
@@ -91,6 +93,61 @@ class IsgriLigthtCurve(LightCurveProduct):
             lc = cls(name=name, data=data, header=header,file_name=file_name,out_dir=out_dir,prod_prefix=prod_prefix,src_name=src_name)
 
         return lc
+
+    @classmethod
+    def build_from_ddosa_res(cls,
+                             res,
+                             src_name='',
+                             prod_prefix='',
+                             out_dir=None):
+
+        # hdu_list = pf.open(res.lightcurve)
+        #hdu_list = FitsFile(res.lightcurve).open()
+        #data = None
+        #header = None
+
+        #for hdu in hdu_list:
+        #   if hdu.name == 'ISGR-SRC.-LCR':
+        #        print('name', hdu.header['NAME'])
+        #        if hdu.header['NAME'] == src_name:
+        #            data = hdu.data
+        #            header = hdu.header
+
+        #   lc = cls(name=name, data=data, header=header, file_name=file_name, out_dir=out_dir, prod_prefix=prod_prefix,
+        #            src_name=src_name)
+
+        lc_list = []
+
+        if out_dir is None:
+            out_dir = './'
+
+        if prod_prefix is None:
+            prod_prefix=''
+
+        for source_name, lightcurve_attr in res.extracted_sources:
+            lc_paht = getattr(res, lightcurve_attr)
+            print('lc file-->', lc_paht, lightcurve_attr)
+
+            data = None
+            header = None
+
+            hdu_list = FitsFile(lc_paht).open()
+            for hdu in hdu_list:
+                if hdu.name == 'ISGR-SRC.-LCR':
+                    # print('name', hdu.header['NAME'])
+                    name = hdu.header['NAME']
+                    data = hdu.data
+                    header = hdu.header
+
+            file_name = prod_prefix + '_' + Path(lc_paht).resolve().stem
+
+            lc = cls(name=name, data=data, header=header, file_name=file_name, out_dir=out_dir, prod_prefix=prod_prefix,
+                     src_name=name)
+
+            lc_list.append(lc)
+
+        return lc_list
+
 
 
 class OsaLightCurveQuery(LightCurveQuery):
@@ -118,7 +175,7 @@ class OsaLightCurveQuery(LightCurveQuery):
     def set_instr_dictionaries(self, extramodules,scwlist_assumption,E1,E2,src_name,delta_t):
         raise RuntimeError('Must be specified for each instrument')
 
-    def process_product_method(self, instrument, prod_list):
+    def process_product_method_old(self, instrument, prod_list):
         query_lc = prod_list.get_prod_by_name('isgri_lc')
 
         #prod_dictionary = {}
@@ -146,6 +203,30 @@ class OsaLightCurveQuery(LightCurveQuery):
         print('--> send prog')
         return query_out
 
+    def process_product_method(self, instrument, prod_list):
+
+        _names = []
+        _lc_path = []
+        _html_fig = []
+
+        for query_lc in prod_list.prod_list:
+            print('name',query_lc.name)
+            query_lc.write()
+            _names.append(query_lc.name)
+            _lc_path.append(str(query_lc.file_path.name))
+            _html_fig.append(query_lc.get_html_draw())
+            # print(_html_fig[-1])
+
+        query_out = QueryOutput()
+
+        query_out.prod_dictionary['name'] = _names
+        query_out.prod_dictionary['file_name'] = _lc_path
+        query_out.prod_dictionary['image'] =_html_fig
+        query_out.prod_dictionary['download_file_name'] = 'light_curves.tar.gz'
+        query_out.prod_dictionary['prod_process_message'] = ''
+
+        return query_out
+
 class IsgriLightCurveQuery(OsaLightCurveQuery):
     def __init__(self,name ):
         super(IsgriLightCurveQuery, self).__init__(name)
@@ -158,35 +239,31 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
 
         src_name = instrument.get_par_by_name('src_name').value
 
-        lc = IsgriLigthtCurve.build_from_ddosa_res('isgri_lc', 'query_lc.fits',
-                                                   res,
-                                                   src_name=src_name,
-                                                   prod_prefix=prod_prefix,
-                                                   out_dir=out_dir)
+        prod_list = IsgriLigthtCurve.build_from_ddosa_res(res,
+                                                          src_name=src_name,
+                                                          prod_prefix=prod_prefix,
+                                                          out_dir=out_dir)
 
         # print('spectrum_list',spectrum_list)
-        prod_list=[lc]
-
 
         return prod_list
 
-    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,src_name,delta_t):
+    def set_instr_dictionaries(self, extramodules, scwlist_assumption, E1, E2, src_name, delta_t):
         print('-->lc standard mode from scw_list', scwlist_assumption)
         print('-->src_name', src_name)
-        target = "lc_pick"
+        target = "ISGRILCSum"
 
         if extramodules is None:
-            extramodules=[]
+            extramodules = []
 
-        modules = ["git://ddosa"]+extramodules+['git://ddosa_delegate']
+        modules = ["git://ddosa"] + extramodules + ['git://process_isgri_lc', 'git://ddosa_delegate']
 
-        assume = ['ddosa.LCGroups(input_scwlist=%s)' % scwlist_assumption[0],
+        assume = ['process_isgri_lc.ScWLCList(input_scwlist=%s)' % scwlist_assumption[0],
                   scwlist_assumption[1],
-                  'ddosa.lc_pick(use_source_names=["%s"])' % src_name,
                   'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,
                                                                                                            E2=E2),
                   'ddosa.LCEnergyBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,
-                                                                                                           E2=E2),
+                                                                                                              E2=E2),
                   'ddosa.ImagingConfig(use_SouFit=0,use_version="soufit0_p2",use_DoPart2=1)',
                   'ddosa.CatForLC(use_minsig=3)',
                   'ddosa.LCTimeBin(use_time_bin_seconds=%f)' % delta_t]
@@ -205,10 +282,10 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
                                                     ext=1,
                                                     file_dir=out_dir)
         print('name', query_lc.header['NAME'])
-
-        if src_name is not None:
-            if query_lc.header['NAME'] != src_name:
-                query_lc.data = None
+        query_lc.name=query_lc.header['NAME']
+        #if src_name is not None:
+        #    if query_lc.header['NAME'] != src_name:
+        #        query_lc.data = None
 
         prod_list = QueryProductList(prod_list=[query_lc])
 
