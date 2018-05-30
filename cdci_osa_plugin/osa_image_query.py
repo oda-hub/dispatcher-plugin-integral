@@ -87,11 +87,11 @@ class OsaMosaicQuery(ImageQuery):
         # file_path = Path(scratch_dir, 'query_catalog.fits')
         query_catalog.write(overwrite=True,format='fits')
         query_catalog.write(overwrite=True, format='ds9')
-
+        print('--> query was ok 1')
         html_fig = query_image.get_html_draw(catalog=query_catalog.catalog,
                                              vmin=instrument.get_par_by_name('image_scale_min').value,
                                              vmax=instrument.get_par_by_name('image_scale_max').value)
-
+        print('--> query was ok 2')
         query_out = QueryOutput()
 
         query_out.prod_dictionary['image'] = html_fig
