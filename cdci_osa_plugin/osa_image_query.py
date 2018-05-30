@@ -81,15 +81,15 @@ class OsaMosaicQuery(ImageQuery):
             query_catalog.catalog.selected = query_catalog.catalog._table['significance'] > float(
                 detection_significance)
 
-        print('--> query was ok')
+        #print('--> query was ok')
         # file_path = Path(scratch_dir, 'query_mosaic.fits')
         query_image.write(overwrite=True)
-        print('--> query was ok 1')
+        #print('--> query was ok 1')
         # file_path = Path(scratch_dir, 'query_catalog.fits')
         query_catalog.write(overwrite=True,format='fits')
-        print('--> query was ok 2')
+        #print('--> query was ok 2')
         query_catalog.write(overwrite=True, format='ds9')
-        print('--> query was ok 3')
+        #print('--> query was ok 3')
         html_fig = query_image.get_html_draw(catalog=query_catalog.catalog,
                                              vmin=instrument.get_par_by_name('image_scale_min').value,
                                              vmax=instrument.get_par_by_name('image_scale_max').value)
