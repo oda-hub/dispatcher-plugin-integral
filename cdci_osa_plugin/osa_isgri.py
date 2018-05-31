@@ -79,12 +79,14 @@ def osa_isgri_factory():
 
     xspec_fit = SpectralFitQuery('spectral_fit_query', None)
 
+    #update_image=ImageProcessQuery('update_image')
 
     query_dictionary={}
     query_dictionary['isgri_image'] = 'isgri_image_query'
     query_dictionary['isgri_spectrum'] = 'isgri_spectrum_query'
     query_dictionary['isgri_lc'] = 'isgri_lc_query'
     query_dictionary['spectral_fit'] = 'spectral_fit_query'
+    #query_dictionary['update_image'] = 'update_image'
 
     return  Instrument('isgri',
                        data_serve_conf_file=conf_file,
