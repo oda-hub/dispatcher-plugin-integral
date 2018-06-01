@@ -81,21 +81,24 @@ class OsaMosaicQuery(ImageQuery):
             query_catalog.catalog.selected = query_catalog.catalog._table['significance'] > float(
                 detection_significance)
 
-        print('--> query was ok')
+        #print('--> query was ok')
         # file_path = Path(scratch_dir, 'query_mosaic.fits')
         query_image.write(overwrite=True)
+        #print('--> query was ok 1')
         # file_path = Path(scratch_dir, 'query_catalog.fits')
-        query_catalog.write(overwrite=True)
-
+        query_catalog.write(overwrite=True,format='fits')
+        #print('--> query was ok 2')
+        query_catalog.write(overwrite=True, format='ds9')
+        #print('--> query was ok 3')
         html_fig = query_image.get_html_draw(catalog=query_catalog.catalog,
                                              vmin=instrument.get_par_by_name('image_scale_min').value,
                                              vmax=instrument.get_par_by_name('image_scale_max').value)
-
+        print('--> query was ok 2')
         query_out = QueryOutput()
 
         query_out.prod_dictionary['image'] = html_fig
         query_out.prod_dictionary['catalog'] = query_catalog.catalog.get_dictionary()
-        query_out.prod_dictionary['file_name'] = [str(query_image.file_path.name), str(query_catalog.file_path.name)]
+        query_out.prod_dictionary['file_name'] = [str(query_image.file_path.name), str(query_catalog.file_path.name+'.fits'),str(query_catalog.file_path.name+'.reg')]
         query_out.prod_dictionary['download_file_name'] = 'image.tgz'
         query_out.prod_dictionary['prod_process_message'] = ''
 
@@ -142,7 +145,7 @@ class JemxMosaicQuery(OsaMosaicQuery):
         image = OsaImageProduct.build_from_ddosa_skyima('mosaic_image', 'jemx_query_mosaic.fits', res.skyima,
                                                         out_dir=out_dir, prod_prefix=prod_prefix)
         osa_catalog = CatalogProduct('mosaic_catalog', catalog=OsaJemxCatalog.build_from_ddosa_srclres(res.srclres),
-                                     file_name='query_catalog.fits', name_prefix=prod_prefix, file_dir=out_dir)
+                                     file_name='query_catalog', name_prefix=prod_prefix, file_dir=out_dir)
 
         prod_list = [image, osa_catalog]
 
@@ -193,7 +196,7 @@ class IsgriMosaicQuery(OsaMosaicQuery):
                                                             out_dir=out_dir, prod_prefix=prod_prefix)
         osa_catalog = CatalogProduct('mosaic_catalog',
                                          catalog=OsaIsgriCatalog.build_from_ddosa_srclres(res.srclres),
-                                         file_name='query_catalog.fits', name_prefix=prod_prefix, file_dir=out_dir)
+                                         file_name='query_catalog', name_prefix=prod_prefix, file_dir=out_dir)
 
         prod_list =  [image, osa_catalog]
 
@@ -233,7 +236,7 @@ class IsgriMosaicQuery(OsaMosaicQuery):
 
         catalog = CatalogProduct(name='mosaic_catalog',
                                  catalog=BasicCatalog.from_fits_file('%s/query_catalog.fits' % dummy_cache),
-                                 file_name='query_catalog.fits',
+                                 file_name='query_catalog',
                                  file_dir=out_dir)
 
         if user_catalog is not None:
