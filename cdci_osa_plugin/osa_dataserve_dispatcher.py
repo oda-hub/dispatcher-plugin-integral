@@ -86,15 +86,16 @@ from contextlib import contextmanager
 
 class DDOSAException(Exception):
 
-    def __init__(self, message, debug_message):
+    def __init__(self, message='', debug_message=''):
         super(DDOSAException, self).__init__(message)
+        self.message=message
         self.debug_message=debug_message
 
 
-class DDOSAUnknownException(Exception):
+class DDOSAUnknownException(DDOSAException):
 
-    def __init__(self, ):
-        super(DDOSAUnknownException, self).__init__('ddosa unknown exception','')
+    def __init__(self,message='ddosa unknown exception',debug_message=''):
+        super(DDOSAUnknownException, self).__init__(message,debug_message)
 
 
 
