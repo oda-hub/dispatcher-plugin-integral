@@ -185,7 +185,7 @@ class OsaDispatcher(object):
         return message
 
 
-    def test_communication(self, max_trial=25, sleep_s=1,logger=None):
+    def test_communication(self, max_trial=120, sleep_s=1,logger=None):
         print('--> start test connection')
         remote = dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache)
 
@@ -208,6 +208,7 @@ class OsaDispatcher(object):
                 #DONE
                 query_out.set_done(message=message, debug_message=str(debug_message))
                 busy_exception=False
+                connection_status_message='OK'
                 break
             except dc.WorkerException as e:
                 connection_status_message = self.get_exception_status_message(e)

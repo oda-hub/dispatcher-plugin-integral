@@ -97,6 +97,14 @@ class OsaIsgriCatalog(BasicCatalog):
         print ('cat file',srclres)
         frame = catalog.header['RADECSYS'].lower()
         catalog=catalog.data
+        #TODO
+        #if RA_FIN==0.0000 and DEC_FIN=0.0000
+        #change RA_OBJ,DEC_OBJ
+        msk=catalog['RA_FIN']==0.
+        msk = catalog['DEC_FIN'] == 0.
+        catalog['RA_FIN'][msk]=catalog['RA_OBJ'][msk]
+        catalog['DEC_FIN'][msk] = catalog['DEC_OBJ'][msk]
+
         return cls( [n.strip() for n in catalog['NAME']],
                     catalog['RA_FIN'],
                     catalog['DEC_FIN'],
