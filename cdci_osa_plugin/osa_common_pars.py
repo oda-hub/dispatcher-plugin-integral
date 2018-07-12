@@ -48,8 +48,8 @@ def osa_common_instr_query():
     E1_keV = SpectralBoundary(value=10., E_units='keV', name='E1_keV')
     E2_keV = SpectralBoundary(value=40., E_units='keV', name='E2_keV')
     spec_window = ParameterRange(E1_keV, E2_keV, 'spec_window')
-
-    instr_query_pars=[radius,max_pointings,spec_window]
+    osa_version = Name(name_format='str', name='osa_version')
+    instr_query_pars=[radius,max_pointings,spec_window,osa_version]
 
 
     return instr_query_pars
