@@ -86,15 +86,16 @@ from contextlib import contextmanager
 
 class DDOSAException(Exception):
 
-    def __init__(self, message, debug_message):
+    def __init__(self, message='', debug_message=''):
         super(DDOSAException, self).__init__(message)
+        self.message=message
         self.debug_message=debug_message
 
 
-class DDOSAUnknownException(Exception):
+class DDOSAUnknownException(DDOSAException):
 
-    def __init__(self, ):
-        super(DDOSAUnknownException, self).__init__('ddosa unknown exception','')
+    def __init__(self,message='ddosa unknown exception',debug_message=''):
+        super(DDOSAUnknownException, self).__init__(message,debug_message)
 
 
 
@@ -184,7 +185,7 @@ class OsaDispatcher(object):
         return message
 
 
-    def test_communication(self, max_trial=25, sleep_s=1,logger=None):
+    def test_communication(self, max_trial=120, sleep_s=1,logger=None):
         print('--> start test connection')
         remote = dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache)
 
@@ -207,6 +208,7 @@ class OsaDispatcher(object):
                 #DONE
                 query_out.set_done(message=message, debug_message=str(debug_message))
                 busy_exception=False
+                connection_status_message='OK'
                 break
             except dc.WorkerException as e:
                 connection_status_message = self.get_exception_status_message(e)
