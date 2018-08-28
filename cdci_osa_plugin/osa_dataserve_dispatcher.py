@@ -266,6 +266,7 @@ class OsaDispatcher(object):
         radius = instrument.get_par_by_name('radius').value
         scw_list = instrument.get_par_by_name('scw_list').value
         use_max_pointings = instrument.get_par_by_name('max_pointings').value
+        osa_version = instrument.get_par_by_name('osa_version').value
 
         query_out = QueryOutput()
 
