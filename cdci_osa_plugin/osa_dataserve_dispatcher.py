@@ -331,9 +331,7 @@ class OsaDispatcher(object):
 
                 run_query_message = 'AnalysisException'
                 debug_message = self.get_exceptions_message(e)
-                #we have to add the exception to the message
 
-                print ('debug_message',type(debug_message),debug_message)
                 query_out.set_failed('test has input prods',
                                      message='run query message=%s' % run_query_message,
                                      logger=logger,
@@ -415,7 +413,9 @@ class OsaDispatcher(object):
 
             run_query_message = 'AnalysisException'
             debug_message=self.get_exceptions_message(e)
-
+            # we have to add the exception to the message
+            if 'exception' in debug_message:
+                print('debug_message', type(debug_message), debug_message)
             query_out.set_failed('run query ',
                                  message='run query message=%s' % run_query_message,
                                  logger=logger,
