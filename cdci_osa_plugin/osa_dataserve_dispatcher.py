@@ -47,7 +47,7 @@ from cdci_data_analysis.analysis.products import  QueryOutput
 import json
 import traceback
 import time
-
+from ast import literal_eval
 import os
 from contextlib import contextmanager
 
@@ -414,8 +414,12 @@ class OsaDispatcher(object):
             run_query_message = 'AnalysisException'
             debug_message=self.get_exceptions_message(e)
             # we have to add the exception to the message
+            my_dict = literal_eval(debug_message)
             if 'exception' in debug_message:
                 print('debug_message', type(debug_message), debug_message)
+                print(my_dict)
+                if 'exception' in my_dict.keys():
+                    run_query_message=run_query_message+':%s'%my_dict['exception']
             query_out.set_failed('run query ',
                                  message='run query message=%s' % run_query_message,
                                  logger=logger,
