@@ -354,7 +354,7 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
         dummy_cache = config.dummy_cache
         delta_t = instrument.get_par_by_name('time_bin')._astropy_time_delta.sec
         print('delta_t is sec', delta_t)
-        query_lc = LightCurveProduct.from_fits_file(inf_file='%s/query_lc.fits' % dummy_cache,
+        query_lc = IsgriLigthtCurve.from_fits_file(inf_file='%s/query_lc.fits' % dummy_cache,
                                                     out_file_name='query_lc.fits',
                                                     prod_name='isgri_lc',
                                                     ext=1,
