@@ -414,12 +414,19 @@ class OsaDispatcher(object):
             run_query_message = 'AnalysisException'
             debug_message=self.get_exceptions_message(e)
             # we have to add the exception to the message
-            my_dict = literal_eval(debug_message)
+            try:
+                my_dict = literal_eval(debug_message)
+            except:
+                my_dict= debug_message
             if 'exception' in debug_message:
                 print('debug_message', type(debug_message), debug_message)
                 print(my_dict)
-                if 'exception' in my_dict.keys():
-                    run_query_message=run_query_message+':%s'%my_dict['exception']
+                if hasattr(my_dict,'keys'):
+                    if 'exception' in my_dict.keys():
+                        run_query_message=run_query_message+':%s'%my_dict['exception']
+                elif 'exception' in str(my_dict):
+                    run_query_message = run_query_message + ':%s' %str(my_dict)
+
             query_out.set_failed('run query ',
                                  message='run query message=%s' % run_query_message,
                                  logger=logger,
