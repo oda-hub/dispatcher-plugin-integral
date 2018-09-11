@@ -35,7 +35,7 @@ __author__ = "Andrea Tramacere"
 # relative import eg: from .mod import f
 
 
-from cdci_osa_plugin import conf_file
+from cdci_osa_plugin import conf_file,conf_dir
 
 from cdci_data_analysis.analysis.queries import  *
 from cdci_data_analysis.analysis.instrument import Instrument
@@ -87,6 +87,10 @@ def osa_isgri_factory():
     query_dictionary['isgri_lc'] = 'isgri_lc_query'
     query_dictionary['spectral_fit'] = 'spectral_fit_query'
     #query_dictionary['update_image'] = 'update_image'
+
+
+    print('--> conf_file',conf_file)
+    print('--> conf_dir', conf_dir)
 
     return  Instrument('isgri',
                        data_serve_conf_file=conf_file,

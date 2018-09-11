@@ -40,6 +40,9 @@ import json
 import ddosaclient as dc
 import  logging
 import  simple_logger
+from cdci_osa_plugin import conf_file as plugin_conf_file
+
+from cdci_data_analysis.configurer import DataServerConf
 from cdci_data_analysis.analysis.queries import  *
 from cdci_data_analysis.analysis.job_manager import  Job
 from cdci_data_analysis.analysis.io_helper import FilePath
@@ -81,6 +84,12 @@ from contextlib import contextmanager
 
 
 
+class OsaDispatcherException(Exception):
+
+    def __init__(self, message='', debug_message=''):
+        super(OsaDispatcherException, self).__init__(message)
+        self.message=message
+        self.debug_message=debug_message
 
 
 
@@ -102,7 +111,7 @@ class DDOSAUnknownException(DDOSAException):
 
 class OsaDispatcher(object):
 
-    def __init__(self,config=None,use_dicosverer=False,target=None,modules=[],assume=[],inject=[]):
+    def __init__(self,config=None,use_dicosverer=False,target=None,modules=[],assume=[],inject=[],instrument=None):
         print('--> building class OsaQyery')
         simple_logger.log()
         simple_logger.logger.setLevel(logging.ERROR)
@@ -112,13 +121,29 @@ class OsaDispatcher(object):
         self.assume = assume
         self.inject = inject
 
+        #instrument = None
+        config=None
+        print('--> config passed to init', config,instrument)
+
+        #print ('TEST')
+        #for k in instrument.data_server_conf_dict.keys():
+        #    print ('dict:',k,instrument.data_server_conf_dict[k ])
+
+        #config = DataServerConf(data_server_url=instrument.data_server_conf_dict['data_server_url'],
+        #                       data_server_port=instrument.data_server_conf_dict['data_server_port'],
+        #                       data_server_remote_cache=instrument.data_server_conf_dict['data_server_cache'],
+        #                       dispatcher_mnt_point=instrument.data_server_conf_dict['dispatcher_mnt_point'],
+        #                       dummy_cache=instrument.data_server_conf_dict['dummy_cache'])
+        #for v in vars(config):
+        #    print('attr:', v, getattr(config, v))
+
 
         if use_dicosverer == True:
             try:
                 c = discover_docker.DDOSAWorkerContainer()
 
                 self.data_server_url = c.data_server_url
-                self.dataserver_cache = c.dataserver_cache
+                self.data_server_cache = c.dataserver_cache
                 print("===>managed to read from docker:")
 
 
@@ -126,43 +151,76 @@ class OsaDispatcher(object):
             except Exception as e:
                 raise RuntimeError("failed to read from docker", e)
 
+
+
+
+
+
         elif config is not None:
+            pass
+
+
+
+        elif instrument is not None and hasattr(instrument, 'data_server_conf_dict'):
+
+            print('--> from data_server_conf_dict')
             try:
-                # config=ConfigEnv.from_conf_file(config_file)
-                self.data_server_url = config.dataserver_url
-                self.dataserver_cache = config.dataserver_cache
+                config = DataServerConf(data_server_url=instrument.data_server_conf_dict['data_server_url'],
+                                       data_server_port=instrument.data_server_conf_dict['data_server_port'],
+                                       data_server_remote_cache=instrument.data_server_conf_dict['data_server_cache'],
+                                       dispatcher_mnt_point=instrument.data_server_conf_dict['dispatcher_mnt_point'],
+                                       dummy_cache=instrument.data_server_conf_dict['dummy_cache'])
+
+                print ('config',config)
+                for v in vars(config):
+                    print('attr:', v, getattr(config, v))
 
             except Exception as e:
-                #print(e)
+                #    #print(e)
 
-                print ("ERROR->")
-                e.display()
+                print("ERROR->")
+                raise RuntimeError("failed to use config ", e)
+
+        elif instrument is not None:
+            try:
+                print('--> plugin_conf_file', plugin_conf_file)
+                config = instrument.from_conf_file(plugin_conf_file)
+
+            except Exception as e:
+                #    #print(e)
+
+                print("ERROR->")
                 raise RuntimeError("failed to use config ", e)
 
         else:
-            self.config()
 
+            raise OsaDispatcherException(message='instrument cannot be None',
+                                 debug_message='instrument se to None in OsaDispatcher __init__')
 
+        try:
+            _data_server_url = config.data_server_url
+            _data_server_port = config.data_server_port
+            _data_server_cache = config.data_server_cache
 
+        except Exception as e:
+            #    #print(e)
 
+            print("ERROR->")
+            raise RuntimeError("failed to use config ", e)
 
-        print("dataserver_cache:", self.data_server_url)
-        print("dataserver_cache:", self.dataserver_cache)
+        self.config(_data_server_url, _data_server_port,_data_server_cache)
+
+        print("data_server_url:", self.data_server_url)
+        print("dataserver_port:", self.data_server_port)
         print('--> done')
 
 
 
-    def config(self):
-        self.data_server_name='ddosa'
-        self.data_server_locan_mnt_cache='/'
-        self.data_server_remote_cache='reduced/ddcache'
-        self.dummy_cache='dummy_prods'
-        self.data_server_url= 'intggcn01.isdc.unige.ch'
-        self.data_server_port= 32778
-
-        FilePath(file_dir=self.data_server_local_cache).mkdir()
-
-        self.dataserver_cache=os.path.join(self.data_server_remote_cache,self.data_server_local_cache)
+    def config(self,_data_server_url, _data_server_port,_data_server_cache):
+        print('config done in config method')
+        self.data_server_port = _data_server_port
+        self.data_server_url=_data_server_url
+        self.data_server_cache=_data_server_cache
 
     def get_exception_status_message(self,e):
         status=''
@@ -187,7 +245,7 @@ class OsaDispatcher(object):
 
     def test_communication(self, max_trial=120, sleep_s=1,logger=None):
         print('--> start test connection')
-        remote = dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache)
+        remote = dc.RemoteDDOSA(self.data_server_url, self.data_server_cache)
 
         query_out = QueryOutput()
 
@@ -291,7 +349,7 @@ class OsaDispatcher(object):
                                     use_max_pointings=100)' % (dict(RA=RA, DEC=DEC, radius=radius, T1=T1_iso, T2=T2_iso))]
 
 
-            remote = dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache)
+            remote = dc.RemoteDDOSA(self.data_server_url, self.data_server_cache)
 
             try:
                 product = remote.query(target=target,modules=modules,assume=assume)
@@ -393,7 +451,7 @@ class OsaDispatcher(object):
 
 
 
-            res= dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache).query(target=target,
+            res= dc.RemoteDDOSA(self.data_server_url, self.datase_rver_cache).query(target=target,
                                                     modules=modules,
                                                     assume=assume,
                                                     inject=self.inject,

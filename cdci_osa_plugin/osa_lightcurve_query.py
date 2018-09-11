@@ -272,7 +272,7 @@ class OsaLightCurveQuery(LightCurveQuery):
         target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,src_name,delta_t)
 
 
-        q = OsaDispatcher(config=config, target=target, modules=modules, assume=assume, inject=inject)
+        q = OsaDispatcher(config=config,instrument=instrument, target=target, modules=modules, assume=assume, inject=inject)
 
         return q
 

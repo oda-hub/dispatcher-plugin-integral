@@ -24,6 +24,17 @@ for importer, modname, ispkg in pkgutil.walk_packages(path=[pkg_dir],
 
 
 
+#conf_dir=os.path.dirname(__file__)+'/config_dir'
+
+#conf_file=os.environ.get('CDCI_OSA_PLUGIN_CONF_FILE',os.path.join(conf_dir,'data_server_conf.yml'))
+
+
+
 conf_dir=os.path.dirname(__file__)+'/config_dir'
 
-conf_file=os.environ.get('CDCI_OSA_PLUGIN_CONF_FILE',os.path.join(conf_dir,'data_server_conf.yml'))
+evn_phat=os.environ.get('CDCI_OSA_PLUGIN_CONF_FILE')
+
+if conf_dir is not None:
+    conf_dir=conf_dir
+
+conf_file=os.path.join(conf_dir,'data_server_conf.yml')

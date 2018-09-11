@@ -65,7 +65,7 @@ class OsaMosaicQuery(ImageQuery):
         E2=instrument.get_par_by_name('E2_keV').value
         target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2)
 
-        q=OsaDispatcher(config=config, target=target, modules=modules, assume=assume, inject=inject)
+        q=OsaDispatcher(config=config, target=target, modules=modules, assume=assume, inject=inject,instrument=instrument)
 
         return q
 
