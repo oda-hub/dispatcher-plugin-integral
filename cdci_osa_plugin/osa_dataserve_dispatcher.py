@@ -451,7 +451,7 @@ class OsaDispatcher(object):
 
 
 
-            res= dc.RemoteDDOSA(self.data_server_url, self.datase_server_cache).query(target=target,
+            res= dc.RemoteDDOSA(self.data_server_url, self.data_server_cache).query(target=target,
                                                     modules=modules,
                                                     assume=assume,
                                                     inject=self.inject,
