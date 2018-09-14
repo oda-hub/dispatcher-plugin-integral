@@ -295,7 +295,7 @@ class OsaLightCurveQuery(LightCurveQuery):
             _html_fig.append(query_lc.get_html_draw())
             # print(_html_fig[-1])
             _data = {}
-            _data['name'] = query_lc.query_lc.name
+            _data['name'] = query_lc.name
             _data['time'] = query_lc.data['time']
             _data['rate'] = query_lc.data['rate']
             _data['rate_err'] = query_lc.data['rate_err']
