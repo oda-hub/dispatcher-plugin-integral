@@ -286,7 +286,7 @@ class OsaLightCurveQuery(LightCurveQuery):
         _names = []
         _lc_path = []
         _html_fig = []
-
+        _data_list=[]
         for query_lc in prod_list.prod_list:
             print('name',query_lc.name)
             query_lc.write()
@@ -294,9 +294,23 @@ class OsaLightCurveQuery(LightCurveQuery):
             _lc_path.append(str(query_lc.file_path.name))
             _html_fig.append(query_lc.get_html_draw())
             # print(_html_fig[-1])
+            _data = {}
+            _data['name'] = query_lc.query_lc.name
+            _data['time'] = query_lc.data['time']
+            _data['rate'] = query_lc.data['rate']
+            _data['rate_err'] = query_lc.data['rate_err']
+
+
+            _data_list.append(_data)
+
+
+
+
+
 
         query_out = QueryOutput()
 
+        query_out.prod_dictionary['data'] = _data_list
         query_out.prod_dictionary['name'] = _names
         query_out.prod_dictionary['file_name'] = _lc_path
         query_out.prod_dictionary['image'] =_html_fig
