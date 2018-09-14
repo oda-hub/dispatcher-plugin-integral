@@ -298,13 +298,13 @@ class OsaLightCurveQuery(LightCurveQuery):
             _data['name'] = query_lc.name
 
             _data['mjdref'] = query_lc.header['mjdref']
-           
-            _data['time'] = query_lc.data['TIME'].to_list()
+
+            _data['time'] = query_lc.data['TIME'].tolist()
 
 
             _data['time_del'] = query_lc.header['TIMEDEL']
-            _data['rate'] = query_lc.data['RATE'].to_list()
-            _data['rate_err'] = query_lc.data['ERROR'].to_list()
+            _data['rate'] = query_lc.data['RATE'].tolist()
+            _data['rate_err'] = query_lc.data['ERROR'].tolist()
 
 
             _data_list.append(_data)
