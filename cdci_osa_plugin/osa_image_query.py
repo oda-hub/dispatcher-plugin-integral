@@ -97,7 +97,7 @@ class OsaMosaicQuery(ImageQuery):
         query_out = QueryOutput()
 
         query_out.prod_dictionary['image'] = html_fig
-        query_out.prod_dictionary['data'] = query_image.data
+        query_out.prod_dictionary['data'] = query_image.data.tolist()
         query_out.prod_dictionary['catalog'] = query_catalog.catalog.get_dictionary()
         query_out.prod_dictionary['file_name'] = [str(query_image.file_path.name), str(query_catalog.file_path.name+'.fits'),str(query_catalog.file_path.name+'.reg')]
         query_out.prod_dictionary['download_file_name'] = 'image.tgz'
