@@ -70,30 +70,30 @@ class IsgriLigthtCurve(LightCurveProduct):
 
 
 
-    @classmethod
-    def build_from_ddosa_res_old(cls,
-                             name,
-                             file_name,
-                             res,
-                             src_name='ciccio',
-                             prod_prefix = None,
-                             out_dir = None):
-
-        #hdu_list = pf.open(res.lightcurve)
-        hdu_list = FitsFile(res.lightcurve).open()
-        data = None
-        header=None
-
-        for hdu in hdu_list:
-            if hdu.name == 'ISGR-SRC.-LCR':
-                print('name', hdu.header['NAME'])
-                if hdu.header['NAME'] == src_name:
-                    data = hdu.data
-                    header = hdu.header
-
-            lc = cls(name=name, data=data, header=header,file_name=file_name,out_dir=out_dir,prod_prefix=prod_prefix,src_name=src_name)
-
-        return lc
+    # @classmethod
+    # def build_from_ddosa_res_old(cls,
+    #                          name,
+    #                          file_name,
+    #                          res,
+    #                          src_name='ciccio',
+    #                          prod_prefix = None,
+    #                          out_dir = None):
+    #
+    #     #hdu_list = pf.open(res.lightcurve)
+    #     hdu_list = FitsFile(res.lightcurve).open()
+    #     data = None
+    #     header=None
+    #
+    #     for hdu in hdu_list:
+    #         if hdu.name == 'ISGR-SRC.-LCR':
+    #             print('name', hdu.header['NAME'])
+    #             if hdu.header['NAME'] == src_name:
+    #                 data = hdu.data
+    #                 header = hdu.header
+    #
+    #         lc = cls(name=name, data=data, header=header,file_name=file_name,out_dir=out_dir,prod_prefix=prod_prefix,src_name=src_name)
+    #
+    #     return lc
 
     @classmethod
     def build_from_ddosa_res(cls,
@@ -102,20 +102,7 @@ class IsgriLigthtCurve(LightCurveProduct):
                              prod_prefix='',
                              out_dir=None):
 
-        # hdu_list = pf.open(res.lightcurve)
-        #hdu_list = FitsFile(res.lightcurve).open()
-        #data = None
-        #header = None
 
-        #for hdu in hdu_list:
-        #   if hdu.name == 'ISGR-SRC.-LCR':
-        #        print('name', hdu.header['NAME'])
-        #        if hdu.header['NAME'] == src_name:
-        #            data = hdu.data
-        #            header = hdu.header
-
-        #   lc = cls(name=name, data=data, header=header, file_name=file_name, out_dir=out_dir, prod_prefix=prod_prefix,
-        #            src_name=src_name)
 
         lc_list = []
 
@@ -261,6 +248,8 @@ class OsaLightCurveQuery(LightCurveQuery):
 
         super(OsaLightCurveQuery, self).__init__(name)
 
+
+
     def get_data_server_query(self, instrument,
                               config=None):
 
@@ -270,6 +259,7 @@ class OsaLightCurveQuery(LightCurveQuery):
         src_name = instrument.get_par_by_name('src_name').value
         delta_t = instrument.get_par_by_name('time_bin')._astropy_time_delta.sec
         target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,src_name,delta_t)
+
 
 
         q = OsaDispatcher(config=config,instrument=instrument, target=target, modules=modules, assume=assume, inject=inject)
@@ -286,7 +276,7 @@ class OsaLightCurveQuery(LightCurveQuery):
         _names = []
         _lc_path = []
         _html_fig = []
-
+        _data_list=[]
         for query_lc in prod_list.prod_list:
             print('name',query_lc.name)
             query_lc.write()
@@ -294,9 +284,27 @@ class OsaLightCurveQuery(LightCurveQuery):
             _lc_path.append(str(query_lc.file_path.name))
             _html_fig.append(query_lc.get_html_draw())
             # print(_html_fig[-1])
+            _data = {}
+            _data['name'] = query_lc.name
+            _data['mjdref'] = query_lc.header['mjdref']
+            _data['time'] = query_lc.data['TIME'].tolist()
+            _data['time_units'] = 'mjd'
+
+            _data['time_del'] = query_lc.header['TIMEDEL']
+            _data['rate'] = query_lc.data['RATE'].tolist()
+            _data['rate_err'] = query_lc.data['ERROR'].tolist()
+
+
+            _data_list.append(_data)
+
+
+
+
+
 
         query_out = QueryOutput()
 
+        query_out.prod_dictionary['data'] = _data_list
         query_out.prod_dictionary['name'] = _names
         query_out.prod_dictionary['file_name'] = _lc_path
         query_out.prod_dictionary['image'] =_html_fig
