@@ -471,7 +471,9 @@ class OsaDispatcher(object):
                                   'rangequery.TimeDirectionScWList(\
                                                   use_coordinates=dict(RA=%(RA)s,DEC=%(DEC)s,radius=%(radius)s),\
                                                   use_timespan=dict(T1="%(T1)s",T2="%(T2)s"),\
-                                                  use_max_pointings=%(use_max_pointings)d)\
+                                                  use_max_pointings=%(use_max_pointings)d,\
+                                                  use_scwversion="001",\
+                                                  )\
                                               ' % (dict(RA=RA, DEC=DEC, radius=radius, T1=T1, T2=T2, use_max_pointings=use_max_pointings))]
 
         return scwlist_assumption
