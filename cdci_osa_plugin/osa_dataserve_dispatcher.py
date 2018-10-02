@@ -244,7 +244,7 @@ class OsaDispatcher(object):
 
 
     def test_communication(self, max_trial=120, sleep_s=1,logger=None):
-        print('--> start test connection')
+        print('--> start test connection to',self.data_server_url)
         remote = dc.RemoteDDOSA(self.data_server_url, self.data_server_cache)
 
         query_out = QueryOutput()
