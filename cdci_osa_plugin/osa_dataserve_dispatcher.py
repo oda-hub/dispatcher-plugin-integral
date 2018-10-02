@@ -323,6 +323,8 @@ class OsaDispatcher(object):
         DEC = instrument.get_par_by_name('DEC').value
         radius = instrument.get_par_by_name('radius').value
         scw_list = instrument.get_par_by_name('scw_list').value
+        use_max_pointings = instrument.get_par_by_name('max_pointings').value
+        osa_version = instrument.get_par_by_name('osa_version').value
 
         query_out = QueryOutput()
 
@@ -342,11 +344,11 @@ class OsaDispatcher(object):
 
             target = "ReportScWList"
             modules = ['git://rangequery']
-            assume = ['rangequery.ReportScWList(input_scwlist=rangequery.TimeDirectionScWList)',
-                      'rangequery.TimeDirectionScWList(\
-                                    use_coordinates=dict(RA=%(RA)s,DEC=%(DEC)s,radius=%(radius)s),\
-                                    use_timespan=dict(T1="%(T1)s",T2="%(T2)s"),\
-                                    use_max_pointings=100)' % (dict(RA=RA, DEC=DEC, radius=radius, T1=T1_iso, T2=T2_iso))]
+
+
+            scwlist_assumption = OsaDispatcher.get_scwlist_assumption(None, T1_iso, T2_iso, RA, DEC, radius, use_max_pointings)
+            assume = ["rangequery.ReportScWList(input_scwlist=%s)"%scwlist_assumption[0],
+                      scwlist_assumption[1]]
 
 
             remote = dc.RemoteDDOSA(self.data_server_url, self.data_server_cache)
@@ -540,7 +542,9 @@ class OsaDispatcher(object):
                                   'rangequery.TimeDirectionScWList(\
                                                   use_coordinates=dict(RA=%(RA)s,DEC=%(DEC)s,radius=%(radius)s),\
                                                   use_timespan=dict(T1="%(T1)s",T2="%(T2)s"),\
-                                                  use_max_pointings=%(use_max_pointings)d)\
+                                                  use_max_pointings=%(use_max_pointings)d,\
+                                                  use_scwversion="001",\
+                                                  )\
                                               ' % (dict(RA=RA, DEC=DEC, radius=radius, T1=T1, T2=T2, use_max_pointings=use_max_pointings))]
 
         return scwlist_assumption

@@ -258,7 +258,8 @@ class OsaLightCurveQuery(LightCurveQuery):
         E2=instrument.get_par_by_name('E2_keV').value
         src_name = instrument.get_par_by_name('src_name').value
         delta_t = instrument.get_par_by_name('time_bin')._astropy_time_delta.sec
-        target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,src_name,delta_t)
+        osa_version = instrument.get_par_by_name('osa_version').value
+        target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,src_name,delta_t,osa_version)
 
 
 
@@ -334,7 +335,7 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
 
         return prod_list
 
-    def set_instr_dictionaries(self, extramodules, scwlist_assumption, E1, E2, src_name, delta_t):
+    def set_instr_dictionaries(self, extramodules, scwlist_assumption, E1, E2, src_name, delta_t, osa_version="OSA10.2"):
         print('-->lc standard mode from scw_list', scwlist_assumption)
         print('-->src_name', src_name)
         target = "ISGRILCSum"
@@ -342,7 +343,13 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
         if extramodules is None:
             extramodules = []
 
-        modules = ["git://ddosa"] + extramodules + ['git://process_isgri_lc', 'git://ddosa_delegate']
+        if osa_version == "OSA10.2":
+            modules = ["git://ddosa"] + extramodules + ['git://process_isgri_lc', 'git://ddosa_delegate']
+        elif osa_version == "OSA11.0":
+            modules = ["git://ddosa", "git://findic/icversion","git://ddosa11/icversion"] + extramodules + ['git://process_isgri_lc', 'git://ddosa_delegate']
+        else:
+            raise Exception("unknown osa version: "+osa_version)
+                 
 
         assume = ['process_isgri_lc.ScWLCList(input_scwlist=%s)' % scwlist_assumption[0],
                   scwlist_assumption[1],

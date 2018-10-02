@@ -91,6 +91,7 @@ class IsgriSpectrumProduct(SpectrumProduct):
             spectrum = FitsFile(getattr(res, spec_attr)).open()[1]
 
             arf_filename= getattr(res, arf_attr)
+
             rmf_filename = getattr(res, rmf_attr)
 
             data=spectrum.data
@@ -142,7 +143,8 @@ class OsaSpectrumQuery(SpectrumQuery):
         scwlist_assumption, cat, extramodules, inject=OsaDispatcher.get_osa_query_base(instrument)
         E1=instrument.get_par_by_name('E1_keV').value
         E2=instrument.get_par_by_name('E2_keV').value
-        target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2)
+        osa_version=instrument.get_par_by_name('osa_version').value
+        target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,osa_version)
 
         q=OsaDispatcher(config=config, target=target, modules=modules, assume=assume, inject=inject,instrument=instrument)
 
@@ -169,8 +171,8 @@ class OsaSpectrumQuery(SpectrumQuery):
             _rmf_path.append(str(query_spec.rmf_file_path.name))
 
 
-
         query_out = QueryOutput()
+
 
         query_out.prod_dictionary['spectrum_name'] = _names
         query_out.prod_dictionary['ph_file_name'] = _pf_path
@@ -202,12 +204,19 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
 
         return spectrum_list
 
-    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2):
+    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2"):
         target = "ISGRISpectraSum"
 
 
-        modules = ["git://ddosa","git://useresponse/cd7855bf7", "git://process_isgri_spectra/osa10",
-                   "git://rangequery"]+extramodules+['git://ddosa_delegate']
+        if osa_version=="OSA10.2":
+            modules = ["git://ddosa","git://useresponse/cd7855bf7", "git://process_isgri_spectra/osa10",
+                       "git://rangequery"]+extramodules+['git://ddosa_delegate']
+        elif osa_version=="OSA11.0":
+            modules = ["git://ddosa","git://findic/icversion","git://ddosa11/icversion","git://useresponse/osa11", "git://process_isgri_spectra/osa11",
+                               "git://rangequery"]+extramodules+['git://ddosa_delegate']
+        else:
+            raise Exception("unknown OSA version "+osa_version)
+
 
         assume = ['process_isgri_spectra.ScWSpectraList(input_scwlist=%s)'% scwlist_assumption[0],
                    scwlist_assumption[1],
