@@ -101,7 +101,7 @@ class OsaIsgriCatalog(BasicCatalog):
         #if RA_FIN==0.0000 and DEC_FIN=0.0000
         #change RA_OBJ,DEC_OBJ
         msk=catalog['RA_FIN']==0.
-        msk = catalog['DEC_FIN'] == 0.
+        msk*= catalog['DEC_FIN'] == 0.
         catalog['RA_FIN'][msk]=catalog['RA_OBJ'][msk]
         catalog['DEC_FIN'][msk] = catalog['DEC_OBJ'][msk]
 
