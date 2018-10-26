@@ -76,8 +76,7 @@ class IsgriLigthtCurve(LightCurveProduct):
         self.meta_data['rate_err'] = 'ERROR'
 
         data.name=name
-        if src_name !='':
-            meta_data['src_name']=src_name
+
 
         super(IsgriLigthtCurve, self).__init__(name=name,
                                               data=data,
@@ -132,6 +131,8 @@ class IsgriLigthtCurve(LightCurveProduct):
                 #    out_file_name = prod_prefix + '_' + out_file_name
 
                 print('lc file output-->', input_lc_paht, lightcurve_attr)
+
+
                 lc = cls( data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
                          src_name=src_name,meta_data=meta_data)
 
