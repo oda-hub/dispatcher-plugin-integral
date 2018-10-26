@@ -53,7 +53,7 @@ from cdci_data_analysis.analysis.io_helper import FilePath
 from cdci_data_analysis.analysis.plot_tools import ScatterPlot
 from oda_api.data_products import NumpyDataProduct
 from .osa_dataserve_dispatcher import OsaDispatcher
-
+from .osa_common_pars import DummyOsaRes
 
 
 class IsgriLigthtCurve(LightCurveProduct):
@@ -66,7 +66,7 @@ class IsgriLigthtCurve(LightCurveProduct):
                  src_name='',
                  meta_data={}):
 
-        if meta_data == {}:
+        if meta_data == {} or meta_data is None:
             self.meta_data = {'product': 'osa_lc', 'instrument': 'integral', 'src_name': src_name}
         else:
             self.meta_data = meta_data
@@ -75,7 +75,7 @@ class IsgriLigthtCurve(LightCurveProduct):
         self.meta_data['rate'] ='RATE'
         self.meta_data['rate_err'] = 'ERROR'
 
-
+        data.name=name
         if src_name !='':
             meta_data['src_name']=src_name
 
@@ -94,7 +94,8 @@ class IsgriLigthtCurve(LightCurveProduct):
                              src_name='',
                              prod_prefix='',
                              meta_data={},
-                             file_dir=None):
+                             file_dir=None,
+                             api=False):
 
 
 
@@ -107,17 +108,17 @@ class IsgriLigthtCurve(LightCurveProduct):
             prod_prefix=''
 
         for source_name, lightcurve_attr in res.extracted_sources:
-            lc_paht = getattr(res, lightcurve_attr)
-            print('lc file-->', lc_paht, lightcurve_attr)
+            input_lc_paht = getattr(res, lightcurve_attr)
+            print('lc file input-->', input_lc_paht, lightcurve_attr)
 
 
             #hdu_list = FitsFile(lc_paht).open()
             #data = NumpyDataProduct.from_fits_file(lc_paht, hdu_name='ISGR-SRC.-LCR', name='isgri_lc', instr='isgri',
             #                                       descr='src_name:%s' % name)
 
-            npd = NumpyDataProduct.from_fits_file(lc_paht, meta_data=meta_data)
+            npd = NumpyDataProduct.from_fits_file(input_lc_paht, meta_data=meta_data)
 
-            du=npd.get_data_by_name('ISGR-SRC.-LCR')
+            du = npd.get_data_unit_by_name('ISGR-SRC.-LCR')
 
 
             if du is not None:
@@ -126,39 +127,19 @@ class IsgriLigthtCurve(LightCurveProduct):
                 meta_data['src_name'] = src_name
                 meta_data['time_bin'] = du.header['TIMEDEL']
 
+                out_file_name =  Path(input_lc_paht).resolve().stem+'.fits'
+                #if prod_prefix !='' and prod_prefix!=None:
+                #    out_file_name = prod_prefix + '_' + out_file_name
 
-                file_name =  Path(lc_paht).resolve().stem+'.fits'
-                if prod_prefix !='' and prod_prefix!=None:
-                    file_name = prod_prefix + '_' + file_name
-
-                lc = cls(name=src_name, data=npd, file_name=file_name, file_dir=file_dir, prod_prefix=prod_prefix,
+                print('lc file output-->', input_lc_paht, lightcurve_attr)
+                lc = cls( data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
                          src_name=src_name,meta_data=meta_data)
 
                 lc_list.append(lc)
 
         return lc_list
 
-    @classmethod
-    def from_fits_file(cls, in_file=None, file_name=None, ext=None, file_dir=None, prod_prefix='', meta_data={}):
-        npd = NumpyDataProduct.from_fits_file(in_file, ext=ext, meta_data=meta_data)
-        npd.show()
-        du = npd.get_data_unit_by_name('ISGR-SRC.-LCR')
-        if du is not None:
-            src_name = du.header['NAME']
-            meta_data['src_name'] = src_name
-            meta_data['time_bin'] = du.header['TIMEDEL']
 
-            file_name = Path(in_file).resolve().stem +'.fits'
-            #print('file name',file_name)
-            if prod_prefix != '' and prod_prefix != None:
-                file_name = prod_prefix + '_' + file_name
-            #print('file name', file_name)
-            return cls(name=src_name, data=npd, file_name=file_name, file_dir=file_dir, prod_prefix=prod_prefix,src_name=src_name,meta_data=meta_data)
-        else:
-
-            raise RuntimeError('fits file not valid for isgri lc')
-
-        #return cls(data=data, file_dir=file_dir, prod_prefix=prod_prefix, file_name=file_name)
 
 
 
@@ -300,7 +281,7 @@ class OsaLightCurveQuery(LightCurveQuery):
         raise RuntimeError('Must be specified for each instrument')
 
 
-    def process_product_method(self, instrument, prod_list):
+    def process_product_method(self, instrument, prod_list,api=False):
 
         _names = []
         _lc_path = []
@@ -311,13 +292,15 @@ class OsaLightCurveQuery(LightCurveQuery):
             #print('--> lc  name',query_lc.name)
             #print('-->file name', query_lc.file_path.path)
             query_lc.write()
-            _names.append(query_lc.name)
-            _lc_path.append(str(query_lc.file_path.name))
-            _html_fig.append(query_lc.get_html_draw())
+
+            if api==False:
+                _names.append(query_lc.name)
+                _lc_path.append(str(query_lc.file_path.name))
+                _html_fig.append(query_lc.get_html_draw())
 
 
-
-            _data_list.append(query_lc.data.encode())
+            if api==True:
+                _data_list.append(query_lc.data)
 
 
 
@@ -326,11 +309,15 @@ class OsaLightCurveQuery(LightCurveQuery):
 
         query_out = QueryOutput()
 
-        query_out.prod_dictionary['numpy_data_product_list'] = _data_list
-        query_out.prod_dictionary['name'] = _names
-        query_out.prod_dictionary['file_name'] = _lc_path
-        query_out.prod_dictionary['image'] =_html_fig
-        query_out.prod_dictionary['download_file_name'] = 'light_curves.tar.gz'
+        if api == True:
+            query_out.prod_dictionary['numpy_data_product_list'] = _data_list
+
+        else:
+            query_out.prod_dictionary['name'] = _names
+            query_out.prod_dictionary['file_name'] = _lc_path
+            query_out.prod_dictionary['image'] =_html_fig
+            query_out.prod_dictionary['download_file_name'] = 'light_curves.tar.gz'
+
         query_out.prod_dictionary['prod_process_message'] = ''
 
         return query_out
@@ -343,17 +330,47 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
 
 
 
-    def build_product_list(self,instrument,res,out_dir,prod_prefix=None):
+    def build_product_list(self,instrument,res,out_dir,prod_prefix=None,api=False):
         meta_data = {'product': 'light_curve', 'instrument': 'isgri', 'src_name': ''}
         meta_data['query_parameters'] = self.get_parameters_list_as_json()
-        #meta_data['time_bin'] = instrument.get_par_by_name('time_bin')._astropy_time_delta.sec
 
         prod_list = IsgriLigthtCurve.build_from_ddosa_res(res,
                                                           prod_prefix=prod_prefix,
-                                                          file_dir=out_dir)
+                                                          file_dir=out_dir,
+                                                          api=api)
 
 
         return prod_list
+
+
+
+    def get_dummy_products(self, instrument, config, out_dir='./',prod_prefix=None,api=False):
+
+
+        meta_data = {'product': 'light_curve', 'instrument': 'isgri', 'src_name': ''}
+        meta_data['query_parameters'] = self.get_parameters_list_as_json()
+
+
+        dummy_cache = config.dummy_cache
+
+
+        res =DummyOsaRes()
+        res.__setattr__('dummy_src','dummy_src')
+        res.__setattr__('dummy_lc','%s/query_lc.fits' % dummy_cache)
+        res.__setattr__('extracted_sources',[('dummy_src','dummy_lc')])
+
+
+
+        prod_list = IsgriLigthtCurve.build_from_ddosa_res(res,
+                                                          prod_prefix=prod_prefix,
+                                                          file_dir=out_dir,
+                                                          api=api)
+
+
+        prod_list = QueryProductList(prod_list=prod_list)
+
+        return prod_list
+
 
     def set_instr_dictionaries(self, extramodules, scwlist_assumption, E1, E2, src_name, delta_t):
         print('-->lc standard mode from scw_list', scwlist_assumption)
@@ -377,31 +394,8 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
 
         return target, modules, assume
 
-    def get_dummy_products(self, instrument, config, out_dir='./'):
 
 
-        meta_data = {'product': 'light_curve', 'instrument': 'isgri', 'src_name': ''}
-        meta_data['query_parameters'] = self.get_parameters_list_as_json()
 
-
-        dummy_cache = config.dummy_cache
-        #delta_t = instrument.get_par_by_name('time_bin')._astropy_time_delta.sec
-        #print('delta_t is sec', delta_t)
-        #meta_data['time_bin'] =  instrument.get_par_by_name('time_bin')._astropy_time_delta.sec
-
-        query_lc = IsgriLigthtCurve.from_fits_file(in_file='%s/query_lc.fits' % dummy_cache,
-                                                    file_name='query_lc.fits',
-                                                    ext=1,
-                                                    file_dir=out_dir,
-                                                    meta_data=meta_data)
-        #print('name', query_lc.header['NAME'])
-        #query_lc.name=query_lc.header['NAME']
-        #if src_name is not None:
-        #    if query_lc.header['NAME'] != src_name:
-        #        query_lc.data = None
-
-        prod_list = QueryProductList(prod_list=[query_lc])
-
-        return prod_list
 
 
