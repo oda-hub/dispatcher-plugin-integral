@@ -263,7 +263,7 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
                                                                        out_dir=out_dir,
                                                                        prod_prefix=prod_prefix)
 
-        prod_list = QueryProductList(prod_list=spectrum_list)
+        prod_list = spectrum_list
 
         return prod_list
     def get_dummy_products(self,instrument,config,out_dir='./',prod_prefix='query_spectrum',api=False):
