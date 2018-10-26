@@ -3,12 +3,12 @@ instruments:
       dispatcher_mnt_point:
       data_server_cache: reduced/ddcache
       dummy_cache: dummy_prods
-      data_server_url: intggcn01.isdc.unige.ch
-      data_server_port: 32778
+      data_server_url:  cdcihn.isdc.unige.ch
+      data_server_port: 31001
 
   jemx:
       dispatcher_mnt_point:
       data_server_cache: reduced/ddcache
       dummy_cache: dummy_prods
-      data_server_url: intggcn01.isdc.unige.ch
-      data_server_port: 32778
+      data_server_url: cdcihn.isdc.unige.ch
+      data_server_port: 31001
