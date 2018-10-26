@@ -92,7 +92,6 @@ class IsgriLigthtCurve(LightCurveProduct):
                              res,
                              src_name='',
                              prod_prefix='',
-                             meta_data={},
                              file_dir=None,
                              api=False):
 
@@ -107,6 +106,7 @@ class IsgriLigthtCurve(LightCurveProduct):
             prod_prefix=''
 
         for source_name, lightcurve_attr in res.extracted_sources:
+            meta_data = {}
             input_lc_paht = getattr(res, lightcurve_attr)
             print('lc file input-->', input_lc_paht, lightcurve_attr)
 
