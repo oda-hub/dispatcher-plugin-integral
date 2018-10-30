@@ -137,8 +137,8 @@ class IsgriSpectrumProduct(SpectrumProduct):
             meta_data['product'] = 'isgri_spectrum'
 
             np_spec = NumpyDataProduct.from_fits_file(spec_filename, meta_data=meta_data)
-            np_spec.data_uint[1].header['ANCRFILE'] = 'NONE'
-            np_spec.data_uint[1].header['RESPFILE'] = 'NONE'
+            np_spec.data_unit[1].header['ANCRFILE'] = 'NONE'
+            np_spec.data_unit[1].header['RESPFILE'] = 'NONE'
 
             spec = cls(name=name, data=np_spec, file_name=out_spec_file, file_dir=out_dir, prod_prefix=prod_prefix,
                        meta_data=meta_data,rmf_file=rmf.file_path.name,arf_file=arf.file_path.name)

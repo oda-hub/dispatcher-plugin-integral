@@ -39,4 +39,5 @@ __author__ = "Andrea Tramacere"
 
 from .osa_isgri import  osa_isgri_factory
 from .osa_jemx import osa_jemx_factory
+
 instr_factory_list=[osa_isgri_factory,osa_jemx_factory]
