@@ -287,11 +287,6 @@ class OsaDispatcher(object):
                 r = remote.poke()
             except Exception as e:
                 connection_status_message = self.get_exception_status_message(e)
-                # FAILED
-                 #query_out.set_failed('test connection',
-                 #                message='connection_status=%s' % connection_status_message,
-                 #                logger=logger,
-                 #                excep=e)
 
                 run_query_message = 'Connection Error'
                 debug_message = self.get_exceptions_message(e)
@@ -307,11 +302,7 @@ class OsaDispatcher(object):
 
         if connection_status_message == 'busy' or busy_exception==True:
             print('server is busy')
-            # FAILED
-            #query_out.set_failed('test busy',
-            #                 message='connection_status=%s'%connection_status_message,
-            #                 logger=logger,
-            #                 excep=e)
+           
 
             query_out.set_failed('test busy',
                                  message='connection_status=%s' % connection_status_message,
