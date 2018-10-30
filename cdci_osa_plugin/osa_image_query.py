@@ -84,7 +84,8 @@ class OsaMosaicQuery(ImageQuery):
         scwlist_assumption, cat, extramodules, inject=OsaDispatcher.get_osa_query_base(instrument)
         E1=instrument.get_par_by_name('E1_keV').value
         E2=instrument.get_par_by_name('E2_keV').value
-        target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2)
+        osa_version = instrument.get_par_by_name('osa_version').value
+        target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,osa_version)
 
         q=OsaDispatcher(config=config, target=target, modules=modules, assume=assume, inject=inject,instrument=instrument)
 
@@ -132,7 +133,7 @@ class OsaMosaicQuery(ImageQuery):
         return query_out
 
 
-    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2):
+    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2"):
         raise RuntimeError('Must be specified for each instrument')
 
 
@@ -219,6 +220,24 @@ class IsgriMosaicQuery(OsaMosaicQuery):
 
 
 
+    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2"):
+        print ('E1,E2',E1,E2)
+        target = "mosaic_ii_skyimage"
+
+        if osa_version=="OSA10.2":
+            modules = ["git://ddosa", 'git://ddosa_delegate'] + extramodules
+        elif osa_version=="OSA11.0":
+            modules = ["git://ddosa","git://findic/icversion","git://ddosa11/icversion"] + extramodules+['git://ddosa_delegate']
+        else:
+            raise Exception("unknown OSA version:",osa_version)
+
+        assume = ['ddosa.ImageGroups(input_scwlist=%s)' % scwlist_assumption[0],
+                   scwlist_assumption[1],
+                  'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")'%dict(E1=E1,E2=E2),
+                  'ddosa.ImagingConfig(use_SouFit=0,use_version="soufit0")',
+                   ]
+            
+        
 
 
 
