@@ -36,7 +36,14 @@ __author__ = "Andrea Tramacere"
 # Project
 # relative import eg: from .mod import f
 
+
+class DummyOsaRes(object):
+
+    def __init__(self):
+        pass
+
 from cdci_data_analysis.analysis.parameters import *
+
 
 
 def osa_common_instr_query():

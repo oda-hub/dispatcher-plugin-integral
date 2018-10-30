@@ -239,7 +239,7 @@ class OsaDispatcher(object):
             try:
                 message = json.dumps(e.exceptions[0],ensure_ascii=False)
             except :
-                pass
+                message = e.__repr__()
         return message
 
 
@@ -274,6 +274,17 @@ class OsaDispatcher(object):
                 busy_exception=True
                 print('remote poke not ok, trial',i,connection_status_message)
 
+            except Exception as e:
+                connection_status_message = self.get_exception_status_message(e)
+                query_out.set_query_exception(e, 'test connection',
+                                              message='connection_status=%s' % connection_status_message, logger=logger)
+                busy_exception = True
+                print('remote poke not ok, trial', i, connection_status_message)
+
+
+        if busy_exception==True:
+            try:
+                r = remote.poke()
             except Exception as e:
                 connection_status_message = self.get_exception_status_message(e)
                 # FAILED
