@@ -295,7 +295,7 @@ class OsaLightCurveQuery(LightCurveQuery):
             query_lc.write()
 
             if api==False:
-                _names.append(query_lc.name)
+                _names.append(query_lc.meta_data['src_name'])
                 _lc_path.append(str(query_lc.file_path.name))
                 _html_fig.append(query_lc.get_html_draw())
 
