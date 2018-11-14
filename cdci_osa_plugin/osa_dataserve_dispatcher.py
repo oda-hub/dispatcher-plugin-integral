@@ -244,8 +244,8 @@ class OsaDispatcher(object):
 
 
     def test_communication(self, max_trial=120, sleep_s=1,logger=None):
-        print('--> start test connection')
-        remote = dc.RemoteDDOSA(self.data_server_url, self.dataserver_cache)
+        print('--> start test connection to',self.data_server_url)
+        remote = dc.RemoteDDOSA(self.data_server_url, self.data_server_cache)
 
         query_out = QueryOutput()
 
@@ -287,6 +287,11 @@ class OsaDispatcher(object):
                 r = remote.poke()
             except Exception as e:
                 connection_status_message = self.get_exception_status_message(e)
+                # FAILED
+                 #query_out.set_failed('test connection',
+                 #                message='connection_status=%s' % connection_status_message,
+                 #                logger=logger,
+                 #                excep=e)
 
                 run_query_message = 'Connection Error'
                 debug_message = self.get_exceptions_message(e)
@@ -302,7 +307,11 @@ class OsaDispatcher(object):
 
         if connection_status_message == 'busy' or busy_exception==True:
             print('server is busy')
-           
+            # FAILED
+            #query_out.set_failed('test busy',
+            #                 message='connection_status=%s'%connection_status_message,
+            #                 logger=logger,
+            #                 excep=e)
 
             query_out.set_failed('test busy',
                                  message='connection_status=%s' % connection_status_message,
@@ -325,6 +334,8 @@ class OsaDispatcher(object):
         DEC = instrument.get_par_by_name('DEC').value
         radius = instrument.get_par_by_name('radius').value
         scw_list = instrument.get_par_by_name('scw_list').value
+        use_max_pointings = instrument.get_par_by_name('max_pointings').value
+        osa_version = instrument.get_par_by_name('osa_version').value
 
         query_out = QueryOutput()
 
@@ -344,11 +355,11 @@ class OsaDispatcher(object):
 
             target = "ReportScWList"
             modules = ['git://rangequery']
-            assume = ['rangequery.ReportScWList(input_scwlist=rangequery.TimeDirectionScWList)',
-                      'rangequery.TimeDirectionScWList(\
-                                    use_coordinates=dict(RA=%(RA)s,DEC=%(DEC)s,radius=%(radius)s),\
-                                    use_timespan=dict(T1="%(T1)s",T2="%(T2)s"),\
-                                    use_max_pointings=100)' % (dict(RA=RA, DEC=DEC, radius=radius, T1=T1_iso, T2=T2_iso))]
+
+
+            scwlist_assumption = OsaDispatcher.get_scwlist_assumption(None, T1_iso, T2_iso, RA, DEC, radius, use_max_pointings)
+            assume = ["rangequery.ReportScWList(input_scwlist=%s)"%scwlist_assumption[0],
+                      scwlist_assumption[1]]
 
 
             remote = dc.RemoteDDOSA(self.data_server_url, self.data_server_cache)
@@ -542,7 +553,9 @@ class OsaDispatcher(object):
                                   'rangequery.TimeDirectionScWList(\
                                                   use_coordinates=dict(RA=%(RA)s,DEC=%(DEC)s,radius=%(radius)s),\
                                                   use_timespan=dict(T1="%(T1)s",T2="%(T2)s"),\
-                                                  use_max_pointings=%(use_max_pointings)d)\
+                                                  use_max_pointings=%(use_max_pointings)d,\
+                                                  use_scwversion="001",\
+                                                  )\
                                               ' % (dict(RA=RA, DEC=DEC, radius=radius, T1=T1, T2=T2, use_max_pointings=use_max_pointings))]
 
         return scwlist_assumption
