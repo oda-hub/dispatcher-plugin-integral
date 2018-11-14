@@ -24,17 +24,10 @@ for importer, modname, ispkg in pkgutil.walk_packages(path=[pkg_dir],
 
 
 
-#conf_dir=os.path.dirname(__file__)+'/config_dir'
-
-
-
-# this line below means that config needs to be installed with the software, and may end up in the env dir.
-# it's not really how configs work: only default config might be installed, and deployment needs to be able to customize the config
-# arguably a variable is not the best solution as well. what seems to be common is default locations (/etc/cdci/... ~/.cdci/, ./.cdci-.. etc) and command-line parameters
-
 conf_dir=os.path.dirname(__file__)+'/config_dir'
+conf_file=os.path.join(conf_dir,'data_server_conf.yml')
+env_conf_file=os.environ.get('CDCI_OSA_PLUGIN_CONF_FILE')
 
-if conf_dir is not None:
-    conf_dir=conf_dir
+if env_conf_file is not None:
+    conf_file=env_conf_file
 
-conf_file=os.environ.get('CDCI_OSA_PLUGIN_CONF_FILE',os.path.join(conf_dir,'data_server_conf.yml'))
