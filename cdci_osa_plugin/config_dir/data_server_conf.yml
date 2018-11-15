@@ -3,12 +3,11 @@
           dispatcher_mnt_point:
           data_server_cache: reduced/ddcache
           dummy_cache: dummy_prods
-          data_server_url:  cdcihn.isdc.unige.ch
-          data_server_port: 31003
+          data_server_url:  cdcihn/staging-1.1/ddosa-worker
+
 
       jemx:
           dispatcher_mnt_point:
           data_server_cache: reduced/ddcache
           dummy_cache: dummy_prods
-          data_server_url: cdcihn.isdc.unige.ch
-          data_server_port: 31003
+          data_server_url:  cdcihn/staging-1.1/ddosa-worker

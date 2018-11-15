@@ -213,7 +213,7 @@ class OsaSpectrumQuery(SpectrumQuery):
             query_out.prod_dictionary['arf_file_name'] = _arf_path
             query_out.prod_dictionary['rmf_file_name'] = _rmf_path
 
-            query_out.prod_dictionary['download_file_name'] = 'spectra'
+            query_out.prod_dictionary['download_file_name'] = 'spectra.tar.gz'
         else:
             spec_list=[]
             for query_spec in prod_list.prod_list:
