@@ -126,11 +126,11 @@ class IsgriLigthtCurve(LightCurveProduct):
                 meta_data['src_name'] = src_name
                 meta_data['time_bin'] = du.header['TIMEDEL']
 
-                out_file_name =  Path(input_lc_paht).resolve().stem+'.fits'
+                out_file_name =  Path(input_lc_paht).resolve().stem
                 #if prod_prefix !='' and prod_prefix!=None:
                 #    out_file_name = prod_prefix + '_' + out_file_name
 
-                print('lc file output-->', input_lc_paht, lightcurve_attr)
+                print('lc file output-->', out_file_name, lightcurve_attr)
 
 
                 lc = cls( data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
@@ -318,7 +318,7 @@ class OsaLightCurveQuery(LightCurveQuery):
             query_out.prod_dictionary['name'] = _names
             query_out.prod_dictionary['file_name'] = _lc_path
             query_out.prod_dictionary['image'] =_html_fig
-            query_out.prod_dictionary['download_file_name'] = 'light_curve'
+            query_out.prod_dictionary['download_file_name'] = 'light_curve.fits.gz'
 
         query_out.prod_dictionary['prod_process_message'] = ''
 
