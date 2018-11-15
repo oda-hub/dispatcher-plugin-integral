@@ -318,7 +318,7 @@ class OsaLightCurveQuery(LightCurveQuery):
             query_out.prod_dictionary['name'] = _names
             query_out.prod_dictionary['file_name'] = _lc_path
             query_out.prod_dictionary['image'] =_html_fig
-            query_out.prod_dictionary['download_file_name'] = 'light_curve.fits.gz'
+            query_out.prod_dictionary['download_file_name'] = 'light_curve'
 
         query_out.prod_dictionary['prod_process_message'] = ''
 
