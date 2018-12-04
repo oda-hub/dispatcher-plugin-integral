@@ -138,6 +138,7 @@ class OsaMosaicQuery(ImageQuery):
 
 
 class IsgriMosaicQuery(OsaMosaicQuery):
+
     def __init__(self, name):
         super(IsgriMosaicQuery, self).__init__(name)
 
@@ -237,62 +238,93 @@ class IsgriMosaicQuery(OsaMosaicQuery):
 
 
 class JemxMosaicQuery(OsaMosaicQuery):
+
     def __init__(self,name ):
         super(JemxMosaicQuery, self).__init__(name)
 
 
-#     def get_dummy_products(self, instrument, config=None, **kwargs):
-#         pass
-#
-#
-#     def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2):
-#         target = "mosaic_jemx"
-#         modules = ["git://ddjemx","git://ddosa_delegate_ddjemx"] + extramodules
-#
-#         assume = ['ddjemx.JMXScWImageList(input_scwlist=%s)' % scwlist_assumption[0],
-#                    scwlist_assumption[1],
-#                   'ddjemx.JEnergyBins(use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
-#                   'ddjemx.JEMX(use_num=2)']
-#
-#         return target, modules, assume
-#
-#     def build_product_list(self, instrument,res, out_dir, prod_prefix=None,api=False):
-#
-#         image = OsaImageProduct.build_from_ddosa_skyima('mosaic_image', 'jemx_query_mosaic.fits', res.skyima,
-#                                                         out_dir=out_dir, prod_prefix=prod_prefix)
-#         osa_catalog = CatalogProduct('mosaic_catalog', catalog=OsaJemxCatalog.build_from_ddosa_srclres(res.srclres),
-#                                      file_name='query_catalog', name_prefix=prod_prefix, file_dir=out_dir)
-#
-#         prod_list = [image, osa_catalog]
-#
-#         return prod_list
-#
-#
-#     def get_dummy_products(self, instrument, config, out_dir='./'):
-#         meta_data = {'product': instrument.name, 'instrument': 'jemx', 'src_name': ''}
-#         meta_data['query_parameters']=self.get_parameters_list_as_json()
-#         dummy_cache = config.dummy_cache
-#
-#
-#         user_catalog = instrument.get_par_by_name('user_catalog').value
-#
-#         image = OsaImageProduct.from_fits_file(in_file='%s/jemx_query_mosaic.fits' % dummy_cache,
-#                                             out_file_name='jemx_query_mosaic.fits',
-#                                             ext=0,
-#                                             file_dir=out_dir,
-#                                             meta_data=meta_data)
-#
-#         catalog = CatalogProduct(name='mosaic_catalog',
-#                                  catalog=BasicCatalog.from_fits_file('%s/query_catalog.fits' % dummy_cache),
-#                                  file_name='query_catalog.fits',
-#                                  file_dir=out_dir)
-#
-#         if user_catalog is not None:
-#             print('setting from user catalog', user_catalog, catalog)
-#             catalog.catalog = user_catalog
-#
-#         prod_list = QueryProductList(prod_list=[image, catalog])
-#         return prod_list
-#
-#
-#
+
+    def get_dummy_products(self, instrument, config, out_dir='./', api=False):
+
+
+
+        meta_data = {'product': 'mosaic', 'instrument': 'jemx', 'src_name': ''}
+        meta_data['query_parameters'] = self.get_parameters_list_as_json()
+        dummy_cache = config.dummy_cache
+
+        skyima='%s/jemx_query_mosaic.fits' % dummy_cache
+        res = DummyOsaRes()
+        res.__setattr__('skyima',skyima )
+
+        user_catalog = instrument.get_par_by_name('user_catalog').value
+
+        image = OsaImageProduct.build_from_ddosa_skyima(file_name='jemx_query_mosaic.fits',
+                                                        skyima=skyima,
+                                                        ext=0,
+                                                        file_dir=out_dir,
+                                                        meta_data=meta_data)
+
+
+
+        catalog = CatalogProduct(name='mosaic_catalog',
+                                 catalog=BasicCatalog.from_fits_file('%s/query_catalog.fits' % dummy_cache),
+                                 file_name='query_catalog',
+                                 file_dir=out_dir)
+
+        if user_catalog is not None:
+            print('setting from user catalog', user_catalog, catalog)
+            catalog.catalog = user_catalog
+
+        prod_list = QueryProductList(prod_list=[image, catalog])
+        return prod_list
+
+
+
+    def build_product_list(self, instrument, res, out_dir, prod_prefix=None, api=False):
+        meta_data = {'product': 'mosaic', 'instrument': 'jemx', 'src_name': ''}
+        meta_data['query_parameters'] = self.get_parameters_list_as_json()
+
+        image = OsaImageProduct.build_from_ddosa_skyima(file_name='jemx_query_mosaic.fits',
+                                                        skyima=res.skyima,
+                                                        ext=4,
+                                                        file_dir=out_dir,
+                                                        prod_prefix=prod_prefix,
+                                                        meta_data=meta_data)
+
+        osa_catalog = CatalogProduct('mosaic_catalog',
+                                     catalog=OsaIsgriCatalog.build_from_ddosa_srclres(res.srclres),
+                                     file_name='query_catalog',
+                                     name_prefix=prod_prefix,
+                                     file_dir=out_dir)
+
+
+        prod_list = [image, osa_catalog]
+
+        return prod_list
+
+
+    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2"):
+
+        target = "mosaic_jemx"
+
+        if osa_version == "OSA10.2":
+            modules = ["git://ddosa", 'git://ddosa_delegate'] + extramodules
+        elif osa_version == "OSA11.0":
+            modules = ["git://ddosa", "git://findic/icversion", "git://ddosa11/icversion"] + extramodules + [
+                'git://ddosa_delegate']
+        else:
+            raise Exception("unknown OSA version:", osa_version)
+
+        assume = ['ddjemx.JMXScWImageList(input_scwlist=%s)' % scwlist_assumption[0],
+                   scwlist_assumption[1],
+                  'ddjemx.JEnergyBins(use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
+                  'ddjemx.JEMX(use_num=2)']
+
+        return target, modules, assume
+
+
+
+
+
+
+
