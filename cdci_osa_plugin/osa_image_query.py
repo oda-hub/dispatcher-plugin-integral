@@ -292,7 +292,7 @@ class JemxMosaicQuery(OsaMosaicQuery):
                                                         meta_data=meta_data)
 
         osa_catalog = CatalogProduct('mosaic_catalog',
-                                     catalog=OsaIsgriCatalog.build_from_ddosa_srclres(res.srclres),
+                                     catalog=OsaJemxCatalog.build_from_ddosa_srclres(res.srclres),
                                      file_name='query_catalog',
                                      name_prefix=prod_prefix,
                                      file_dir=out_dir)
