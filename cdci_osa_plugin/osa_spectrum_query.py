@@ -318,7 +318,89 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
 
 
 
+class JemxSpectrumQuery(OsaSpectrumQuery):
+    def __init__(self,name ):
+        super(JemxSpectrumQuery, self).__init__(name)
 
+
+
+
+
+
+
+    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2"):
+        target = "spe_pick"
+
+
+        if osa_version=="OSA10.2":
+            modules = ["git://ddosa","git://useresponse/cd7855bf7","git://process_isgri_spectra/osa10","git://ddjemx"
+                       "git://rangequery"]+extramodules+['git://ddosa_delegate']
+        elif osa_version=="OSA11.0":
+            modules = ["git://ddosa","git://findic/icversion","git://ddosa11/icversion","git://useresponse/osa11", "git://ddjemx",
+                               "git://rangequery"]+extramodules+['git://ddosa_delegate']
+        else:
+            raise Exception("unknown OSA version "+osa_version)
+
+        assume = ['ddjemx.JMXImageSpectraGroups(input_scwlist=%s)'% scwlist_assumption[0],
+                   scwlist_assumption[1]]
+
+
+
+
+        #print ('ciccio',target,modules,assume)
+        return target,modules,assume
+
+
+
+
+    def build_product_list(self,instrument,res,out_dir,prod_prefix='query_spectrum',api=False):
+
+        spectrum_list = IsgriSpectrumProduct.build_list_from_ddosa_res(res,
+                                                                       out_dir=out_dir,
+                                                                       prod_prefix=prod_prefix)
+
+        prod_list = spectrum_list
+
+        return prod_list
+    def get_dummy_products(self,instrument,config,out_dir='./',prod_prefix='query_spectrum',api=False):
+
+        if out_dir is None:
+            out_dir = './'
+
+        print ('config.dummy_cache',config.dummy_cache)
+        print ('out_dir',out_dir)
+        spec_files=glob.glob(config.dummy_cache+'/query_spectrum_isgri_sum*.fits*')
+        arf_files=glob.glob(config.dummy_cache+'/query_spectrum_rmf_sum_*.fits*')
+        rmf_files=glob.glob(config.dummy_cache+'/query_spectrum_arf_sum_*.fits*')
+
+
+        res = DummyOsaRes()
+
+        extracted_sources = []
+        for ID,spec_file in enumerate(spec_files):
+
+            name=spec_file.split('sum_')[-1].replace('.fits','')
+            name=name.replace('.gz', '')
+            name=name.replace('query_spectrum','')
+
+            res.__setattr__(name, name)
+            res.__setattr__(name+'_spec', spec_file)
+            res.__setattr__(name+'_rmf', arf_files[ID])
+            res.__setattr__(name+'_arf', rmf_files[ID])
+
+            extracted_sources.append((name,name+'_spec',name + '_rmf',name+'_arf'))
+
+
+        res.__setattr__('extracted_sources',extracted_sources)
+
+
+        spectrum_list = IsgriSpectrumProduct.build_list_from_ddosa_res(res,
+                                                                       out_dir=out_dir,
+                                                                       prod_prefix=None)
+
+        prod_list = QueryProductList(prod_list=spectrum_list)
+
+        return prod_list
 
 
 

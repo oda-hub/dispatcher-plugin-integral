@@ -121,7 +121,7 @@ class OsaMosaicQuery(ImageQuery):
             query_out.prod_dictionary['file_name'] = [str(query_image.file_path.name),
                                                       str(query_catalog.file_path.name + '.fits'),
                                                       str(query_catalog.file_path.name + '.reg')]
-            query_out.prod_dictionary['download_file_name'] = 'image.fits.gz'
+            query_out.prod_dictionary['download_file_name'] = 'image.tar.gz'
             query_out.prod_dictionary['catalog'] = query_catalog.catalog.get_dictionary()
         else:
             query_out.prod_dictionary['numpy_data_product_list'] = [query_image.data]
