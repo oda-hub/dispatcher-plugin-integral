@@ -97,21 +97,21 @@ def test_catalog(cat):
     assert (type(cat)==dict)
 
 def test_jemx_spectrum():
-    data = test_get_spectrum('jemx','jemx_sepctrum',product_type='Dummy')
+    data = test_get_spectrum('jemx','jemx_sepctrum',product_type='Real')
     test_spectra(data)
 
 def test_isgri_spectrum():
-    data = test_get_spectrum('isgri','isgri_sepctrum',product_type='Dummy')
+    data = test_get_spectrum('isgri','isgri_sepctrum',product_type='Real')
     test_spectra(data)
 
 
 
 def test_jemx_image():
-    data=test_get_image('jemx','jemx_image',product_type='Dummy')
+    data=test_get_image('jemx','jemx_image',product_type='Real')
     test_image(data)
     test_catalog(data[1])
 
 def test_isgri_image():
-    data=test_get_image('isgri','isgri_image',product_type='Dummy')
+    data=test_get_image('isgri','isgri_image',product_type='Real')
     test_image(data)
     test_catalog(data[1])
