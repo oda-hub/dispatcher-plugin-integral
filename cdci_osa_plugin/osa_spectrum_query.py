@@ -333,10 +333,9 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
 
         if osa_version=="OSA10.2":
-            modules = ["git://ddosa","git://useresponse/cd7855bf7","git://process_isgri_spectra/osa10","git://ddjemx"
-                       "git://rangequery"]+extramodules+['git://ddosa_delegate']
+            modules = ["git://ddosa","git://ddjemx","git://rangequery"]+extramodules+['git://ddosa_delegate']
         elif osa_version=="OSA11.0":
-            modules = ["git://ddosa","git://findic/icversion","git://ddosa11/icversion","git://useresponse/osa11", "git://ddjemx",
+            modules = ["git://ddosa","git://findic/icversion","git://ddosa11/icversion", "git://ddjemx",
                                "git://rangequery"]+extramodules+['git://ddosa_delegate']
         else:
             raise Exception("unknown OSA version "+osa_version)
