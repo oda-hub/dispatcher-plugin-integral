@@ -97,7 +97,7 @@ def test_isgri_image():
         print(i)
 
     data = disp.get_product(instrument='isgri',
-                            product='isgri_spectrum',
+                            product='isgri_image',
                             T1='2003-03-15T23:27:40.0',
                             T2='2003-03-16T00:03:12.0',
                             time_bin=50,
@@ -113,7 +113,8 @@ def test_isgri_image():
 
     assert (type(data)==list)
     assert (type(data[0])==NumpyDataProduct)
-
+    assert (type(data[1] == dict))
+    print(data[1])
 
 def test_isgri_lc():
     from oda_api.api import DispatcherAPI
@@ -134,17 +135,15 @@ def test_isgri_lc():
         print(i)
 
     data = disp.get_product(instrument='isgri',
-                            product='isgri_spectrum',
+                            product='isgri_lc',
                             T1='2003-03-15T23:27:40.0',
                             T2='2003-03-16T00:03:12.0',
-                            time_bin=50,
+                            time_bin=70,
                             osa_version='OSA10.2',
                             RA=255.986542,
                             DEC=-37.844167,
                             detection_threshold=5.0,
                             radius=15.,
-                            E1_keV=20.,
-                            E2_keV=40.,
                             product_type='Real')
 
 

@@ -87,7 +87,7 @@ def osa_jemx_factory():
 
     query_dictionary={}
     query_dictionary['jemx_image'] = 'jemx_image_query'
-    #query_dictionary['isgri_spectrum'] = 'isgri_spectrum_query'
+    query_dictionary['jemx_spectrum'] = 'isgri_spectrum_query'
     #query_dictionary['isgri_lc'] = 'isgri_lc_query'
     #query_dictionary['spectral_fit'] = 'spectral_fit_query'
 

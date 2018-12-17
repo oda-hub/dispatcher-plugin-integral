@@ -53,7 +53,7 @@ def test_jemx_spectrum():
     disp = DispatcherAPI(host='10.194.169.161', port=32784, instrument='mock')
 
     data = disp.get_product(instrument='jemx',
-                            product='isgri_spectrum',
+                            product='jemx_spectrum',
                             T1='2003-03-15T23:27:40.0',
                             T2='2003-03-16T00:03:12.0',
                             query_type='Real',
