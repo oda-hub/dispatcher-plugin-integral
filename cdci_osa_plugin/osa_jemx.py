@@ -42,6 +42,7 @@ from cdci_data_analysis.analysis.instrument import Instrument
 from .osa_image_query import JemxMosaicQuery
 from .osa_dataserve_dispatcher import OsaDispatcher
 from .osa_common_pars import  osa_common_instr_query
+from .osa_spectrum_query import JemxSpectrumQuery
 
 
 
@@ -75,10 +76,7 @@ def osa_jemx_factory():
     image=JemxMosaicQuery('jemx_image_query')
 
     #
-    # spectrum=SpectrumQuery('isgri_spectrum_query', None,
-    #                        get_products_method=get_osa_spectrum,
-    #                        get_dummy_products_method=get_osa_spectrum_dummy_products,
-    #                        process_product_method=process_osa_spectrum_products)
+    spectrum = JemxSpectrumQuery('jemx_spectrum_query')
 
 
 
@@ -87,7 +85,7 @@ def osa_jemx_factory():
 
     query_dictionary={}
     query_dictionary['jemx_image'] = 'jemx_image_query'
-    #query_dictionary['isgri_spectrum'] = 'isgri_spectrum_query'
+    query_dictionary['jemx_spectrum'] = 'jemx_spectrum_query'
     #query_dictionary['isgri_lc'] = 'isgri_lc_query'
     #query_dictionary['spectral_fit'] = 'spectral_fit_query'
 
@@ -99,6 +97,6 @@ def osa_jemx_factory():
                        src_query=src_query,
                        instrumet_query=instr_query,
                        #input_product_query=input_data,
-                       product_queries_list=[image],
+                       product_queries_list=[image,spectrum],
                        data_server_query_class=OsaDispatcher,
                        query_dictionary=query_dictionary)

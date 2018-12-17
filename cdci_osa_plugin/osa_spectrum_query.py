@@ -333,10 +333,9 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
 
         if osa_version=="OSA10.2":
-            modules = ["git://ddosa","git://useresponse/cd7855bf7","git://process_isgri_spectra/osa10","git://ddjemx"
-                       "git://rangequery"]+extramodules+['git://ddosa_delegate']
+            modules = ["git://ddosa","git://ddjemx","git://rangequery"]+extramodules+['git://ddosa_delegate']
         elif osa_version=="OSA11.0":
-            modules = ["git://ddosa","git://findic/icversion","git://ddosa11/icversion","git://useresponse/osa11", "git://ddjemx",
+            modules = ["git://ddosa","git://findic/icversion","git://ddosa11/icversion", "git://ddjemx",
                                "git://rangequery"]+extramodules+['git://ddosa_delegate']
         else:
             raise Exception("unknown OSA version "+osa_version)
@@ -362,6 +361,7 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
         prod_list = spectrum_list
 
         return prod_list
+
     def get_dummy_products(self,instrument,config,out_dir='./',prod_prefix='query_spectrum',api=False):
 
         if out_dir is None:

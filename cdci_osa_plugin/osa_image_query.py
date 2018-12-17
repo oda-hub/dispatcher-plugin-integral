@@ -125,6 +125,7 @@ class OsaMosaicQuery(ImageQuery):
             query_out.prod_dictionary['catalog'] = query_catalog.catalog.get_dictionary()
         else:
             query_out.prod_dictionary['numpy_data_product_list'] = [query_image.data]
+            query_out.prod_dictionary['catalog'] = query_catalog.catalog.get_dictionary()
             #TODO add the encode method to catalog
             #query_out.prod_dictionary['catalog'] = query_catalog.catalog.get_dictionary()
 
