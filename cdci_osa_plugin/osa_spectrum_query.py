@@ -156,7 +156,7 @@ class JemxSpectrumProduct(SpectrumProduct):
             np_spec.data_unit[1].header['RESPFILE'] = 'NONE'
 
             spec = cls(name=name, data=np_spec, file_name=out_spec_file, file_dir=out_dir, prod_prefix=prod_prefix,
-                       meta_data=meta_data,rmf_file=None,arf_file=arf.file_path.name)
+                       meta_data=meta_data,rmf_file=rmf.file_path.name,arf_file=arf.file_path.name)
 
 
             print('spec out file-->', out_spec_file)
