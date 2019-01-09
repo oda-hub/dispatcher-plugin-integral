@@ -77,6 +77,7 @@ class JemxSpectrumProduct(SpectrumProduct):
         spec_list = [getattr(res, attr) for attr in dir(res) if  attr.startswith("spectrum_")]
         arf_list = [getattr(res, attr) for attr in dir(res) if attr.startswith("arf_")]
         source_name_list=[n.split('_')[1] for n in spec_list ]
+        print('jemx',spec_list,arf_list,source_name_list)
         #import pickle
         #for s in spec_list:
         #    print('jemx specrtrum',s)
