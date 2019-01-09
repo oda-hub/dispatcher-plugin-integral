@@ -148,7 +148,7 @@ class JemxSpectrumProduct(SpectrumProduct):
             # rmf = cls(name=name, data=np_rmf, file_name=out_rmf_file, file_dir=out_dir, prod_prefix=prod_prefix,
             #           meta_data=meta_data)
 
-            name = 'isgri_spectrum'
+            name = 'jemx_spectrum'
             meta_data = {}
             meta_data['src_name'] = source_name
             meta_data['product'] = 'isgri_spectrum'
@@ -312,11 +312,11 @@ class OsaSpectrumQuery(SpectrumQuery):
 
 
 
-            if query_spec.name=='isgri_spectrum':
-                _names.append(query_spec.meta_data['src_name'])
-                _sepc_path.append(str(query_spec.file_path.name))
-                _arf_path.append(str(query_spec.arf_file))
-                _rmf_path.append(str(query_spec.rmf_file))
+                if query_spec.name=='isgri_spectrum' or  query_spec.name=='jemx_spectrum':
+                    _names.append(query_spec.meta_data['src_name'])
+                    _sepc_path.append(str(query_spec.file_path.name))
+                    _arf_path.append(str(query_spec.arf_file))
+                    _rmf_path.append(str(query_spec.rmf_file))
 
             print (_names[-1],_sepc_path[-1],_arf_path[-1],_rmf_path[-1])
 
