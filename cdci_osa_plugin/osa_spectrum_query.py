@@ -62,7 +62,7 @@ from .osa_common_pars import  DummyOsaRes
 class JemxSpectrumProduct(SpectrumProduct):
     def __init__(self,name,file_name,data,prod_prefix=None,file_dir=None,meta_data={},rmf_file=None,arf_file=None):
 
-        super(IsgriSpectrumProduct, self).__init__(name=name,
+        super(JemxSpectrumProduct, self).__init__(name=name,
                                                    data=data,
                                                    file_name=file_name,
                                                    name_prefix=prod_prefix,
