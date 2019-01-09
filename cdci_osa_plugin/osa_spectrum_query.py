@@ -103,7 +103,7 @@ class JemxSpectrumProduct(SpectrumProduct):
 
             spec_filename = getattr(res, spec_attr)
             arf_filename=  getattr(res, arf_attr)
-            rmf_filename = getattr(res, rmf_attr)
+            rmf_filename = getattr(res, rmf_filename)
 
             print('spec in file-->', spec_filename)
             print('arf  in file-->', arf_filename)
@@ -130,7 +130,7 @@ class JemxSpectrumProduct(SpectrumProduct):
                        meta_data=meta_data)
 
 
-            name = 'isgri_rmf'
+            name = 'jemx_rmf'
             meta_data = {}
             meta_data['src_name'] = source_name
             meta_data['product'] = 'jemx_rmf'
@@ -318,7 +318,7 @@ class OsaSpectrumQuery(SpectrumQuery):
                     _arf_path.append(str(query_spec.arf_file))
                     _rmf_path.append(str(query_spec.rmf_file))
 
-            #print (_names[-1],_sepc_path[-1],_arf_path[-1],_rmf_path[-1])
+            print (_names[-1],_sepc_path[-1],_arf_path[-1],_rmf_path[-1])
 
         if api==False:
 
