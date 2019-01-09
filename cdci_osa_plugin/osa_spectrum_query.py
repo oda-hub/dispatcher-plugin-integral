@@ -103,7 +103,7 @@ class JemxSpectrumProduct(SpectrumProduct):
 
             spec_filename = getattr(res, spec_attr)
             arf_filename=  getattr(res, arf_attr)
-            rmf_filename = getattr(res, rmf_filename)
+            rmf_filename = getattr(res, rmf_attr)
 
             print('spec in file-->', spec_filename)
             print('arf  in file-->', arf_filename)
