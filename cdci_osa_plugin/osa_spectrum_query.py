@@ -106,8 +106,8 @@ class JemxSpectrumProduct(SpectrumProduct):
             rmf_filename = getattr(res, rmf_attr)
 
             print('spec in file-->', spec_filename)
-            print('arf  in file-->', arf_filename)
-            print('rmf  in file-->', rmf_filename)
+            print('arf  in file-->', arf_filename+'.fits.gz')
+            print('rmf  in file-->', rmf_filename+'.fits.gz')
 
             out_spec_file = Path(spec_filename).name
 
