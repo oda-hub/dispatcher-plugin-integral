@@ -75,7 +75,8 @@ class JemxSpectrumProduct(SpectrumProduct):
     def build_list_from_ddosa_res(cls, res, prod_prefix=None, out_dir=None):
         print(dir(res),res)
         import pickle
-        pickle.dump(res,'res.pkl')
+        with open('res.pkl','rb') as f:
+            pickle.dump(res,f)
 
 class IsgriSpectrumProduct(SpectrumProduct):
 
