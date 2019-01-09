@@ -307,6 +307,7 @@ class OsaSpectrumQuery(SpectrumQuery):
 
         query_out = QueryOutput()
         for query_spec in prod_list.prod_list:
+            print('jemx',query_spec,query_spec.name)
             if query_spec is not None:
                 query_spec.write()
 
