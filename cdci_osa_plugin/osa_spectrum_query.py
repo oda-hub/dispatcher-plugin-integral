@@ -73,11 +73,12 @@ class JemxSpectrumProduct(SpectrumProduct):
 
     @classmethod
     def build_list_from_ddosa_res(cls, res, prod_prefix=None, out_dir=None):
-        print(dir(res),res)
+        #print(dir(res),res)
         spec_list_attr = [attr for attr in dir(res) if  attr.startswith("spectrum_")]
         arf_list_attr = [attr for attr in dir(res) if attr.startswith("arf_")]
+        rmf_list_attr = [attr for attr in dir(res) if attr.startswith("rmf_")]
         source_name_list=[n.split('_')[1] for n in spec_list_attr ]
-        print('jemx',spec_list_attr,arf_list_attr,source_name_list)
+        #print('jemx',spec_list_attr,arf_list_attr,source_name_list)
         #import pickle
         #for s in spec_list:
         #    print('jemx specrtrum',s)
@@ -89,7 +90,7 @@ class JemxSpectrumProduct(SpectrumProduct):
         if out_dir is None:
             out_dir = './'
 
-        for source_name,spec_attr, arf_attr in zip(source_name_list,spec_list_attr,arf_list_attr):
+        for source_name,spec_attr, arf_attr, rmf_attr in zip(source_name_list,spec_list_attr,arf_list_attr,rmf_list_attr):
             #for source_name, spec_attr, rmf_attr, arf_attr in res.extracted_sources:
 
             #source_name=1
@@ -97,14 +98,12 @@ class JemxSpectrumProduct(SpectrumProduct):
             #arf_attr=2
 
 
-            rmf_attr=None
 
 
 
             spec_filename = getattr(res, spec_attr)
             arf_filename=  getattr(res, arf_attr)
-
-            rmf_filename = None
+            rmf_filename = getattr(res, arf_attr)
 
             print('spec in file-->', spec_filename)
             print('arf  in file-->', arf_filename)
@@ -114,7 +113,7 @@ class JemxSpectrumProduct(SpectrumProduct):
 
             out_arf_file = Path(arf_attr).name
 
-            out_rmf_file = None
+            out_rmf_file =  Path(rmf_attr).name
 
 
 
@@ -131,22 +130,21 @@ class JemxSpectrumProduct(SpectrumProduct):
                        meta_data=meta_data)
 
 
-            #NO RMF FOUND
-            # name = 'isgri_rmf'
-            # meta_data = {}
-            # meta_data['src_name'] = source_name
-            # meta_data['product'] = 'isgri_rmf'
-            # meta_data['product'] = 'isgri_rmf'
-            # np_rmf = NumpyDataProduct.from_fits_file(rmf_filename, meta_data=meta_data)
-            #
-            # du = np_rmf.get_data_unit_by_name('ISGR-RMF.-RSP')
-            # du.header['EXTNAME'] = 'SPECRESP MATRIX'
-            #
-            # du = np_rmf.get_data_unit_by_name('ISGR-EBDS-MOD')
-            # du.header['EXTNAME'] = 'EBOUNDS'
-            #
-            # rmf = cls(name=name, data=np_rmf, file_name=out_rmf_file, file_dir=out_dir, prod_prefix=prod_prefix,
-            #           meta_data=meta_data)
+            name = 'isgri_rmf'
+            meta_data = {}
+            meta_data['src_name'] = source_name
+            meta_data['product'] = 'jemx_rmf'
+            meta_data['product'] = 'jemx_rmf'
+            np_rmf = NumpyDataProduct.from_fits_file(rmf_filename, meta_data=meta_data)
+
+            du = np_rmf.get_data_unit_by_name('JMX1-RMF.-RSP')
+            du.header['EXTNAME'] = 'SPECRESP MATRIX'
+
+            du = np_rmf.get_data_unit_by_name('JMX1-FBDS-MOD')
+            du.header['EXTNAME'] = 'EBOUNDS'
+
+            rmf = cls(name=name, data=np_rmf, file_name=out_rmf_file, file_dir=out_dir, prod_prefix=prod_prefix,
+                      meta_data=meta_data)
 
             name = 'jemx_spectrum'
             meta_data = {}
@@ -168,7 +166,7 @@ class JemxSpectrumProduct(SpectrumProduct):
 
             spec_list.append(spec)
             spec_list.append(arf)
-            spec_list.append(None)
+            spec_list.append(rmf)
 
         return spec_list
 
