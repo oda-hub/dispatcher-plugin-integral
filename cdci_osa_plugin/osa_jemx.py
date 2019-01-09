@@ -81,13 +81,13 @@ def osa_jemx_factory():
 
 
 
-    # xspec_fit = SpectralFitQuery('spectral_fit_query', None)
+    xspec_fit = SpectralFitQuery('spectral_fit_query', None)
 
     query_dictionary={}
     query_dictionary['jemx_image'] = 'jemx_image_query'
     query_dictionary['jemx_spectrum'] = 'jemx_spectrum_query'
     #query_dictionary['isgri_lc'] = 'isgri_lc_query'
-    #query_dictionary['spectral_fit'] = 'spectral_fit_query'
+    query_dictionary['spectral_fit'] = 'spectral_fit_query'
 
     print('--> conf_file', conf_file)
     print('--> conf_dir', conf_dir)
@@ -97,6 +97,6 @@ def osa_jemx_factory():
                        src_query=src_query,
                        instrumet_query=instr_query,
                        #input_product_query=input_data,
-                       product_queries_list=[image,spectrum],
+                       product_queries_list=[image,spectrum,xspec_fit],
                        data_server_query_class=OsaDispatcher,
                        query_dictionary=query_dictionary)

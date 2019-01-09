@@ -318,7 +318,7 @@ class OsaSpectrumQuery(SpectrumQuery):
                     _arf_path.append(str(query_spec.arf_file))
                     _rmf_path.append(str(query_spec.rmf_file))
 
-            print (_names[-1],_sepc_path[-1],_arf_path[-1],_rmf_path[-1])
+            #print (_names[-1],_sepc_path[-1],_arf_path[-1],_rmf_path[-1])
 
         if api==False:
 
