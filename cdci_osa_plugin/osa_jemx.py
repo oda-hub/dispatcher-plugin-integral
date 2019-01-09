@@ -57,8 +57,9 @@ def osa_jemx_factory():
 
     E1_keV = SpectralBoundary(value=3., E_units='keV', name='E1_keV')
     E2_keV = SpectralBoundary(value=35., E_units='keV', name='E2_keV')
-    instr_query_pars.append(E1_keV)
-    instr_query_pars.append(E2_keV)
+
+    spec_window = ParameterRange(E1_keV, E2_keV, 'spec_window')
+    instr_query_pars.append(spec_window)
 
     instr_query = InstrumentQuery(
         name='jemx_parameters',

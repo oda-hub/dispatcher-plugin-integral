@@ -52,9 +52,8 @@ def osa_common_instr_query():
     max_pointings=Integer(value=50,name='max_pointings')
 
     radius = Angle(value=5.0, units='deg', name='radius')
-    spec_window = ParameterRange(E1_keV, E2_keV, 'spec_window')
     osa_version = Name(name_format='str', name='osa_version')
-    instr_query_pars=[radius,max_pointings,spec_window,osa_version]
+    instr_query_pars=[radius,max_pointings,osa_version]
 
 
     return instr_query_pars
