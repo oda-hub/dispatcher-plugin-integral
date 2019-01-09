@@ -58,6 +58,23 @@ from oda_api.data_products import NumpyDataProduct
 
 from .osa_common_pars import  DummyOsaRes
 
+
+class JemxSpectrumProduct(SpectrumProduct):
+    def __init__(self,name,file_name,data,prod_prefix=None,file_dir=None,meta_data={},rmf_file=None,arf_file=None):
+
+        super(IsgriSpectrumProduct, self).__init__(name=name,
+                                                   data=data,
+                                                   file_name=file_name,
+                                                   name_prefix=prod_prefix,
+                                                   file_dir=file_dir,
+                                                   rmf_file=rmf_file,
+                                                   arf_file=arf_file,
+                                                   meta_data=meta_data)
+
+    @classmethod
+    def build_list_from_ddosa_res(cls, res, prod_prefix=None, out_dir=None):
+        print(dir(res))
+
 class IsgriSpectrumProduct(SpectrumProduct):
 
     def __init__(self,name,file_name,data,prod_prefix=None,file_dir=None,meta_data={},rmf_file=None,arf_file=None):
@@ -346,7 +363,7 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
 
 
-        #print ('ciccio',target,modules,assume)
+        #print ('jemx',target,modules,assume)
         return target,modules,assume
 
 
@@ -354,7 +371,7 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
     def build_product_list(self,instrument,res,out_dir,prod_prefix='query_spectrum',api=False):
 
-        spectrum_list = IsgriSpectrumProduct.build_list_from_ddosa_res(res,
+        spectrum_list = JemxSpectrumProduct.build_list_from_ddosa_res(res,
                                                                        out_dir=out_dir,
                                                                        prod_prefix=prod_prefix)
 
