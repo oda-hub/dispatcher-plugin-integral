@@ -59,6 +59,11 @@ def osa_isgri_factory():
 
     instr_query_pars=osa_common_instr_query()
 
+    E1_keV = SpectralBoundary(value=10., E_units='keV', name='E1_keV')
+    E2_keV = SpectralBoundary(value=40., E_units='keV', name='E2_keV')
+    instr_query_pars.append(E1_keV)
+    instr_query_pars.append(E2_keV)
+
     instr_query=InstrumentQuery(
         name='isgri_parameters',
         extra_parameters_list=instr_query_pars,
