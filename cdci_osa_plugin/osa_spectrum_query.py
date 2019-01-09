@@ -74,10 +74,10 @@ class JemxSpectrumProduct(SpectrumProduct):
     @classmethod
     def build_list_from_ddosa_res(cls, res, prod_prefix=None, out_dir=None):
         print(dir(res),res)
-        spec_list = [getattr(res, attr) for attr in dir(res) if  attr.startswith("spectrum_")]
-        arf_list = [getattr(res, attr) for attr in dir(res) if attr.startswith("arf_")]
-        source_name_list=[n.split('_')[1] for n in spec_list ]
-        print('jemx',spec_list,arf_list,source_name_list)
+        spec_list_attr = [attr for attr in dir(res) if  attr.startswith("spectrum_")]
+        arf_list_attr = [attr for attr in dir(res) if attr.startswith("arf_")]
+        source_name_list=[n.split('_')[1] for n in spec_list_attr ]
+        print('jemx',spec_list_attr,arf_list_attr,source_name_list)
         #import pickle
         #for s in spec_list:
         #    print('jemx specrtrum',s)
@@ -89,22 +89,26 @@ class JemxSpectrumProduct(SpectrumProduct):
         if out_dir is None:
             out_dir = './'
 
-        for source_name,spec_attr, arf_attr in zip(source_name_list,spec_list,arf_list):
+        for source_name,spec_attr, arf_attr in zip(source_name_list,spec_list_attr,arf_list_attr):
             #for source_name, spec_attr, rmf_attr, arf_attr in res.extracted_sources:
 
             #source_name=1
             #spec_attr=1
             #arf_attr=2
+
+
             rmf_attr=None
 
-            print('spec in file-->',spec_attr)
-            print('arf  in file-->', arf_attr)
-            print('rmf  in file-->', rmf_attr)
 
-            spec_filename = spec_attr
-            arf_filename=  arf_attr
 
-            rmf_filename = rmf_attr
+            spec_filename = getattr(res, spec_attr)
+            arf_filename=  getattr(res, arf_attr)
+
+            rmf_filename = None
+
+            print('spec in file-->', spec_filename)
+            print('arf  in file-->', arf_filename)
+            print('rmf  in file-->', rmf_filename)
 
             out_spec_file = Path(spec_filename).name
 
