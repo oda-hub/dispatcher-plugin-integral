@@ -52,7 +52,8 @@ def osa_jemx_factory():
     src_query=SourceQuery('src_query')
 
     instr_query_pars = osa_common_instr_query()
-    instr_num = Name(value='jemx1', name='jemx_num')
+    instr_num = Integer(value=2,name='jemx_num')
+    #    (value='jemx1', name='jemx_num')
     instr_query_pars.append(instr_num)
 
     E1_keV = SpectralBoundary(value=3., E_units='keV', name='E1_keV')

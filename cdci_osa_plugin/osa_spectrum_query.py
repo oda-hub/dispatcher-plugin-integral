@@ -284,8 +284,12 @@ class OsaSpectrumQuery(SpectrumQuery):
         E1=instrument.get_par_by_name('E1_keV').value
         E2=instrument.get_par_by_name('E2_keV').value
         osa_version=instrument.get_par_by_name('osa_version').value
-        target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,osa_version)
 
+        if (isinstance(self,JemxSpectrumQuery)):
+            jemx_num = instrument.get_par_by_name('jemx_num').value
+            target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,osa_version,jemx_num=jemx_num)
+        else:
+            target, modules, assume = self.set_instr_dictionaries(extramodules, scwlist_assumption, E1, E2, osa_version)
         q=OsaDispatcher(config=config, target=target, modules=modules, assume=assume, inject=inject,instrument=instrument)
 
         return q
@@ -443,7 +447,7 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
 
 
-    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2"):
+    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2",jemx_num=2):
         target = "spe_pick"
 
 
@@ -458,7 +462,7 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
         assume = ['ddjemx.JMXImageSpectraGroups(input_scwlist=%s)'% scwlist_assumption[0],
                    scwlist_assumption[1],
                   'ddjemx.JEnergyBins(use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
-                  'ddjemx.JEMX(use_num=2)',
+                  'ddjemx.JEMX(use_num=%d)'%jemx_num,
                   'ddjemx.JEnergyBins(use_nchanpow=-4)']
 
 
