@@ -96,8 +96,8 @@ def osa_jemx_factory():
     #query_dictionary['isgri_lc'] = 'isgri_lc_query'
     query_dictionary['spectral_fit'] = 'spectral_fit_query'
 
-    print('--> conf_file', conf_file)
-    print('--> conf_dir', conf_dir)
+    #print('--> conf_file', conf_file)
+    #print('--> conf_dir', conf_dir)
 
     return  Instrument('jemx',
                        data_serve_conf_file=conf_file,

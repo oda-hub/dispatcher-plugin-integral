@@ -105,9 +105,9 @@ class JemxSpectrumProduct(SpectrumProduct):
             arf_filename=  getattr(res, arf_attr)
             rmf_filename = getattr(res, rmf_attr)
 
-            print('spec in file-->', spec_filename)
-            print('arf  in file-->', arf_filename)
-            print('rmf  in file-->', rmf_filename)
+            #print('spec in file-->', spec_filename)
+            #print('arf  in file-->', arf_filename)
+            #print('rmf  in file-->', rmf_filename)
 
             out_spec_file = Path(spec_filename).name
 
@@ -159,9 +159,9 @@ class JemxSpectrumProduct(SpectrumProduct):
                        meta_data=meta_data,rmf_file=rmf.file_path.name,arf_file=arf.file_path.name)
 
 
-            print('spec out file-->', out_spec_file)
-            print('arf  out file-->', out_arf_file)
-            print('rmf  out file-->', out_rmf_file)
+            #print('spec out file-->', out_spec_file)
+            #print('arf  out file-->', out_arf_file)
+            #print('rmf  out file-->', out_rmf_file)
 
 
             spec_list.append(spec)
@@ -197,9 +197,9 @@ class IsgriSpectrumProduct(SpectrumProduct):
             out_dir='./'
         for source_name, spec_attr, rmf_attr, arf_attr in res.extracted_sources:
 
-            print('spec in file-->',getattr(res, spec_attr), spec_attr)
-            print('arf  in file-->', getattr(res, arf_attr), arf_attr)
-            print('rmf  in file-->', getattr(res, rmf_attr), rmf_attr)
+            #print('spec in file-->',getattr(res, spec_attr), spec_attr)
+            #print('arf  in file-->', getattr(res, arf_attr), arf_attr)
+            #print('rmf  in file-->', getattr(res, rmf_attr), rmf_attr)
 
             spec_filename = getattr(res, spec_attr)
             arf_filename= getattr(res, arf_attr)
@@ -257,9 +257,9 @@ class IsgriSpectrumProduct(SpectrumProduct):
                        meta_data=meta_data,rmf_file=rmf.file_path.name,arf_file=arf.file_path.name)
 
 
-            print('spec out file-->', out_spec_file)
-            print('arf  out file-->', out_arf_file)
-            print('rmf  out file-->', out_rmf_file)
+            #print('spec out file-->', out_spec_file)
+            #print('arf  out file-->', out_arf_file)
+            #print('rmf  out file-->', out_rmf_file)
 
 
             spec_list.append(spec)
@@ -300,7 +300,7 @@ class OsaSpectrumQuery(SpectrumQuery):
 
     def process_product_method(self, instrument, prod_list,api=False):
 
-        print('process_product_method,api',api)
+        #print('process_product_method,api',api)
         _names = []
 
         _sepc_path = []
@@ -309,9 +309,9 @@ class OsaSpectrumQuery(SpectrumQuery):
 
         query_out = QueryOutput()
         for query_spec in prod_list.prod_list:
-            print('jemx',query_spec)
+            #print('jemx',query_spec)
             if query_spec is not None:
-                print('jemx', query_spec.name)
+                #print('jemx', query_spec.name)
                 query_spec.write()
 
 
@@ -322,7 +322,7 @@ class OsaSpectrumQuery(SpectrumQuery):
                     _arf_path.append(str(query_spec.arf_file))
                     _rmf_path.append(str(query_spec.rmf_file))
 
-        print (_names,_sepc_path,_arf_path,_rmf_path)
+        #print (_names,_sepc_path,_arf_path,_rmf_path)
 
         if api==False:
 
@@ -399,8 +399,8 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
         if out_dir is None:
             out_dir = './'
 
-        print ('config.dummy_cache',config.dummy_cache)
-        print ('out_dir',out_dir)
+        #print ('config.dummy_cache',config.dummy_cache)
+        #print ('out_dir',out_dir)
         spec_files=glob.glob(config.dummy_cache+'/query_spectrum_isgri_sum*.fits*')
         arf_files=glob.glob(config.dummy_cache+'/query_spectrum_rmf_sum_*.fits*')
         rmf_files=glob.glob(config.dummy_cache+'/query_spectrum_arf_sum_*.fits*')
@@ -490,8 +490,8 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
         if out_dir is None:
             out_dir = './'
 
-        print ('config.dummy_cache',config.dummy_cache)
-        print ('out_dir',out_dir)
+        #print ('config.dummy_cache',config.dummy_cache)
+        #print ('out_dir',out_dir)
         spec_files=glob.glob(config.dummy_cache+'/query_spectrum_isgri_sum*.fits*')
         arf_files=glob.glob(config.dummy_cache+'/query_spectrum_rmf_sum_*.fits*')
         rmf_files=glob.glob(config.dummy_cache+'/query_spectrum_arf_sum_*.fits*')

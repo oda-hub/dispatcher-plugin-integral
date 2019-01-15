@@ -108,7 +108,7 @@ class IsgriLigthtCurve(LightCurveProduct):
         for source_name, lightcurve_attr in res.extracted_sources:
             meta_data = {}
             input_lc_paht = getattr(res, lightcurve_attr)
-            print('lc file input-->', input_lc_paht, lightcurve_attr)
+            #print('lc file input-->', input_lc_paht, lightcurve_attr)
 
 
             #hdu_list = FitsFile(lc_paht).open()
@@ -130,7 +130,7 @@ class IsgriLigthtCurve(LightCurveProduct):
                 #if prod_prefix !='' and prod_prefix!=None:
                 #    out_file_name = prod_prefix + '_' + out_file_name
 
-                print('lc file output-->', out_file_name, lightcurve_attr)
+                #print('lc file output-->', out_file_name, lightcurve_attr)
 
 
                 lc = cls( data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
@@ -374,8 +374,8 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
         return prod_list
 
     def set_instr_dictionaries(self, extramodules, scwlist_assumption, E1, E2, src_name, delta_t, osa_version="OSA10.2"):
-        print('-->lc standard mode from scw_list', scwlist_assumption)
-        print('-->src_name', src_name)
+        #print('-->lc standard mode from scw_list', scwlist_assumption)
+        #print('-->src_name', src_name)
         target = "ISGRILCSum"
 
         if extramodules is None:

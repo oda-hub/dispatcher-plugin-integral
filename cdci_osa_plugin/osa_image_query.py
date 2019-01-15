@@ -200,7 +200,7 @@ class IsgriMosaicQuery(OsaMosaicQuery):
                                  file_dir=out_dir)
 
         if user_catalog is not None:
-            print('setting from user catalog', user_catalog, catalog)
+            #print('setting from user catalog', user_catalog, catalog)
             catalog.catalog = user_catalog
 
         prod_list = QueryProductList(prod_list=[image, catalog])
@@ -218,7 +218,7 @@ class IsgriMosaicQuery(OsaMosaicQuery):
 
 
     def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2"):
-        print ('E1,E2',E1,E2)
+        #print ('E1,E2',E1,E2)
         target = "mosaic_ii_skyimage"
 
         if osa_version=="OSA10.2":
@@ -279,7 +279,7 @@ class JemxMosaicQuery(OsaMosaicQuery):
                                  file_dir=out_dir)
 
         if user_catalog is not None:
-            print('setting from user catalog', user_catalog, catalog)
+            #print('setting from user catalog', user_catalog, catalog)
             catalog.catalog = user_catalog
 
         prod_list = QueryProductList(prod_list=[image, catalog])

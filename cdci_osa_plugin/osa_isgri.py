@@ -94,8 +94,8 @@ def osa_isgri_factory():
     #query_dictionary['update_image'] = 'update_image'
 
 
-    print('--> conf_file',conf_file)
-    print('--> conf_dir', conf_dir)
+    #print('--> conf_file',conf_file)
+    #print('--> conf_dir', conf_dir)
 
     return  Instrument('isgri',
                        data_serve_conf_file=conf_file,
