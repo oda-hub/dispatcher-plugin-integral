@@ -358,7 +358,7 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
 
         res =DummyOsaRes()
         res.__setattr__('dummy_src','dummy_src')
-        res.__setattr__('dummy_lc','%s/light_curve.fits.gz' % dummy_cache)
+        res.__setattr__('dummy_lc','%s/isgri_query_lc.fits' % dummy_cache)
         res.__setattr__('extracted_sources',[('dummy_src','dummy_lc')])
 
 
