@@ -72,7 +72,7 @@ class JemxSpectrumProduct(SpectrumProduct):
                                                    meta_data=meta_data)
 
     @classmethod
-    def build_list_from_ddosa_res(cls, res, prod_prefix=None, out_dir=None):
+    def build_list_from_ddosa_res(cls, res, prod_prefix=None, out_dir=None,jemx_num=2):
         #print(dir(res),res)
         spec_list_attr = [attr for attr in dir(res) if  attr.startswith("spectrum_")]
         arf_list_attr = [attr for attr in dir(res) if attr.startswith("arf_")]
@@ -105,9 +105,10 @@ class JemxSpectrumProduct(SpectrumProduct):
             arf_filename=  getattr(res, arf_attr)
             rmf_filename = getattr(res, rmf_attr)
 
-            #print('spec in file-->', spec_filename)
-            #print('arf  in file-->', arf_filename)
-            #print('rmf  in file-->', rmf_filename)
+            print('jemx_num',jemx_num)
+            print('spec in file-->', spec_filename)
+            print('arf  in file-->', arf_filename)
+            print('rmf  in file-->', rmf_filename)
 
             out_spec_file = Path(spec_filename).name
 
@@ -123,7 +124,7 @@ class JemxSpectrumProduct(SpectrumProduct):
             meta_data['product'] = 'jemx_arf'
             np_arf = NumpyDataProduct.from_fits_file(arf_filename, meta_data=meta_data)
 
-            du = np_arf.get_data_unit_by_name('JMX2-AXIS-ARF')
+            du = np_arf.get_data_unit_by_name('JMX%d-AXIS-ARF'%jemx_num)
             du.header['EXTNAME'] = 'SPECRESP'
 
             arf = cls(name=name, data=np_arf, file_name=out_arf_file, file_dir=out_dir, prod_prefix=prod_prefix,
@@ -137,10 +138,10 @@ class JemxSpectrumProduct(SpectrumProduct):
             meta_data['product'] = 'jemx_rmf'
             np_rmf = NumpyDataProduct.from_fits_file(rmf_filename, meta_data=meta_data)
 
-            du = np_rmf.get_data_unit_by_name('JMX1-RMF.-RSP')
+            du = np_rmf.get_data_unit_by_name('JMX%d-RMF.-RSP'%jemx_num)
             du.header['EXTNAME'] = 'SPECRESP MATRIX'
 
-            du = np_rmf.get_data_unit_by_name('JMX1-FBDS-MOD')
+            du = np_rmf.get_data_unit_by_name('JMX%d-FBDS-MOD'%jemx_num)
             du.header['EXTNAME'] = 'EBOUNDS'
 
             rmf = cls(name=name, data=np_rmf, file_name=out_rmf_file, file_dir=out_dir, prod_prefix=prod_prefix,
@@ -477,9 +478,11 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
     def build_product_list(self,instrument,res,out_dir,prod_prefix='query_spectrum',api=False):
 
+        jemx_num = instrument.get_par_by_name('jemx_num').value
         spectrum_list = JemxSpectrumProduct.build_list_from_ddosa_res(res,
                                                                        out_dir=out_dir,
-                                                                       prod_prefix=prod_prefix)
+                                                                       prod_prefix=prod_prefix,
+                                                                       jemx_num=jemx_num)
 
         prod_list = spectrum_list
 
