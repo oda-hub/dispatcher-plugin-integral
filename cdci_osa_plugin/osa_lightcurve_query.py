@@ -216,7 +216,7 @@ class OsaLigthtCurve(LightCurveProduct):
 
         npd = NumpyDataProduct.from_fits_file(self.file_path.path)
 
-        du=None
+
 
 
 
@@ -227,13 +227,13 @@ class OsaLigthtCurve(LightCurveProduct):
 
         if du is None:
             du = npd.get_data_unit_by_name('JMX1-SRC.-LCR')
-       
+
         if du is None:
             raise RuntimeError('du with lc not found in fits file')
 
         data = du.data
         header = du.header
-
+        print(header)
 
         #filtering zero flux values
         msk_non_zero = np.count_nonzero([data['RATE'], data['ERROR']], axis=0) > 0
@@ -242,8 +242,10 @@ class OsaLigthtCurve(LightCurveProduct):
         x = data['TIME']
         y = data['RATE']
         dy = data['ERROR']
-        mjdref = header['mjdref'] + np.int(x.min())
-
+        try:
+            mjdref = header['mjdref'] + np.int(x.min())
+        except:
+            mjdref = header['mjdref'] + np.int(x.min())
 
 
         x = x - np.int(x.min())
