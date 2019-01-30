@@ -153,7 +153,7 @@ class OsaLigthtCurve(LightCurveProduct):
         print(dir(res))
         #for s in spec_list:
         #    print('jemx specrtrum',s)
-        with open('jemx_lc_res.pkl','rb') as f:
+        with open('jemx_lc_res.pkl','wb') as f:
             pickle.dump(res,f)
 
         lc_list = []
