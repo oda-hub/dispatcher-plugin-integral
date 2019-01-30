@@ -161,6 +161,7 @@ class OsaLigthtCurve(LightCurveProduct):
         lc_path_list = [attr for attr in dir(res) if attr.startswith("lc_")]
         src_name_list=[n.split('_')[1] for n in lc_list]
 
+        print ('->',lc_path_list,src_name_list)
 
         if file_dir is None:
             file_dir = './'
