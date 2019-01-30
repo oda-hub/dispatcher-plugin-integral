@@ -218,16 +218,16 @@ class OsaLigthtCurve(LightCurveProduct):
 
         du=None
 
-        if isinstance(self,IsgriLightCurveQuery):
 
-            du = npd.get_data_unit_by_name('ISGR-SRC.-LCR')
-        elif isinstance(self,JemxLightCurveQuery):
+
+        du = npd.get_data_unit_by_name('ISGR-SRC.-LCR')
+
+        if du is None:
+            du = npd.get_data_unit_by_name('JMX2-SRC.-LCR')
+
+        if du is None:
             du = npd.get_data_unit_by_name('JMX1-SRC.-LCR')
-            if du is None:
-                du = npd.get_data_unit_by_name('JMX2-SRC.-LCR')
-        else:
-            raise RuntimeError('LC prent class not understood')
-
+       
         if du is None:
             raise RuntimeError('du with lc not found in fits file')
 
