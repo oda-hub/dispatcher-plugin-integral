@@ -79,7 +79,7 @@ def osa_jemx_factory():
     #
     spectrum = JemxSpectrumQuery('jemx_spectrum_query')
 
-    light_curve = JemxLightCurveQuery('jemex_lc_query')
+    light_curve = JemxLightCurveQuery('jemx_lc_query')
 
 
     xspec_fit = SpectralFitQuery('spectral_fit_query', None)
