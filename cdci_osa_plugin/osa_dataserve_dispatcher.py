@@ -373,14 +373,14 @@ class OsaDispatcher(object):
                 if len(prod_list)<1:
                     run_query_message = 'scwlist empty'
                     debug_message = ''
-                    # FAILED
                     query_out.set_failed('test has input prods',
                                          message=run_query_message,
                                          logger=logger,
+                                         job_status='failed',
                                          e_message=run_query_message,
                                          debug_message='')
 
-                    raise DDOSAException('scwlist empty', '')
+                    raise DDOSAException(message='scwlist empty', debug_message='')
 
 
 
@@ -392,6 +392,7 @@ class OsaDispatcher(object):
                                      message='has input_products=%s' % run_query_message,
                                      logger=logger,
                                      excep=e,
+                                     job_status='failed',
                                      e_message=run_query_message,
                                      debug_message=debug_message)
 

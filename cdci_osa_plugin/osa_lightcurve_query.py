@@ -525,7 +525,7 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
 
         assume = ['ddjemx.JMXImageLCGroups(input_scwlist=%s)' % scwlist_assumption[0],
                   scwlist_assumption[1],
-                  'ddjemx.JEnergyBinsLC(use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
+                  'ddjemx.JEnergyBinsLC (use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
                   'ddosa.GRcat(use_refcatvar=True)',
                   'ddjemx.LCTimeBin(use_timebin_s=%f)'%delta_t]
 
