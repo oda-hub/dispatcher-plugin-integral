@@ -245,7 +245,7 @@ class OsaLigthtCurve(LightCurveProduct):
         try:
             mjdref = header['mjdref'] + np.int(x.min())
         except:
-            mjdref = header['mjdref'] + np.int(x.min())
+            mjdref = header['MJDREF'] + np.int(x.min())
 
 
         x = x - np.int(x.min())
