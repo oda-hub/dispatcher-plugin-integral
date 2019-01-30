@@ -156,7 +156,9 @@ class OsaLigthtCurve(LightCurveProduct):
         #with open('jemx_lc_res.pkl','wb') as f:
         #    pickle.dump(res,f)
 
-        lc_list = [attr for attr in dir(res) if attr.startswith("lc_")]
+        lc_list=[]
+
+        lc_path_list = [attr for attr in dir(res) if attr.startswith("lc_")]
         src_name_list=[n.split('_')[1] for n in lc_list]
 
 
@@ -166,7 +168,7 @@ class OsaLigthtCurve(LightCurveProduct):
         if prod_prefix is None:
             prod_prefix = ''
 
-        for source_name, input_lc_paht in zip(src_name_list,lc_list):
+        for source_name, input_lc_paht in zip(src_name_list,lc_path_list):
             meta_data = {}
             #input_lc_paht = getattr(res, lightcurve_attr)
             # print('lc file input-->', input_lc_paht, lightcurve_attr)
