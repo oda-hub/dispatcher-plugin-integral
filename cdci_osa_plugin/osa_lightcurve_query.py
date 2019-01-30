@@ -166,9 +166,9 @@ class OsaLigthtCurve(LightCurveProduct):
         if prod_prefix is None:
             prod_prefix = ''
 
-        for source_name, lightcurve_attr in zip(src_name_list,lc_list):
+        for source_name, input_lc_paht in zip(src_name_list,lc_list):
             meta_data = {}
-            input_lc_paht = getattr(res, lightcurve_attr)
+            #input_lc_paht = getattr(res, lightcurve_attr)
             # print('lc file input-->', input_lc_paht, lightcurve_attr)
 
             # hdu_list = FitsFile(lc_paht).open()
