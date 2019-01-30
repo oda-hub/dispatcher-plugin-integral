@@ -180,13 +180,13 @@ class OsaLigthtCurve(LightCurveProduct):
 
             npd = NumpyDataProduct.from_fits_file(input_lc_paht, meta_data=meta_data)
 
-            npd.show()
+
             du = npd.get_data_unit_by_name('JMX1-SRC.-LCR')
 
             if du is not None:
                 #src_name = du.header['NAME']
 
-                meta_data['src_name'] = src_name
+                meta_data['src_name'] = source_name
                 meta_data['time_bin'] = du.header['TIMEDEL']
 
                 out_file_name = Path(input_lc_paht).resolve().stem
@@ -212,15 +212,28 @@ class OsaLigthtCurve(LightCurveProduct):
         # print ('loading -->',self.file_path.path)
 
         # hdul = pf.open(self.file_path.path)
-        hdul = FitsFile(self.file_path.path).open()
 
-        data = hdul[1].data
-        header = hdul[1].header
 
-        import matplotlib
-        # matplotlib.use('TkAgg')
-        #import pylab as plt
-        #fig, ax = plt.subplots()
+        npd = NumpyDataProduct.from_fits_file(self.file_path.path)
+
+        du=None
+
+        if isinstance(self,IsgriLightCurveQuery):
+
+            du = npd.get_data_unit_by_name('ISGR-SRC.-LCR')
+        elif isinstance(self,JemxLightCurveQuery):
+            du = npd.get_data_unit_by_name('JMX1-SRC.-LCR')
+            if du is None:
+                du = npd.get_data_unit_by_name('JMX2-SRC.-LCR')
+        else:
+            raise RuntimeError('LC prent class not understood')
+
+        if du is None:
+            raise RuntimeError('du with lc not found in fits file')
+
+        data = du.data
+        header = du.header
+
 
         #filtering zero flux values
         msk_non_zero = np.count_nonzero([data['RATE'], data['ERROR']], axis=0) > 0
