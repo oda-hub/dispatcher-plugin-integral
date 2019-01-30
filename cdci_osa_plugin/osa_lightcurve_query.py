@@ -149,14 +149,16 @@ class OsaLigthtCurve(LightCurveProduct):
                                       api=False):
 
         #print('jemx',spec_list_attr,arf_list_attr,source_name_list)
-        import pickle
-        print(dir(res))
+        #import pickle
+        #print(dir(res))
         #for s in spec_list:
         #    print('jemx specrtrum',s)
-        with open('jemx_lc_res.pkl','wb') as f:
-            pickle.dump(res,f)
+        #with open('jemx_lc_res.pkl','wb') as f:
+        #    pickle.dump(res,f)
 
-        lc_list = []
+        lc_list = [attr for attr in dir(res) if attr.startswith("lc_")]
+        src_name_list=[n.split('_')[1] for n in lc_list]
+
 
         if file_dir is None:
             file_dir = './'
@@ -164,7 +166,7 @@ class OsaLigthtCurve(LightCurveProduct):
         if prod_prefix is None:
             prod_prefix = ''
 
-        for source_name, lightcurve_attr in res.extracted_sources:
+        for source_name, lightcurve_attr in zip(src_name_list,lc_list):
             meta_data = {}
             input_lc_paht = getattr(res, lightcurve_attr)
             # print('lc file input-->', input_lc_paht, lightcurve_attr)
@@ -175,10 +177,10 @@ class OsaLigthtCurve(LightCurveProduct):
 
             npd = NumpyDataProduct.from_fits_file(input_lc_paht, meta_data=meta_data)
 
-            du = npd.get_data_unit_by_name('ISGR-SRC.-LCR')
+            du = npd.get_data_unit_by_name('JMX1-SRC.-LCR')
 
             if du is not None:
-                src_name = du.header['NAME']
+                #src_name = du.header['NAME']
 
                 meta_data['src_name'] = src_name
                 meta_data['time_bin'] = du.header['TIMEDEL']
