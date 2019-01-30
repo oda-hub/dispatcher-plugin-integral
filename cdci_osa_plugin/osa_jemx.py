@@ -87,7 +87,7 @@ def osa_jemx_factory():
     query_dictionary={}
     query_dictionary['jemx_image'] = 'jemx_image_query'
     query_dictionary['jemx_spectrum'] = 'jemx_spectrum_query'
-    query_dictionary['jemx_lx'] = 'jemx_lc_query'
+    query_dictionary['jemx_lc'] = 'jemx_lc_query'
     query_dictionary['spectral_fit'] = 'spectral_fit_query'
 
     #print('--> conf_file', conf_file)
