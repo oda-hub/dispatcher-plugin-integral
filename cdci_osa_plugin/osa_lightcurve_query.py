@@ -179,6 +179,7 @@ class OsaLigthtCurve(LightCurveProduct):
 
             npd = NumpyDataProduct.from_fits_file(input_lc_paht, meta_data=meta_data)
 
+            npd.show()
             du = npd.get_data_unit_by_name('JMX1-SRC.-LCR')
 
             if du is not None:
