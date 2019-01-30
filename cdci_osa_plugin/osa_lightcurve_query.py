@@ -150,6 +150,7 @@ class OsaLigthtCurve(LightCurveProduct):
 
         #print('jemx',spec_list_attr,arf_list_attr,source_name_list)
         import pickle
+        print(dir(res))
         #for s in spec_list:
         #    print('jemx specrtrum',s)
         with open('jemx_lc_res.pkl','rb') as f:
