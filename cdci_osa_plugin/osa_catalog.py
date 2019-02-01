@@ -164,7 +164,7 @@ class OsaJemxCatalog(BasicCatalog):
     def build_from_ddosa_srclres(cls, srclres,prod_prefix=None):
         #catalog = pf.open(srclres)[1]
         catalog = FitsFile(srclres).open()[1]
-        #print ('cat file',srclres)
+        print ('cat file',srclres)
         frame = catalog.header['RADECSYS'].lower()
         catalog=catalog.data
         return cls( [n.strip() for n in catalog['NAME']],
