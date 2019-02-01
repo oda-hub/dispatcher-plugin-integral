@@ -312,7 +312,7 @@ class JemxMosaicQuery(OsaMosaicQuery):
 
     def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2",jemx_num=2):
 
-        target = "mosaic_jemx"
+        target = "mosaic_jemx_osa"
 
         if osa_version == "OSA10.2":
             modules = ["git://ddosa", 'git://ddosa_delegate'] + extramodules
