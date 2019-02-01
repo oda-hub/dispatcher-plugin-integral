@@ -323,7 +323,7 @@ class JemxMosaicQuery(OsaMosaicQuery):
             raise Exception("unknown OSA version:", osa_version)
 
         modules.append("git://ddjemx")
-        assume = ['ddjemx.JMXScWImageList(input_scwlist=%s)' % scwlist_assumption[0],
+        assume = ['ddjemx.JMXImageGroups(input_scwlist=%s)' % scwlist_assumption[0],
                    scwlist_assumption[1],
                   'ddjemx.JEnergyBins(use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
                   'ddjemx.JEMX(use_num=%s)'%jemx_num]
