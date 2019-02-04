@@ -504,11 +504,11 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
         name='query_spectrum_Carb'
         res.__setattr__(name, name)
-        res.__setattr__(name+'spectrum_Crab', config.dummy_cache+'/jemx_query_spectrum_spec_Crab_pha.fits.gz')
-        res.__setattr__(name+'rmf_Crab', config.dummy_cache+'/jemx_query_spectrum_rmf_Crab.fits.gz')
-        res.__setattr__(name+'arf_Crab', config.dummy_cache+'/jemx_query_spectrum_arf_Crab.fits.gz')
+        res.__setattr__('spectrum_Crab', config.dummy_cache+'/jemx_query_spectrum_spec_Crab_pha.fits.gz')
+        res.__setattr__('rmf_Crab', config.dummy_cache+'/jemx_query_spectrum_rmf_Crab.fits.gz')
+        res.__setattr__('arf_Crab', config.dummy_cache+'/jemx_query_spectrum_arf_Crab.fits.gz')
 
-       
+
 
 
         spectrum_list = JemxSpectrumProduct.build_list_from_ddosa_res(res,
