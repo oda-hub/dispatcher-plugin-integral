@@ -59,6 +59,11 @@ def osa_isgri_factory():
 
     instr_query_pars=osa_common_instr_query()
 
+    E1_keV = SpectralBoundary(value=10., E_units='keV', name='E1_keV')
+    E2_keV = SpectralBoundary(value=40., E_units='keV', name='E2_keV')
+    spec_window = ParameterRange(E1_keV, E2_keV, 'spec_window')
+    instr_query_pars.append(spec_window)
+
     instr_query=InstrumentQuery(
         name='isgri_parameters',
         extra_parameters_list=instr_query_pars,
@@ -89,8 +94,8 @@ def osa_isgri_factory():
     #query_dictionary['update_image'] = 'update_image'
 
 
-    print('--> conf_file',conf_file)
-    print('--> conf_dir', conf_dir)
+    #print('--> conf_file',conf_file)
+    #print('--> conf_dir', conf_dir)
 
     return  Instrument('isgri',
                        data_serve_conf_file=conf_file,

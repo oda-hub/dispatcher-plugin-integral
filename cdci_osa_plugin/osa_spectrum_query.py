@@ -58,6 +58,119 @@ from oda_api.data_products import NumpyDataProduct
 
 from .osa_common_pars import  DummyOsaRes
 
+
+class JemxSpectrumProduct(SpectrumProduct):
+    def __init__(self,name,file_name,data,prod_prefix=None,file_dir=None,meta_data={},rmf_file=None,arf_file=None):
+
+        super(JemxSpectrumProduct, self).__init__(name=name,
+                                                   data=data,
+                                                   file_name=file_name,
+                                                   name_prefix=prod_prefix,
+                                                   file_dir=file_dir,
+                                                   rmf_file=rmf_file,
+                                                   arf_file=arf_file,
+                                                   meta_data=meta_data)
+
+    @classmethod
+    def build_list_from_ddosa_res(cls, res, prod_prefix=None, out_dir=None,jemx_num=2):
+        #print(dir(res),res)
+        spec_list_attr = [attr for attr in dir(res) if  attr.startswith("spectrum_")]
+        arf_list_attr = [attr for attr in dir(res) if attr.startswith("arf_")]
+        rmf_list_attr = [attr for attr in dir(res) if attr.startswith("rmf_")]
+        source_name_list=[n.split('_')[1] for n in spec_list_attr ]
+        #print('jemx',spec_list_attr,arf_list_attr,source_name_list)
+        #import pickle
+        #for s in spec_list:
+        #    print('jemx specrtrum',s)
+        #with open('res.pkl','rb') as f:
+        #    pickle.dump(res,f)
+
+        spec_list = []
+
+        if out_dir is None:
+            out_dir = './'
+
+        for source_name,spec_attr, arf_attr, rmf_attr in zip(source_name_list,spec_list_attr,arf_list_attr,rmf_list_attr):
+            #for source_name, spec_attr, rmf_attr, arf_attr in res.extracted_sources:
+
+            #source_name=1
+            #spec_attr=1
+            #arf_attr=2
+
+
+
+
+
+            spec_filename = getattr(res, spec_attr)
+            arf_filename=  getattr(res, arf_attr)
+            rmf_filename = getattr(res, rmf_attr)
+
+            print('jemx_num',jemx_num)
+            print('spec in file-->', spec_filename)
+            print('arf  in file-->', arf_filename)
+            print('rmf  in file-->', rmf_filename)
+
+            out_spec_file = Path(spec_filename).name
+
+            out_arf_file = Path(arf_attr).name+'.fits.gz'
+
+            out_rmf_file =  Path(rmf_attr).name+'.fits.gz'
+
+
+
+            name = 'jemx_arf'
+            meta_data = {}
+            meta_data['src_name'] = source_name
+            meta_data['product'] = 'jemx_arf'
+            np_arf = NumpyDataProduct.from_fits_file(arf_filename, meta_data=meta_data)
+
+            du = np_arf.get_data_unit_by_name('JMX%d-AXIS-ARF'%jemx_num)
+            du.header['EXTNAME'] = 'SPECRESP'
+
+            arf = cls(name=name, data=np_arf, file_name=out_arf_file, file_dir=out_dir, prod_prefix=prod_prefix,
+                       meta_data=meta_data)
+
+
+            name = 'jemx_rmf'
+            meta_data = {}
+            meta_data['src_name'] = source_name
+            meta_data['product'] = 'jemx_rmf'
+            meta_data['product'] = 'jemx_rmf'
+            np_rmf = NumpyDataProduct.from_fits_file(rmf_filename, meta_data=meta_data)
+
+            du = np_rmf.get_data_unit_by_name('JMX%d-RMF.-RSP'%jemx_num)
+            du.header['EXTNAME'] = 'SPECRESP MATRIX'
+
+            du = np_rmf.get_data_unit_by_name('JMX%d-FBDS-MOD'%jemx_num)
+            du.header['EXTNAME'] = 'EBOUNDS'
+
+            rmf = cls(name=name, data=np_rmf, file_name=out_rmf_file, file_dir=out_dir, prod_prefix=prod_prefix,
+                      meta_data=meta_data)
+
+            name = 'jemx_spectrum'
+            meta_data = {}
+            meta_data['src_name'] = source_name
+            meta_data['product'] = 'isgri_spectrum'
+
+            np_spec = NumpyDataProduct.from_fits_file(spec_filename, meta_data=meta_data)
+            np_spec.data_unit[1].header['ANCRFILE'] = 'NONE'
+            np_spec.data_unit[1].header['RESPFILE'] = 'NONE'
+
+            spec = cls(name=name, data=np_spec, file_name=out_spec_file, file_dir=out_dir, prod_prefix=prod_prefix,
+                       meta_data=meta_data,rmf_file=rmf.file_path.name,arf_file=arf.file_path.name)
+
+
+            #print('spec out file-->', out_spec_file)
+            #print('arf  out file-->', out_arf_file)
+            #print('rmf  out file-->', out_rmf_file)
+
+
+            spec_list.append(spec)
+            spec_list.append(arf)
+            spec_list.append(rmf)
+
+        return spec_list
+
 class IsgriSpectrumProduct(SpectrumProduct):
 
     def __init__(self,name,file_name,data,prod_prefix=None,file_dir=None,meta_data={},rmf_file=None,arf_file=None):
@@ -85,9 +198,9 @@ class IsgriSpectrumProduct(SpectrumProduct):
             out_dir='./'
         for source_name, spec_attr, rmf_attr, arf_attr in res.extracted_sources:
 
-            print('spec in file-->',getattr(res, spec_attr), spec_attr)
-            print('arf  in file-->', getattr(res, arf_attr), arf_attr)
-            print('rmf  in file-->', getattr(res, rmf_attr), rmf_attr)
+            #print('spec in file-->',getattr(res, spec_attr), spec_attr)
+            #print('arf  in file-->', getattr(res, arf_attr), arf_attr)
+            #print('rmf  in file-->', getattr(res, rmf_attr), rmf_attr)
 
             spec_filename = getattr(res, spec_attr)
             arf_filename= getattr(res, arf_attr)
@@ -145,9 +258,9 @@ class IsgriSpectrumProduct(SpectrumProduct):
                        meta_data=meta_data,rmf_file=rmf.file_path.name,arf_file=arf.file_path.name)
 
 
-            print('spec out file-->', out_spec_file)
-            print('arf  out file-->', out_arf_file)
-            print('rmf  out file-->', out_rmf_file)
+            #print('spec out file-->', out_spec_file)
+            #print('arf  out file-->', out_arf_file)
+            #print('rmf  out file-->', out_rmf_file)
 
 
             spec_list.append(spec)
@@ -172,8 +285,12 @@ class OsaSpectrumQuery(SpectrumQuery):
         E1=instrument.get_par_by_name('E1_keV').value
         E2=instrument.get_par_by_name('E2_keV').value
         osa_version=instrument.get_par_by_name('osa_version').value
-        target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,osa_version)
 
+        if (isinstance(self,JemxSpectrumQuery)):
+            jemx_num = instrument.get_par_by_name('jemx_num').value
+            target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,osa_version,jemx_num=jemx_num)
+        else:
+            target, modules, assume = self.set_instr_dictionaries(extramodules, scwlist_assumption, E1, E2, osa_version)
         q=OsaDispatcher(config=config, target=target, modules=modules, assume=assume, inject=inject,instrument=instrument)
 
         return q
@@ -184,7 +301,7 @@ class OsaSpectrumQuery(SpectrumQuery):
 
     def process_product_method(self, instrument, prod_list,api=False):
 
-        print('process_product_method,api',api)
+        #print('process_product_method,api',api)
         _names = []
 
         _sepc_path = []
@@ -193,17 +310,20 @@ class OsaSpectrumQuery(SpectrumQuery):
 
         query_out = QueryOutput()
         for query_spec in prod_list.prod_list:
-            query_spec.write()
+            #print('jemx',query_spec)
+            if query_spec is not None:
+                #print('jemx', query_spec.name)
+                query_spec.write()
 
 
 
-            if query_spec.name=='isgri_spectrum':
-                _names.append(query_spec.meta_data['src_name'])
-                _sepc_path.append(str(query_spec.file_path.name))
-                _arf_path.append(str(query_spec.arf_file))
-                _rmf_path.append(str(query_spec.rmf_file))
+                if query_spec.name=='isgri_spectrum' or  query_spec.name=='jemx_spectrum':
+                    _names.append(query_spec.meta_data['src_name'])
+                    _sepc_path.append(str(query_spec.file_path.name))
+                    _arf_path.append(str(query_spec.arf_file))
+                    _rmf_path.append(str(query_spec.rmf_file))
 
-            print (_names[-1],_sepc_path[-1],_arf_path[-1],_rmf_path[-1])
+        #print (_names,_sepc_path,_arf_path,_rmf_path)
 
         if api==False:
 
@@ -280,8 +400,8 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
         if out_dir is None:
             out_dir = './'
 
-        print ('config.dummy_cache',config.dummy_cache)
-        print ('out_dir',out_dir)
+        #print ('config.dummy_cache',config.dummy_cache)
+        #print ('out_dir',out_dir)
         spec_files=glob.glob(config.dummy_cache+'/query_spectrum_isgri_sum*.fits*')
         arf_files=glob.glob(config.dummy_cache+'/query_spectrum_rmf_sum_*.fits*')
         rmf_files=glob.glob(config.dummy_cache+'/query_spectrum_arf_sum_*.fits*')
@@ -328,7 +448,7 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
 
 
-    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2"):
+    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2",jemx_num=2):
         target = "spe_pick"
 
 
@@ -341,12 +461,16 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
             raise Exception("unknown OSA version "+osa_version)
 
         assume = ['ddjemx.JMXImageSpectraGroups(input_scwlist=%s)'% scwlist_assumption[0],
-                   scwlist_assumption[1]]
+                   scwlist_assumption[1],
+                  'ddjemx.JEnergyBins(use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
+                  'ddjemx.JEMX(use_num=%d)'%jemx_num,
+                  'ddjemx.JEnergyBins(use_nchanpow=-4)']
 
 
 
 
-        #print ('ciccio',target,modules,assume)
+
+        #print ('jemx',target,modules,assume)
         return target,modules,assume
 
 
@@ -354,9 +478,11 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
     def build_product_list(self,instrument,res,out_dir,prod_prefix='query_spectrum',api=False):
 
-        spectrum_list = IsgriSpectrumProduct.build_list_from_ddosa_res(res,
+        jemx_num = instrument.get_par_by_name('jemx_num').value
+        spectrum_list = JemxSpectrumProduct.build_list_from_ddosa_res(res,
                                                                        out_dir=out_dir,
-                                                                       prod_prefix=prod_prefix)
+                                                                       prod_prefix=prod_prefix,
+                                                                       jemx_num=jemx_num)
 
         prod_list = spectrum_list
 
@@ -367,36 +493,28 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
         if out_dir is None:
             out_dir = './'
 
-        print ('config.dummy_cache',config.dummy_cache)
-        print ('out_dir',out_dir)
-        spec_files=glob.glob(config.dummy_cache+'/query_spectrum_isgri_sum*.fits*')
-        arf_files=glob.glob(config.dummy_cache+'/query_spectrum_rmf_sum_*.fits*')
-        rmf_files=glob.glob(config.dummy_cache+'/query_spectrum_arf_sum_*.fits*')
+        #print ('config.dummy_cache',config.dummy_cache)
+        #print ('out_dir',out_dir)
+        #spec_files=glob.glob(config.dummy_cache+'/jemx_query_spectrum_spec_Crab_pha.fits.gz')
+        #arf_files=glob.glob(config.dummy_cache+'/jemx_query_spectrum_arf_Crab.fits.gz')
+        #rmf_files=glob.glob(config.dummy_cache+'/jemx_query_spectrum_rmf_Crab.fits.gz')
 
 
         res = DummyOsaRes()
 
-        extracted_sources = []
-        for ID,spec_file in enumerate(spec_files):
-
-            name=spec_file.split('sum_')[-1].replace('.fits','')
-            name=name.replace('.gz', '')
-            name=name.replace('query_spectrum','')
-
-            res.__setattr__(name, name)
-            res.__setattr__(name+'_spec', spec_file)
-            res.__setattr__(name+'_rmf', arf_files[ID])
-            res.__setattr__(name+'_arf', rmf_files[ID])
-
-            extracted_sources.append((name,name+'_spec',name + '_rmf',name+'_arf'))
+        name='query_spectrum_Carb'
+        res.__setattr__(name, name)
+        res.__setattr__('spectrum_Crab', config.dummy_cache+'/jemx_query_spectrum_spec_Crab_pha.fits.gz')
+        res.__setattr__('rmf_Crab', config.dummy_cache+'/jemx_query_spectrum_rmf_Crab.fits.gz')
+        res.__setattr__('arf_Crab', config.dummy_cache+'/jemx_query_spectrum_arf_Crab.fits.gz')
 
 
-        res.__setattr__('extracted_sources',extracted_sources)
 
 
-        spectrum_list = IsgriSpectrumProduct.build_list_from_ddosa_res(res,
+        spectrum_list = JemxSpectrumProduct.build_list_from_ddosa_res(res,
                                                                        out_dir=out_dir,
-                                                                       prod_prefix=None)
+                                                                       prod_prefix=None,
+                                                                       jemx_num=2)
 
         prod_list = QueryProductList(prod_list=spectrum_list)
 

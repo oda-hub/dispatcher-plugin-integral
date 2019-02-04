@@ -56,9 +56,9 @@ from .osa_dataserve_dispatcher import OsaDispatcher
 from .osa_common_pars import DummyOsaRes
 
 
-class IsgriLigthtCurve(LightCurveProduct):
+class OsaLigthtCurve(LightCurveProduct):
     def __init__(self,
-                 name='isgri_lc',
+                 name='osa_lc',
                  file_name=None,
                  data=None,
                  file_dir=None,
@@ -78,22 +78,22 @@ class IsgriLigthtCurve(LightCurveProduct):
         data.name=name
 
 
-        super(IsgriLigthtCurve, self).__init__(name=name,
-                                              data=data,
-                                              name_prefix=prod_prefix,
-                                              file_dir=file_dir,
-                                              file_name=file_name,
-                                              meta_data=meta_data)
+        super(OsaLigthtCurve, self).__init__(name=name,
+                                             data=data,
+                                             name_prefix=prod_prefix,
+                                             file_dir=file_dir,
+                                             file_name=file_name,
+                                             meta_data=meta_data)
 
 
 
     @classmethod
-    def build_from_ddosa_res(cls,
-                             res,
-                             src_name='',
-                             prod_prefix='',
-                             file_dir=None,
-                             api=False):
+    def build_isgri_lc_from_ddosa_res(cls,
+                                      res,
+                                      src_name='',
+                                      prod_prefix='',
+                                      file_dir=None,
+                                      api=False):
 
 
 
@@ -108,7 +108,7 @@ class IsgriLigthtCurve(LightCurveProduct):
         for source_name, lightcurve_attr in res.extracted_sources:
             meta_data = {}
             input_lc_paht = getattr(res, lightcurve_attr)
-            print('lc file input-->', input_lc_paht, lightcurve_attr)
+            #print('lc file input-->', input_lc_paht, lightcurve_attr)
 
 
             #hdu_list = FitsFile(lc_paht).open()
@@ -130,17 +130,84 @@ class IsgriLigthtCurve(LightCurveProduct):
                 #if prod_prefix !='' and prod_prefix!=None:
                 #    out_file_name = prod_prefix + '_' + out_file_name
 
-                print('lc file output-->', out_file_name, lightcurve_attr)
+                #print('lc file output-->', out_file_name, lightcurve_attr)
 
 
-                lc = cls( data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
+                lc = cls(name='isgri_lc', data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
                          src_name=src_name,meta_data=meta_data)
 
                 lc_list.append(lc)
 
         return lc_list
 
+    @classmethod
+    def build_jemx_lc_from_ddosa_res(cls,
+                                      res,
+                                      src_name='',
+                                      prod_prefix='',
+                                      file_dir=None,
+                                      api=False):
 
+        #print('jemx',spec_list_attr,arf_list_attr,source_name_list)
+        #import pickle
+        #print(dir(res))
+        #for s in spec_list:
+        #    print('jemx specrtrum',s)
+        #with open('jemx_lc_res.pkl','wb') as f:
+        #    pickle.dump(res,f)
+
+        lc_list=[]
+
+        lc_path_list = [getattr(res,attr) for attr in dir(res) if attr.startswith("lc_")]
+        src_name_list=[n.split('_')[1] for n in lc_path_list]
+
+        print ('->',lc_path_list,src_name_list)
+
+        if file_dir is None:
+            file_dir = './'
+
+        if prod_prefix is None:
+            prod_prefix = ''
+
+        for source_name, input_lc_paht in zip(src_name_list,lc_path_list):
+            meta_data = {}
+            #input_lc_paht = getattr(res, lightcurve_attr)
+            # print('lc file input-->', input_lc_paht, lightcurve_attr)
+
+            # hdu_list = FitsFile(lc_paht).open()
+            # data = NumpyDataProduct.from_fits_file(lc_paht, hdu_name='ISGR-SRC.-LCR', name='isgri_lc', instr='isgri',
+            #                                       descr='src_name:%s' % name)
+
+            npd = NumpyDataProduct.from_fits_file(input_lc_paht, meta_data=meta_data)
+
+
+
+            du = npd.get_data_unit_by_name('JMX2-SRC.-LCR')
+
+            if du is None:
+                du = npd.get_data_unit_by_name('JMX1-SRC.-LCR')
+
+            if du is None:
+                raise RuntimeError('du with lc not found in fits file')
+
+            if du is not None:
+                #src_name = du.header['NAME']
+
+                meta_data['src_name'] = source_name
+                meta_data['time_bin'] = du.header['TIMEDEL']
+
+                out_file_name = Path(input_lc_paht).resolve().stem
+                # if prod_prefix !='' and prod_prefix!=None:
+                #    out_file_name = prod_prefix + '_' + out_file_name
+
+                # print('lc file output-->', out_file_name, lightcurve_attr)
+
+                lc = cls(name='jemx_lc', data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
+                         src_name=src_name, meta_data=meta_data)
+
+                lc_list.append(lc)
+
+        return lc_list
 
 
 
@@ -152,15 +219,28 @@ class IsgriLigthtCurve(LightCurveProduct):
         # print ('loading -->',self.file_path.path)
 
         # hdul = pf.open(self.file_path.path)
-        hdul = FitsFile(self.file_path.path).open()
 
-        data = hdul[1].data
-        header = hdul[1].header
 
-        import matplotlib
-        # matplotlib.use('TkAgg')
-        #import pylab as plt
-        #fig, ax = plt.subplots()
+        npd = NumpyDataProduct.from_fits_file(self.file_path.path)
+
+
+
+
+
+        du = npd.get_data_unit_by_name('ISGR-SRC.-LCR')
+
+        if du is None:
+            du = npd.get_data_unit_by_name('JMX2-SRC.-LCR')
+
+        if du is None:
+            du = npd.get_data_unit_by_name('JMX1-SRC.-LCR')
+
+        if du is None:
+            raise RuntimeError('du with lc not found in fits file')
+
+        data = du.data
+        header = du.header
+        #print(header)
 
         #filtering zero flux values
         msk_non_zero = np.count_nonzero([data['RATE'], data['ERROR']], axis=0) > 0
@@ -169,8 +249,10 @@ class IsgriLigthtCurve(LightCurveProduct):
         x = data['TIME']
         y = data['RATE']
         dy = data['ERROR']
-        mjdref = header['mjdref'] + np.int(x.min())
-
+        try:
+            mjdref = header['mjdref'] + np.int(x.min())
+        except:
+            mjdref = header['MJDREF'] + np.int(x.min())
 
 
         x = x - np.int(x.min())
@@ -270,7 +352,16 @@ class OsaLightCurveQuery(LightCurveQuery):
         src_name = instrument.get_par_by_name('src_name').value
         delta_t = instrument.get_par_by_name('time_bin')._astropy_time_delta.sec
         osa_version = instrument.get_par_by_name('osa_version').value
-        target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,src_name,delta_t,osa_version)
+        if (isinstance(self,JemxLightCurveQuery)):
+            jemx_num = instrument.get_par_by_name('jemx_num').value
+            target, modules, assume=self.set_instr_dictionaries(extramodules, scwlist_assumption, E1, E2, src_name,
+                                                                  delta_t, osa_version=osa_version,jemx_num=jemx_num)
+        else:
+            target, modules, assume = self.set_instr_dictionaries(extramodules, scwlist_assumption, E1, E2, src_name,
+                                                                  delta_t, osa_version=osa_version)
+
+
+
 
 
 
@@ -336,10 +427,10 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
         meta_data = {'product': 'light_curve', 'instrument': 'isgri', 'src_name': ''}
         meta_data['query_parameters'] = self.get_parameters_list_as_json()
 
-        prod_list = IsgriLigthtCurve.build_from_ddosa_res(res,
-                                                          prod_prefix=prod_prefix,
-                                                          file_dir=out_dir,
-                                                          api=api)
+        prod_list = OsaLigthtCurve.build_isgri_lc_from_ddosa_res(res,
+                                                                 prod_prefix=prod_prefix,
+                                                                 file_dir=out_dir,
+                                                                 api=api)
 
 
         return prod_list
@@ -358,15 +449,15 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
 
         res =DummyOsaRes()
         res.__setattr__('dummy_src','dummy_src')
-        res.__setattr__('dummy_lc','%s/light_curve.fits.gz' % dummy_cache)
+        res.__setattr__('dummy_lc','%s/isgri_query_lc.fits' % dummy_cache)
         res.__setattr__('extracted_sources',[('dummy_src','dummy_lc')])
 
 
 
-        prod_list = IsgriLigthtCurve.build_from_ddosa_res(res,
-                                                          prod_prefix=prod_prefix,
-                                                          file_dir=out_dir,
-                                                          api=api)
+        prod_list = OsaLigthtCurve.build_isgri_lc_from_ddosa_res(res,
+                                                                 prod_prefix=prod_prefix,
+                                                                 file_dir=out_dir,
+                                                                 api=api)
 
 
         prod_list = QueryProductList(prod_list=prod_list)
@@ -374,8 +465,8 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
         return prod_list
 
     def set_instr_dictionaries(self, extramodules, scwlist_assumption, E1, E2, src_name, delta_t, osa_version="OSA10.2"):
-        print('-->lc standard mode from scw_list', scwlist_assumption)
-        print('-->src_name', src_name)
+        #print('-->lc standard mode from scw_list', scwlist_assumption)
+        #print('-->src_name', src_name)
         target = "ISGRILCSum"
 
         if extramodules is None:
@@ -403,6 +494,71 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
 
 
 
+
+
+
+
+class JemxLightCurveQuery(OsaLightCurveQuery):
+
+    def __init__(self, name):
+        super(JemxLightCurveQuery, self).__init__(name)
+
+    def build_product_list(self, instrument, res, out_dir, prod_prefix=None, api=False):
+        meta_data = {'product': 'light_curve', 'instrument': 'jemx', 'src_name': ''}
+        meta_data['query_parameters'] = self.get_parameters_list_as_json()
+
+        prod_list = OsaLigthtCurve.build_jemx_lc_from_ddosa_res(res,
+                                                                 prod_prefix=prod_prefix,
+                                                                 file_dir=out_dir,
+                                                                 api=api)
+
+        return prod_list
+
+    def get_dummy_products(self, instrument, config, out_dir='./', prod_prefix=None, api=False):
+
+        meta_data = {'product': 'light_curve', 'instrument': 'jemx', 'src_name': ''}
+        meta_data['query_parameters'] = self.get_parameters_list_as_json()
+
+        dummy_cache = config.dummy_cache
+
+        res = DummyOsaRes()
+        
+        res.__setattr__('lc_crab', '%s/jemx_query_lc.fits.gz' % dummy_cache)
+        #res.__setattr__('extracted_sources', [('dummy_src', 'dummy_lc')])
+
+        prod_list = OsaLigthtCurve.build_jemx_lc_from_ddosa_res(res,
+                                                                 prod_prefix=prod_prefix,
+                                                                 file_dir=out_dir,
+                                                                 api=api)
+
+        prod_list = QueryProductList(prod_list=prod_list)
+
+        return prod_list
+
+    def set_instr_dictionaries(self, extramodules, scwlist_assumption, E1, E2, src_name, delta_t,jemx_num,
+                               osa_version="OSA10.2"):
+
+        target = "lc_pick"
+
+        if extramodules is None:
+            extramodules = []
+
+        if osa_version == "OSA10.2":
+            modules = ["git://ddosa"] + extramodules + ["git://ddosa","git://ddjemx", 'git://ddosa_delegate']
+        elif osa_version == "OSA11.0":
+            modules = ["git://ddosa", "git://findic/icversion", "git://ddosa11/icversion"] + extramodules + [
+                "git://ddosa","git://ddjemx", 'git://ddosa_delegate']
+        else:
+            raise Exception("unknown osa version: " + osa_version)
+
+
+        assume = ['ddjemx.JMXImageLCGroups(input_scwlist=%s)' % scwlist_assumption[0],
+                  scwlist_assumption[1],
+                  'ddjemx.JEnergyBinsLC (use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
+                  'ddosa.GRcat(use_refcatvar=True)',
+                  'ddjemx.LCTimeBin(use_timebin_s=%f)'%delta_t]
+
+        return target, modules, assume
 
 
 

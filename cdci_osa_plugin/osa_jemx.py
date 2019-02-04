@@ -43,7 +43,7 @@ from .osa_image_query import JemxMosaicQuery
 from .osa_dataserve_dispatcher import OsaDispatcher
 from .osa_common_pars import  osa_common_instr_query
 from .osa_spectrum_query import JemxSpectrumQuery
-
+from .osa_lightcurve_query import JemxLightCurveQuery
 
 
 
@@ -52,8 +52,15 @@ def osa_jemx_factory():
     src_query=SourceQuery('src_query')
 
     instr_query_pars = osa_common_instr_query()
-    instr_num = Name(value='jemx1', name='jemx_num')
+    instr_num = Integer(value=2,name='jemx_num')
+    #    (value='jemx1', name='jemx_num')
     instr_query_pars.append(instr_num)
+
+    E1_keV = SpectralBoundary(value=3., E_units='keV', name='E1_keV')
+    E2_keV = SpectralBoundary(value=35., E_units='keV', name='E2_keV')
+
+    spec_window = ParameterRange(E1_keV, E2_keV, 'spec_window')
+    instr_query_pars.append(spec_window)
 
     instr_query = InstrumentQuery(
         name='jemx_parameters',
@@ -66,37 +73,31 @@ def osa_jemx_factory():
 
 
 
-    #
-    # light_curve =LightCurveQuery('isgri_lc_query',
-    #                              None,
-    #                              get_products_method=get_osa_lightcurve,
-    #                              get_dummy_products_method=get_osa_lightcurve_dummy_products,
-    #                              process_product_method=process_osa_lc_products)
 
     image=JemxMosaicQuery('jemx_image_query')
 
     #
     spectrum = JemxSpectrumQuery('jemx_spectrum_query')
 
+    light_curve = JemxLightCurveQuery('jemx_lc_query')
 
 
-
-    # xspec_fit = SpectralFitQuery('spectral_fit_query', None)
+    xspec_fit = SpectralFitQuery('spectral_fit_query', None)
 
     query_dictionary={}
     query_dictionary['jemx_image'] = 'jemx_image_query'
     query_dictionary['jemx_spectrum'] = 'jemx_spectrum_query'
-    #query_dictionary['isgri_lc'] = 'isgri_lc_query'
-    #query_dictionary['spectral_fit'] = 'spectral_fit_query'
+    query_dictionary['jemx_lc'] = 'jemx_lc_query'
+    query_dictionary['spectral_fit'] = 'spectral_fit_query'
 
-    print('--> conf_file', conf_file)
-    print('--> conf_dir', conf_dir)
+    #print('--> conf_file', conf_file)
+    #print('--> conf_dir', conf_dir)
 
     return  Instrument('jemx',
                        data_serve_conf_file=conf_file,
                        src_query=src_query,
                        instrumet_query=instr_query,
                        #input_product_query=input_data,
-                       product_queries_list=[image,spectrum],
+                       product_queries_list=[image,spectrum,xspec_fit,light_curve],
                        data_server_query_class=OsaDispatcher,
                        query_dictionary=query_dictionary)

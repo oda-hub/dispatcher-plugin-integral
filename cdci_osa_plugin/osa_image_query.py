@@ -85,7 +85,13 @@ class OsaMosaicQuery(ImageQuery):
         E1=instrument.get_par_by_name('E1_keV').value
         E2=instrument.get_par_by_name('E2_keV').value
         osa_version = instrument.get_par_by_name('osa_version').value
-        target, modules, assume=self.set_instr_dictionaries(extramodules,scwlist_assumption,E1,E2,osa_version)
+        if (isinstance(self, JemxMosaicQuery)):
+            jemx_num = instrument.get_par_by_name('jemx_num').value
+            target, modules, assume = self.set_instr_dictionaries(extramodules, scwlist_assumption, E1, E2, osa_version,
+                                                                  jemx_num=jemx_num)
+        else:
+            target, modules, assume = self.set_instr_dictionaries(extramodules, scwlist_assumption, E1, E2, osa_version)
+
 
         q=OsaDispatcher(config=config, target=target, modules=modules, assume=assume, inject=inject,instrument=instrument)
 
@@ -194,7 +200,7 @@ class IsgriMosaicQuery(OsaMosaicQuery):
                                  file_dir=out_dir)
 
         if user_catalog is not None:
-            print('setting from user catalog', user_catalog, catalog)
+            #print('setting from user catalog', user_catalog, catalog)
             catalog.catalog = user_catalog
 
         prod_list = QueryProductList(prod_list=[image, catalog])
@@ -212,7 +218,7 @@ class IsgriMosaicQuery(OsaMosaicQuery):
 
 
     def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2"):
-        print ('E1,E2',E1,E2)
+        #print ('E1,E2',E1,E2)
         target = "mosaic_ii_skyimage"
 
         if osa_version=="OSA10.2":
@@ -268,12 +274,12 @@ class JemxMosaicQuery(OsaMosaicQuery):
 
 
         catalog = CatalogProduct(name='mosaic_catalog',
-                                 catalog=BasicCatalog.from_fits_file('%s/query_catalog.fits' % dummy_cache),
+                                 catalog=BasicCatalog.from_fits_file('%s/jemx_query_catalog.fits' % dummy_cache),
                                  file_name='query_catalog',
                                  file_dir=out_dir)
 
         if user_catalog is not None:
-            print('setting from user catalog', user_catalog, catalog)
+            #print('setting from user catalog', user_catalog, catalog)
             catalog.catalog = user_catalog
 
         prod_list = QueryProductList(prod_list=[image, catalog])
@@ -304,9 +310,9 @@ class JemxMosaicQuery(OsaMosaicQuery):
         return prod_list
 
 
-    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2"):
+    def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2",jemx_num=2):
 
-        target = "mosaic_jemx"
+        target = "mosaic_jemx_osa"
 
         if osa_version == "OSA10.2":
             modules = ["git://ddosa", 'git://ddosa_delegate'] + extramodules
@@ -317,10 +323,10 @@ class JemxMosaicQuery(OsaMosaicQuery):
             raise Exception("unknown OSA version:", osa_version)
 
         modules.append("git://ddjemx")
-        assume = ['ddjemx.JMXScWImageList(input_scwlist=%s)' % scwlist_assumption[0],
+        assume = ['ddjemx.JMXImageGroups(input_scwlist=%s)' % scwlist_assumption[0],
                    scwlist_assumption[1],
                   'ddjemx.JEnergyBins(use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
-                  'ddjemx.JEMX(use_num=2)']
+                  'ddjemx.JEMX(use_num=%s)'%jemx_num]
 
         return target, modules, assume
 
