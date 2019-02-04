@@ -522,9 +522,8 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
         dummy_cache = config.dummy_cache
 
         res = DummyOsaRes()
-        res.__setattr__('dummy_src', 'dummy_src')
-        res.__setattr__('dummy_lc', '%s/isgri_query_lc.fits' % dummy_cache)
-        res.__setattr__('extracted_sources', [('dummy_src', 'dummy_lc')])
+        res.__setattr__('lc_crab', '%s/jemx_query_lc.fits.gz' % dummy_cache)
+        #res.__setattr__('extracted_sources', [('dummy_src', 'dummy_lc')])
 
         prod_list = OsaLigthtCurve.build_jemx_lc_from_ddosa_res(res,
                                                                  prod_prefix=prod_prefix,
