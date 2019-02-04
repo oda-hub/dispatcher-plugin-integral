@@ -478,7 +478,7 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
     def build_product_list(self,instrument,res,out_dir,prod_prefix='query_spectrum',api=False):
 
-        jemx_num = 2
+        jemx_num = instrument.get_par_by_name('jemx_num').value
         spectrum_list = JemxSpectrumProduct.build_list_from_ddosa_res(res,
                                                                        out_dir=out_dir,
                                                                        prod_prefix=prod_prefix,
@@ -513,7 +513,8 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
         spectrum_list = JemxSpectrumProduct.build_list_from_ddosa_res(res,
                                                                        out_dir=out_dir,
-                                                                       prod_prefix=None)
+                                                                       prod_prefix=None,
+                                                                       jemx_num=2)
 
         prod_list = QueryProductList(prod_list=spectrum_list)
 
