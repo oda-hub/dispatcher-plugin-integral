@@ -522,6 +522,7 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
         dummy_cache = config.dummy_cache
 
         res = DummyOsaRes()
+        
         res.__setattr__('lc_crab', '%s/jemx_query_lc.fits.gz' % dummy_cache)
         #res.__setattr__('extracted_sources', [('dummy_src', 'dummy_lc')])
 
