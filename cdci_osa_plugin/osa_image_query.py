@@ -274,7 +274,7 @@ class JemxMosaicQuery(OsaMosaicQuery):
 
 
         catalog = CatalogProduct(name='mosaic_catalog',
-                                 catalog=BasicCatalog.from_fits_file('%s/query_catalog.fits' % dummy_cache),
+                                 catalog=BasicCatalog.from_fits_file('%s/jemx_query_catalog.fits' % dummy_cache),
                                  file_name='query_catalog',
                                  file_dir=out_dir)
 
