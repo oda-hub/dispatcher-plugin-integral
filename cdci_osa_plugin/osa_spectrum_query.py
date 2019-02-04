@@ -495,32 +495,23 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
         #print ('config.dummy_cache',config.dummy_cache)
         #print ('out_dir',out_dir)
-        spec_files=glob.glob(config.dummy_cache+'/query_spectrum_isgri_sum*.fits*')
-        arf_files=glob.glob(config.dummy_cache+'/query_spectrum_rmf_sum_*.fits*')
-        rmf_files=glob.glob(config.dummy_cache+'/query_spectrum_arf_sum_*.fits*')
+        #spec_files=glob.glob(config.dummy_cache+'/jemx_query_spectrum_spec_Crab_pha.fits.gz')
+        #arf_files=glob.glob(config.dummy_cache+'/jemx_query_spectrum_arf_Crab.fits.gz')
+        #rmf_files=glob.glob(config.dummy_cache+'/jemx_query_spectrum_rmf_Crab.fits.gz')
 
 
         res = DummyOsaRes()
 
-        extracted_sources = []
-        for ID,spec_file in enumerate(spec_files):
+        name='query_spectrum_Carb'
+        res.__setattr__(name, name)
+        res.__setattr__(name+'spectrum_Crab', config.dummy_cache+'/jemx_query_spectrum_spec_Crab_pha.fits.gz')
+        res.__setattr__(name+'rmf_Crab', config.dummy_cache+'/jemx_query_spectrum_rmf_Crab.fits.gz')
+        res.__setattr__(name+'arf_Crab', config.dummy_cache+'/jemx_query_spectrum_arf_Crab.fits.gz')
 
-            name=spec_file.split('sum_')[-1].replace('.fits','')
-            name=name.replace('.gz', '')
-            name=name.replace('query_spectrum','')
-
-            res.__setattr__(name, name)
-            res.__setattr__(name+'_spec', spec_file)
-            res.__setattr__(name+'_rmf', arf_files[ID])
-            res.__setattr__(name+'_arf', rmf_files[ID])
-
-            extracted_sources.append((name,name+'_spec',name + '_rmf',name+'_arf'))
+       
 
 
-        res.__setattr__('extracted_sources',extracted_sources)
-
-
-        spectrum_list = IsgriSpectrumProduct.build_list_from_ddosa_res(res,
+        spectrum_list = JemxSpectrumProduct.build_list_from_ddosa_res(res,
                                                                        out_dir=out_dir,
                                                                        prod_prefix=None)
 
