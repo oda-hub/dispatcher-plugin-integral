@@ -159,7 +159,10 @@ class OsaLigthtCurve(LightCurveProduct):
         lc_list=[]
 
         lc_path_list = [getattr(res,attr) for attr in dir(res) if attr.startswith("lc_")]
-        src_name_list=[n.split('_')[1] for n in os.path.basename(lc_path_list)]
+
+        src_name_list = [attr for attr in dir(res) if attr.startswith("lc_")]
+
+        src_name_list =[n.replace('lc_','') for n in src_name_list]
 
         print ('->',lc_path_list,src_name_list)
 
