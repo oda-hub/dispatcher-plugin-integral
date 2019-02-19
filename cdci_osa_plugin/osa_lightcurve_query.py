@@ -159,7 +159,7 @@ class OsaLigthtCurve(LightCurveProduct):
         lc_list=[]
 
         lc_path_list = [getattr(res,attr) for attr in dir(res) if attr.startswith("lc_")]
-        src_name_list=[n.split('_')[1] for n in lc_path_list]
+        src_name_list=[n.split('_')[1] for n in os.path.basename(lc_path_list)]
 
         print ('->',lc_path_list,src_name_list)
 
@@ -522,7 +522,7 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
         dummy_cache = config.dummy_cache
 
         res = DummyOsaRes()
-        
+
         res.__setattr__('lc_crab', '%s/jemx_query_lc.fits.gz' % dummy_cache)
         #res.__setattr__('extracted_sources', [('dummy_src', 'dummy_lc')])
 
