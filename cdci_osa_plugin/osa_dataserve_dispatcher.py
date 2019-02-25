@@ -595,6 +595,7 @@ class OsaDispatcher(object):
 
     @classmethod
     def get_instr_catalog(cls, instrument,user_catalog=None):
+        cat=None
         if user_catalog is not None:
             cat = ['SourceCatalog',
                    {
@@ -616,7 +617,7 @@ class OsaDispatcher(object):
         if instrument.name=='isgri':
             print('isgri cat',cat)
 
-        else:
-            cat = None
+        #else:
+        #    cat = None
 
         return cat
