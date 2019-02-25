@@ -583,7 +583,7 @@ class OsaDispatcher(object):
             T2_iso = None
 
         scwlist_assumption = cls.get_scwlist_assumption(scw_list, T1_iso, T2_iso, RA, DEC, radius, use_max_pointings)
-        cat = cls.get_instr_catalog(user_catalog,instrument)
+        cat = cls.get_instr_catalog(instrument,user_catalog=user_catalog)
 
         inject = []
 
