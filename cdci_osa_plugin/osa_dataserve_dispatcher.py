@@ -583,7 +583,7 @@ class OsaDispatcher(object):
             T2_iso = None
 
         scwlist_assumption = cls.get_scwlist_assumption(scw_list, T1_iso, T2_iso, RA, DEC, radius, use_max_pointings)
-        cat = cls.get_instr_catalog(user_catalog)
+        cat = cls.get_instr_catalog(instrument,user_catalog=user_catalog)
 
         inject = []
 
@@ -594,7 +594,8 @@ class OsaDispatcher(object):
         return scwlist_assumption,cat,extramodules,inject
 
     @classmethod
-    def get_instr_catalog(cls, user_catalog=None):
+    def get_instr_catalog(cls, instrument,user_catalog=None):
+        cat=None
         if user_catalog is not None:
             cat = ['SourceCatalog',
                    {
@@ -610,7 +611,13 @@ class OsaDispatcher(object):
                        "autoversion": True,
                    }
                    ]
-        else:
-            cat = None
+
+        if instrument.name=='jemx':
+            print('jemx cat',cat)
+        if instrument.name=='isgri':
+            print('isgri cat',cat)
+
+        #else:
+        #    cat = None
 
         return cat
