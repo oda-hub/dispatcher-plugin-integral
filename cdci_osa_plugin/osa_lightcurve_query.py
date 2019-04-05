@@ -556,7 +556,7 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
             raise Exception("unknown osa version: " + osa_version)
 
 
-        assume = ['ddjemx.JMXImageLCGroups(input_scwlist=%s)' % scwlist_assumption[0],
+        assume = ['ddjemx.JMXLCGroups(input_scwlist=%s)' % scwlist_assumption[0],
                   scwlist_assumption[1],
                   'ddjemx.JEnergyBinsLC (use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
                   'ddosa.GRcat(use_refcatvar=True)',
