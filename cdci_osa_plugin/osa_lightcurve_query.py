@@ -550,7 +550,7 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
             modules = ["git://ddosa","git://ddjemx"] + extramodules +['git://ddosa_delegate']
         elif osa_version == "OSA11.0":
 
-            modules = ["git://ddosa", "git://findic/icversion", "git://ddosa11/icversion", "git://ddjemx"] \
+            modules = ["git://ddosa","git://ddjemx", "git://findic/icversion", "git://ddosa11/icversion"] \
                       + extramodules + ['git://ddosa_delegate']
         else:
             raise Exception("unknown osa version: " + osa_version)
