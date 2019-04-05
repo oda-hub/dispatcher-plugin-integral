@@ -315,14 +315,13 @@ class JemxMosaicQuery(OsaMosaicQuery):
         target = "mosaic_jemx_osa"
 
         if osa_version == "OSA10.2":
-            modules = ["git://ddosa"] + extramodules + ['git://ddosa_delegate']
+            modules = ["git://ddosa", "git://ddjemx"]  + extramodules + ['git://ddosa_delegate']
         elif osa_version == "OSA11.0":
-            modules = ["git://ddosa", "git://findic/icversion", "git://ddosa11/icversion"] + extramodules + [
+            modules = ["git://ddosa", "git://ddjemx", "git://findic/icversion", "git://ddosa11/icversion"] + extramodules + [
                 'git://ddosa_delegate']
         else:
             raise Exception("unknown OSA version:", osa_version)
 
-        modules.append("git://ddjemx")
         assume = ['ddjemx.JMXImageGroups(input_scwlist=%s)' % scwlist_assumption[0],
                    scwlist_assumption[1],
                   'ddjemx.JEnergyBins(use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
