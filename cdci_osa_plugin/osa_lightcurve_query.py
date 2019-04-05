@@ -191,7 +191,9 @@ class OsaLigthtCurve(LightCurveProduct):
                 du = npd.get_data_unit_by_name('JMX1-SRC.-LCR')
 
             if du is None:
-                raise RuntimeError('Missing data unit with light curve in the fits file')
+                # warning, this one is empty (add to warning list)
+                continue
+ #               raise RuntimeError('Missing data unit with light curve in the fits file')
 
             if du is not None:
                 #src_name = du.header['NAME']
