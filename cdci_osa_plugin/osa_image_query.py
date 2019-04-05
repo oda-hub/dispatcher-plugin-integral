@@ -222,7 +222,7 @@ class IsgriMosaicQuery(OsaMosaicQuery):
         target = "mosaic_ii_skyimage"
 
         if osa_version=="OSA10.2":
-            modules = ["git://ddosa", 'git://ddosa_delegate'] + extramodules
+            modules = ["git://ddosa"] + extramodules + ['git://ddosa_delegate']
         elif osa_version=="OSA11.0":
             modules = ["git://ddosa","git://findic/icversion","git://ddosa11/icversion"] + extramodules+['git://ddosa_delegate']
         else:
@@ -315,7 +315,7 @@ class JemxMosaicQuery(OsaMosaicQuery):
         target = "mosaic_jemx_osa"
 
         if osa_version == "OSA10.2":
-            modules = ["git://ddosa", 'git://ddosa_delegate'] + extramodules
+            modules = ["git://ddosa"] + extramodules + ['git://ddosa_delegate']
         elif osa_version == "OSA11.0":
             modules = ["git://ddosa", "git://findic/icversion", "git://ddosa11/icversion"] + extramodules + [
                 'git://ddosa_delegate']

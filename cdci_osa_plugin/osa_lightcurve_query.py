@@ -159,8 +159,11 @@ class OsaLigthtCurve(LightCurveProduct):
         lc_list=[]
 
         lc_path_list = [getattr(res,attr) for attr in dir(res) if attr.startswith("lc_")]
-        src_name_list=[n.split('_')[1] for n in lc_path_list]
 
+        src_name_list = [attr for attr in dir(res) if attr.startswith("lc_")]
+
+        src_name_list = [n.replace('lc_','') for n in src_name_list]
+        src_name_list = [n.replace('_', ' ') for n in src_name_list]
         print ('->',lc_path_list,src_name_list)
 
         if file_dir is None:
@@ -188,7 +191,7 @@ class OsaLigthtCurve(LightCurveProduct):
                 du = npd.get_data_unit_by_name('JMX1-SRC.-LCR')
 
             if du is None:
-                raise RuntimeError('du with lc not found in fits file')
+                raise RuntimeError('Missing data unit with light curve in the fits file')
 
             if du is not None:
                 #src_name = du.header['NAME']
@@ -473,9 +476,9 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
             extramodules = []
 
         if osa_version == "OSA10.2":
-            modules = ["git://ddosa"] + extramodules + ['git://process_isgri_lc', 'git://ddosa_delegate']
+            modules = ["git://ddosa",'git://process_isgri_lc'] + extramodules + ['git://ddosa_delegate']
         elif osa_version == "OSA11.0":
-            modules = ["git://ddosa", "git://findic/icversion","git://ddosa11/icversion"] + extramodules + ['git://process_isgri_lc', 'git://ddosa_delegate']
+            modules = ["git://ddosa", "git://findic/icversion","git://ddosa11/icversion",'git://process_isgri_lc'] + extramodules + ['git://ddosa_delegate']
         else:
             raise Exception("unknown osa version: "+osa_version)
                  
@@ -522,7 +525,7 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
         dummy_cache = config.dummy_cache
 
         res = DummyOsaRes()
-        
+
         res.__setattr__('lc_crab', '%s/jemx_query_lc.fits.gz' % dummy_cache)
         #res.__setattr__('extracted_sources', [('dummy_src', 'dummy_lc')])
 
@@ -544,10 +547,11 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
             extramodules = []
 
         if osa_version == "OSA10.2":
-            modules = ["git://ddosa"] + extramodules + ["git://ddosa","git://ddjemx", 'git://ddosa_delegate']
+            modules = ["git://ddosa","git://ddjemx"] + extramodules +['git://ddosa_delegate']
         elif osa_version == "OSA11.0":
-            modules = ["git://ddosa", "git://findic/icversion", "git://ddosa11/icversion"] + extramodules + [
-                "git://ddosa","git://ddjemx", 'git://ddosa_delegate']
+
+            modules = ["git://ddosa", "git://findic/icversion", "git://ddosa11/icversion", "git://ddjemx"] \
+                      + extramodules + ['git://ddosa_delegate']
         else:
             raise Exception("unknown osa version: " + osa_version)
 

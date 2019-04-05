@@ -110,11 +110,11 @@ class JemxSpectrumProduct(SpectrumProduct):
             print('arf  in file-->', arf_filename)
             print('rmf  in file-->', rmf_filename)
 
-            out_spec_file = Path(spec_filename).name
+            out_spec_file = Path(spec_filename).name.replace(' ','_')
 
-            out_arf_file = Path(arf_attr).name+'.fits.gz'
+            out_arf_file = Path(arf_attr).name.replace(' ','_')+'.fits.gz'
 
-            out_rmf_file =  Path(rmf_attr).name+'.fits.gz'
+            out_rmf_file =  Path(rmf_attr).name.replace(' ','_')+'.fits.gz'
 
 
 
