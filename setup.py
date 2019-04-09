@@ -12,9 +12,7 @@ __author__ = 'andrea tramacere'
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
-import  glob
-
-
+import glob
 
 f = open("./requirements.txt",'r')
 install_req=f.readlines()
@@ -23,12 +21,9 @@ f.close()
 
 packs=find_packages()
 
-print ('packs',packs)
+print ('packs', packs)
 
-
-
-
-include_package_data=True
+include_package_data = True
 
 scripts_list=glob.glob('./bin/*')
 setup(name='cdci_osa_plugin',
