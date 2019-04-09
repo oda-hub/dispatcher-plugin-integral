@@ -430,7 +430,15 @@ class OsaDispatcher(object):
 
 
 
+    def get_comments(self,res):
+        comment=''
+        warning=''
+        if hasattr(res,'comment'):
+            comment=res.comment
+        if hasattr(res,'warning'):
+            warning=res.warning
 
+        return comment,warning
 
 
 
@@ -453,6 +461,8 @@ class OsaDispatcher(object):
         #status = 0
         message = ''
         debug_message = ''
+        backend_comment = ''
+        backend_warning = ''
         query_out = QueryOutput()
         try:
 
@@ -472,12 +482,14 @@ class OsaDispatcher(object):
                                                     prompt_delegate = run_asynch,
                                                     callback = call_back_url)
 
+            backend_comment,backend_warning=self.get_comments(res)
+
 
 
             print ('--> url for call_back',call_back_url)
             print("--> cached object in", res,res.ddcache_root_local)
             #DONE
-            query_out.set_done(message=message, debug_message=str(debug_message),job_status='done')
+            query_out.set_done(message=message, debug_message=str(debug_message),job_status='done',comment=backend_comment,warning=backend_warning)
 
             #job.set_done()
 
@@ -527,7 +539,8 @@ class OsaDispatcher(object):
 
         except dc.AnalysisDelegatedException as e:
             # DONE DELEGATION
-            query_out.set_done(message=message, debug_message=str(debug_message), job_status='submitted')
+            backend_comment, backend_warning = self.get_comments(res)
+            query_out.set_done(message=message, debug_message=str(debug_message), job_status='submitted',comment=backend_comment,warning=backend_warning)
 
         except Exception as e:
                 run_query_message = 'DDOSAUnknownException in run_query'
@@ -540,6 +553,9 @@ class OsaDispatcher(object):
                                      debug_message='')
 
                 raise DDOSAUnknownException(message=run_query_message)
+
+
+
 
         return res,query_out
 
