@@ -564,7 +564,8 @@ class OsaDispatcher(object):
     def get_scwlist_assumption(cls, scw_list, T1, T2, RA, DEC, radius, use_max_pointings):
 
         if scw_list is not None and scw_list != []:
-            print('DEBUG --> scw_list', scw_list)
+            #print('DEBUG --> scw_list', scw_list)
+            scw_list=[item.strip() for item in scw_list]
             template = re.compile(r'^(\d{12}).(\d{3})$')
             acceptList = [item.strip() for item in scw_list if template.match(item)]
             if len(acceptList) != len(scw_list):
