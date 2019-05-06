@@ -561,7 +561,8 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
         assume = ['ddjemx.JMXLCGroups(input_scwlist=%s)' % scwlist_assumption[0],
                   scwlist_assumption[1],
                   'ddjemx.JEnergyBinsLC (use_bins=[(%(E1)s,%(E2)s)])' % dict(E1=E1, E2=E2),
-                  'ddjemx.LCTimeBin(use_time_bin_seconds=%f)' % delta_t]
+                  'ddjemx.LCTimeBin(use_time_bin_seconds=%f)' % delta_t,
+                  'ddjemx.JEMX(use_num=%d)' % jemx_num]
 
         return target, modules, assume
 
