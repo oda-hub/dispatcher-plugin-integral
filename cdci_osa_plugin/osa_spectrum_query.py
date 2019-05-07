@@ -313,9 +313,9 @@ class OsaSpectrumQuery(SpectrumQuery):
             #print('jemx',query_spec)
             if query_spec is not None:
                 #print('jemx', query_spec.name)
-                query_spec.write()
-                query_lc.add_url_to_fits_file(instrument._current_par_dic, url=instrument.disp_conf.products_url)
 
+                query_spec.add_url_to_fits_file(instrument._current_par_dic, url=instrument.disp_conf.products_url)
+                query_spec.write()
 
                 if query_spec.name=='isgri_spectrum' or  query_spec.name=='jemx_spectrum':
                     _names.append(query_spec.meta_data['src_name'])
