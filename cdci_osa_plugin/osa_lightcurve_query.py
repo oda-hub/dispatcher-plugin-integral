@@ -390,6 +390,7 @@ class OsaLightCurveQuery(LightCurveQuery):
             #print('--> lc  name',query_lc.name)
             #print('-->file name', query_lc.file_path.path)
             query_lc.write()
+            query_lc.add_url_to_fits_file(instrument._current_par_dic, url=instrument.disp_conf.products_url)
 
             if api==False:
                 _names.append(query_lc.meta_data['src_name'])
