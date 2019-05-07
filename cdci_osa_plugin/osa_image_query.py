@@ -109,9 +109,8 @@ class OsaMosaicQuery(ImageQuery):
             query_catalog.catalog.selected = query_catalog.catalog._table['significance'] > float(
                 detection_significance)
 
-
+        query_image.add_url_to_fits_file(instrument._current_par_dic)
         query_image.write(overwrite=True)
-        query_image.add_url_to_fits_file(instrument._current_par_dic)   
         query_catalog.write(overwrite=True,format='fits')
         query_catalog.write(overwrite=True, format='ds9')
 
