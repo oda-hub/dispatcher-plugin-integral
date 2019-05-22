@@ -304,17 +304,21 @@ class JemxMosaicQuery(OsaMosaicQuery):
                                                             file_dir=out_dir,
                                                             prod_prefix=prod_prefix,
                                                             meta_data=meta_data)
+
+            osa_catalog = CatalogProduct('mosaic_catalog',
+                                         catalog=OsaJemxCatalog.build_from_ddosa_srclres(res.srclres),
+                                         file_name='query_catalog',
+                                         name_prefix=prod_prefix,
+                                         file_dir=out_dir)
+
         else:
             image = OsaImageProduct.build_empty(file_name='jemx_query_mosaic.fits',
                                                 file_dir=out_dir,
                                                 prod_prefix=prod_prefix,
                                                 meta_data=meta_data)
 
-        osa_catalog = CatalogProduct('mosaic_catalog',
-                                     catalog=OsaJemxCatalog.build_from_ddosa_srclres(res.srclres),
-                                     file_name='query_catalog',
-                                     name_prefix=prod_prefix,
-                                     file_dir=out_dir)
+            osa_catalog=None
+
 
         prod_list = [image, osa_catalog]
 
