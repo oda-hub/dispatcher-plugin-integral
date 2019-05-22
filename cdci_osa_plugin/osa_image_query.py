@@ -317,7 +317,12 @@ class JemxMosaicQuery(OsaMosaicQuery):
                                                 prod_prefix=prod_prefix,
                                                 meta_data=meta_data)
 
-            osa_catalog=OsaJemxCatalog.build_from_dict_list({})
+            osa_catalog = CatalogProduct('mosaic_catalog',
+                                         catalog=OsaJemxCatalog.build_from_dict_list({}),
+                                         file_name='query_catalog',
+                                         name_prefix=prod_prefix,
+                                         file_dir=out_dir)
+
 
 
         prod_list = [image, osa_catalog]
