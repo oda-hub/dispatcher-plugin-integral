@@ -23,8 +23,8 @@ from cdci_data_analysis.analysis.queries import ImageQuery
 from cdci_data_analysis.analysis.products import QueryProductList,CatalogProduct,ImageProduct,QueryOutput
 from cdci_data_analysis.analysis.catalog import BasicCatalog
 from cdci_data_analysis.analysis.io_helper import  FitsFile
-from oda_api.data_products import NumpyDataProduct
-
+from oda_api.data_products import NumpyDataProduct,NumpyDataUnit
+import  numpy as np
 from .osa_catalog import  OsaIsgriCatalog,OsaJemxCatalog
 from .osa_dataserve_dispatcher import    OsaDispatcher
 from .osa_common_pars import DummyOsaRes
@@ -61,7 +61,11 @@ class OsaImageProduct(ImageProduct):
         data=NumpyDataProduct.from_fits_file(skyima,ext=ext,meta_data=meta_data)
         return  cls(data=data,file_dir=file_dir,prod_prefix=prod_prefix,file_name=file_name,meta_data=meta_data)
 
-
+    @classmethod
+    def build_empty(cls,file_name=None,file_dir=None,prod_prefix=None,meta_data={}):
+        ima = NumpyDataUnit(np.zeros((100, 100)), hdu_type='image')
+        data = NumpyDataProduct(data_unit=ima)
+        return  cls(data=data,file_dir=file_dir,prod_prefix=prod_prefix,file_name=file_name,meta_data=meta_data)
 
 
 
@@ -289,25 +293,28 @@ class JemxMosaicQuery(OsaMosaicQuery):
         prod_list = QueryProductList(prod_list=[image, catalog])
         return prod_list
 
-
-
     def build_product_list(self, instrument, res, out_dir, prod_prefix=None, api=False):
         meta_data = {'product': 'mosaic', 'instrument': 'jemx', 'src_name': ''}
         meta_data['query_parameters'] = self.get_parameters_list_as_json()
 
-        image = OsaImageProduct.build_from_ddosa_skyima(file_name='jemx_query_mosaic.fits',
-                                                        skyima=res.skyima,
-                                                        ext=4,
-                                                        file_dir=out_dir,
-                                                        prod_prefix=prod_prefix,
-                                                        meta_data=meta_data)
+        if hasattr(res, 'skyima'):
+            image = OsaImageProduct.build_from_ddosa_skyima(file_name='jemx_query_mosaic.fits',
+                                                            skyima=res.skyima,
+                                                            ext=4,
+                                                            file_dir=out_dir,
+                                                            prod_prefix=prod_prefix,
+                                                            meta_data=meta_data)
+        else:
+            image = OsaImageProduct.build_empty(file_name='jemx_query_mosaic.fits',
+                                                file_dir=out_dir,
+                                                prod_prefix=prod_prefix,
+                                                meta_data=meta_data)
 
         osa_catalog = CatalogProduct('mosaic_catalog',
                                      catalog=OsaJemxCatalog.build_from_ddosa_srclres(res.srclres),
                                      file_name='query_catalog',
                                      name_prefix=prod_prefix,
                                      file_dir=out_dir)
-
 
         prod_list = [image, osa_catalog]
 
