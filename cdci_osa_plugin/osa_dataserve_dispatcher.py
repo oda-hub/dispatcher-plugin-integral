@@ -563,7 +563,7 @@ class OsaDispatcher(object):
     @classmethod
     def get_scwlist_assumption(cls, scw_list, T1, T2, RA, DEC, radius, use_max_pointings):
 
-        print('DEBUG --> scw_list', scw_list,len(scw_list))
+        #print('DEBUG --> scw_list', scw_list,len(scw_list))
         if scw_list is not None and scw_list != []:
 
             scw_list=[item.strip() for item in scw_list]
