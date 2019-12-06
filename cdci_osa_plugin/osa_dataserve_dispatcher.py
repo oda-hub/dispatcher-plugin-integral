@@ -584,6 +584,9 @@ class OsaDispatcher(object):
                                                   )\
                                               ' % (dict(RA=RA, DEC=DEC, radius=radius, T1=T1, T2=T2, use_max_pointings=use_max_pointings))]
 
+        if len(scw_list)>use_max_pointings:
+            raise OsaDispatcherException(message='scws are limited to %d'%use_max_pointings)
+
         return scwlist_assumption
 
 
