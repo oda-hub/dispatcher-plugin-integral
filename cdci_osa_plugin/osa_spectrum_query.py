@@ -147,7 +147,7 @@ class JemxSpectrumProduct(SpectrumProduct):
             name = 'jemx_spectrum'
             meta_data = {}
             meta_data['src_name'] = source_name
-            meta_data['product'] = 'isgri_spectrum'
+            meta_data['product'] = 'jemx_spectrum'
 
             np_spec = NumpyDataProduct.from_fits_file(spec_filename, meta_data=meta_data)
             np_spec.data_unit[1].header['ANCRFILE'] = 'NONE'
