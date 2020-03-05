@@ -53,6 +53,7 @@ def osa_common_instr_query():
 
     radius = Angle(value=5.0, units='deg', name='radius')
     osa_version = Name(name_format='str', name='osa_version')
+    osa_version.__allowed_values=['10.2','11.0']
     instr_query_pars=[radius,max_pointings,osa_version]
 
 
