@@ -43,6 +43,7 @@ import ddosaclient as dc
 # Project
 # relative import eg: from .mod import f
 import  numpy as np
+from numpy.lib.recfunctions import append_fields
 from pathlib import Path
 
 from astropy.io import fits as pf
@@ -94,7 +95,7 @@ class OsaLigthtCurve(LightCurveProduct):
         for i in range(len(t_lc) - 1):
             dt_lc[i + 1] = min(timedel / 2, t_lc[i + 1] - t_lc[i] - dt_lc[i])
 
-        print('-->',dt_lc)
+        #print('-->',dt_lc)
         _d = np.array(du.data)
         _o = append_fields(_d, 'TIMEDEL', dt_lc*2)
         du.data = _o.data
