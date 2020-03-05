@@ -95,7 +95,6 @@ class OsaLigthtCurve(LightCurveProduct):
         for i in range(len(t_lc) - 1):
             dt_lc[i + 1] = min(timedel / 2, t_lc[i + 1] - t_lc[i] - dt_lc[i])
 
-        #print('-->',dt_lc)
         _d = np.array(du.data)
         _o = append_fields(_d, 'TIMEDEL', dt_lc*2)
         du.data = _o.data
@@ -248,7 +247,6 @@ class OsaLigthtCurve(LightCurveProduct):
             p, chisq, chisq_red, dof,xf,yf = self.do_linear_fit(x, y, dy, poly_deg, 'constant fit')
             sp.add_line(xf,yf,'constant fit',color='green')
             exposure = np.sum(data['TIMEDEL']*data['FRACEXP'])
-            #exposure = header['TIMEDEL'] * data['FRACEXP'].sum()
             exposure *= 86400.
             footer_str = 'Exposure %5.5f (s) \n' % exposure
             if p is not None:
