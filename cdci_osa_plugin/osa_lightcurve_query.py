@@ -237,7 +237,7 @@ class OsaLigthtCurve(LightCurveProduct):
         x = x - np.int(x.min())
 
         sp=ScatterPlot(w=600,h=600,x_label='MJD-%d  (days)' % mjdref,y_label='Rate  (cts/s)')
-        sp.add_errorbar(x,y,yerr=dy,xerr=dx*0.5)
+        sp.add_errorbar(x,y,yerr=dy,xerr=dx)
         footer_str=''
         try:
             slope = None
