@@ -53,7 +53,6 @@ def osa_jemx_factory():
 
     instr_query_pars = osa_common_instr_query()
     instr_num = Integer(value=2,name='jemx_num')
-    #    (value='jemx1', name='jemx_num')
     instr_query_pars.append(instr_num)
 
     E1_keV = SpectralBoundary(value=3., E_units='keV', name='E1_keV')
@@ -76,7 +75,6 @@ def osa_jemx_factory():
 
     image=JemxMosaicQuery('jemx_image_query')
 
-    #
     spectrum = JemxSpectrumQuery('jemx_spectrum_query')
 
     light_curve = JemxLightCurveQuery('jemx_lc_query')

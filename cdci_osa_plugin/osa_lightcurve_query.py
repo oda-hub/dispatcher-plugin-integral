@@ -77,7 +77,6 @@ class OsaLigthtCurve(LightCurveProduct):
 
         data.name=name
 
-
         super(OsaLigthtCurve, self).__init__(name=name,
                                              data=data,
                                              name_prefix=prod_prefix,
@@ -85,7 +84,17 @@ class OsaLigthtCurve(LightCurveProduct):
                                              file_name=file_name,
                                              meta_data=meta_data)
 
+    @staticmethod
+    def make_ogip_compliant(du):
+        timedel = du.header['TIMEDEL']
+        timepix = du.header['TIMEPIXR']
+        t_lc = du.data['TIME'] + (0.5 - timepix) * timedel
+        dt_lc = (timedel / 2) * np.ones(t_lc.shape)
 
+        for i in range(len(t_lc) - 1):
+            dt_lc[i + 1] = min(timedel / 2, t_lc[i + 1] - t_lc[i] - dt_lc[i])
+
+        du.data['TIMEDEL']=dt_lc*2
 
     @classmethod
     def build_isgri_lc_from_ddosa_res(cls,
@@ -94,7 +103,6 @@ class OsaLigthtCurve(LightCurveProduct):
                                       prod_prefix='',
                                       file_dir=None,
                                       api=False):
-
 
 
         lc_list = []
@@ -108,17 +116,10 @@ class OsaLigthtCurve(LightCurveProduct):
         for source_name, lightcurve_attr in res.extracted_sources:
             meta_data = {}
             input_lc_paht = getattr(res, lightcurve_attr)
-            #print('lc file input-->', input_lc_paht, lightcurve_attr)
-
-
-            #hdu_list = FitsFile(lc_paht).open()
-            #data = NumpyDataProduct.from_fits_file(lc_paht, hdu_name='ISGR-SRC.-LCR', name='isgri_lc', instr='isgri',
-            #                                       descr='src_name:%s' % name)
 
             npd = NumpyDataProduct.from_fits_file(input_lc_paht, meta_data=meta_data)
 
             du = npd.get_data_unit_by_name('ISGR-SRC.-LCR')
-
 
             if du is not None:
                 src_name = du.header['NAME']
@@ -127,14 +128,12 @@ class OsaLigthtCurve(LightCurveProduct):
                 meta_data['time_bin'] = du.header['TIMEDEL']
 
                 out_file_name =  Path(input_lc_paht).resolve().stem
-                #if prod_prefix !='' and prod_prefix!=None:
-                #    out_file_name = prod_prefix + '_' + out_file_name
 
-                #print('lc file output-->', out_file_name, lightcurve_attr)
-
+                OsaLigthtCurve.make_ogip_compliant(du)
 
                 lc = cls(name='isgri_lc', data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
                          src_name=src_name,meta_data=meta_data)
+
 
                 lc_list.append(lc)
 
@@ -147,14 +146,6 @@ class OsaLigthtCurve(LightCurveProduct):
                                       prod_prefix='',
                                       file_dir=None,
                                       api=False):
-
-        #print('jemx',spec_list_attr,arf_list_attr,source_name_list)
-        #import pickle
-        #print(dir(res))
-        #for s in spec_list:
-        #    print('jemx specrtrum',s)
-        #with open('jemx_lc_res.pkl','wb') as f:
-        #    pickle.dump(res,f)
 
         lc_list=[]
 
@@ -174,12 +165,6 @@ class OsaLigthtCurve(LightCurveProduct):
 
         for source_name, input_lc_paht in zip(src_name_list,lc_path_list):
             meta_data = {}
-            #input_lc_paht = getattr(res, lightcurve_attr)
-            # print('lc file input-->', input_lc_paht, lightcurve_attr)
-
-            # hdu_list = FitsFile(lc_paht).open()
-            # data = NumpyDataProduct.from_fits_file(lc_paht, hdu_name='ISGR-SRC.-LCR', name='isgri_lc', instr='isgri',
-            #                                       descr='src_name:%s' % name)
 
             npd = NumpyDataProduct.from_fits_file(input_lc_paht, meta_data=meta_data)
 
@@ -196,16 +181,13 @@ class OsaLigthtCurve(LightCurveProduct):
  #               raise RuntimeError('Missing data unit with light curve in the fits file')
 
             if du is not None:
-                #src_name = du.header['NAME']
 
                 meta_data['src_name'] = source_name
                 meta_data['time_bin'] = du.header['TIMEDEL']
 
                 out_file_name = Path(input_lc_paht).resolve().stem
-                # if prod_prefix !='' and prod_prefix!=None:
-                #    out_file_name = prod_prefix + '_' + out_file_name
 
-                # print('lc file output-->', out_file_name, lightcurve_attr)
+                OsaLigthtCurve.make_ogip_compliant(du)
 
                 lc = cls(name='jemx_lc', data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
                          src_name=src_name, meta_data=meta_data)
@@ -216,21 +198,9 @@ class OsaLigthtCurve(LightCurveProduct):
 
 
 
-
-
-
     def get_html_draw(self, plot=False):
-        # from astropy.io import fits as pf
-        # print ('loading -->',self.file_path.path)
-
-        # hdul = pf.open(self.file_path.path)
-
-
+        #
         npd = NumpyDataProduct.from_fits_file(self.file_path.path)
-
-
-
-
 
         du = npd.get_data_unit_by_name('ISGR-SRC.-LCR')
 
@@ -245,13 +215,13 @@ class OsaLigthtCurve(LightCurveProduct):
 
         data = du.data
         header = du.header
-        #print(header)
 
         #filtering zero flux values
         msk_non_zero = np.count_nonzero([data['RATE'], data['ERROR']], axis=0) > 0
         data=data[msk_non_zero]
 
         x = data['TIME']
+        dx= data['TIMEDEL']
         y = data['RATE']
         dy = data['ERROR']
         try:
@@ -263,7 +233,7 @@ class OsaLigthtCurve(LightCurveProduct):
         x = x - np.int(x.min())
 
         sp=ScatterPlot(w=600,h=600,x_label='MJD-%d  (days)' % mjdref,y_label='Rate  (cts/s)')
-        sp.add_errorbar(x,y,yerr=dy)
+        sp.add_errorbar(x,y,yerr=dy,xerr=dx*0.5)
         footer_str=''
         try:
             slope = None
@@ -272,8 +242,8 @@ class OsaLigthtCurve(LightCurveProduct):
             poly_deg = 0
             p, chisq, chisq_red, dof,xf,yf = self.do_linear_fit(x, y, dy, poly_deg, 'constant fit')
             sp.add_line(xf,yf,'constant fit',color='green')
-
-            exposure = header['TIMEDEL'] * data['FRACEXP'].sum()
+            exposure = np.sum(data['TIMEDEL']*data['FRACEXP'])
+            #exposure = header['TIMEDEL'] * data['FRACEXP'].sum()
             exposure *= 86400.
             footer_str = 'Exposure %5.5f (s) \n' % exposure
             if p is not None:
@@ -300,17 +270,13 @@ class OsaLigthtCurve(LightCurveProduct):
         except:
             pass
 
-
-
         html_dict= sp.get_html_draw()
-
 
         res_dict = {}
         res_dict['image'] =html_dict
         res_dict['header_text'] = ''
         res_dict['table_text'] = ''
         res_dict['footer_text'] = footer_str
-
 
         return res_dict
 
@@ -332,7 +298,6 @@ class OsaLigthtCurve(LightCurveProduct):
             chisq = (lin_fit(x) - y) ** 2 / dy ** 2
             dof = y.size - (poly_deg + 1)
             chisq_red = chisq.sum() / float(dof)
-            #plt.plot(x_grid, lin_fit(x_grid), '--', label=label)
             y_grid=lin_fit(x_grid)
 
         return p, chisq, chisq_red, dof,x_grid, y_grid
@@ -341,11 +306,9 @@ class OsaLigthtCurve(LightCurveProduct):
 
 
 class OsaLightCurveQuery(LightCurveQuery):
-
     def __init__(self, name):
 
         super(OsaLightCurveQuery, self).__init__(name)
-
 
 
     def get_data_server_query(self, instrument,
@@ -366,18 +329,11 @@ class OsaLightCurveQuery(LightCurveQuery):
                                                                   delta_t, osa_version=osa_version)
 
 
-
-
-
-
         q = OsaDispatcher(config=config,instrument=instrument, target=target, modules=modules, assume=assume, inject=inject)
-
         return q
-
 
     def set_instr_dictionaries(self, extramodules,scwlist_assumption,E1,E2,src_name,delta_t):
         raise RuntimeError('Must be specified for each instrument')
-
 
     def process_product_method(self, instrument, prod_list,api=False):
 
