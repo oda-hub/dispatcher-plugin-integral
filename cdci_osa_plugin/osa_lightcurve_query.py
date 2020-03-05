@@ -94,9 +94,10 @@ class OsaLigthtCurve(LightCurveProduct):
         for i in range(len(t_lc) - 1):
             dt_lc[i + 1] = min(timedel / 2, t_lc[i + 1] - t_lc[i] - dt_lc[i])
 
+        print('-->',dt_lc)
         _d = np.array(du.data)
-        _d = append_fields(_d, 'TIMEDEL', dt_lc*2)
-        du.data = _d.data
+        _o = append_fields(_d, 'TIMEDEL', dt_lc*2)
+        du.data = _o.data
 
 
     @classmethod
