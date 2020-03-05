@@ -58,7 +58,7 @@ class OsaImageProduct(ImageProduct):
 
     @classmethod
     def build_from_ddosa_skyima(cls,file_name=None,skyima=None,ext=None,file_dir=None,prod_prefix=None,meta_data={}):
-        data=NumpyDataProduct.from_fits_file(skyima,ext=ext,meta_data=meta_data)
+        data=NumpyDataProduct.from_fits_file(skyima,ext=None,meta_data=meta_data)
         return  cls(data=data,file_dir=file_dir,prod_prefix=prod_prefix,file_name=file_name,meta_data=meta_data)
 
     @classmethod
@@ -66,11 +66,6 @@ class OsaImageProduct(ImageProduct):
         ima = NumpyDataUnit(np.zeros((100, 100)), hdu_type='image')
         data = NumpyDataProduct(data_unit=ima)
         return  cls(data=data,file_dir=file_dir,prod_prefix=prod_prefix,file_name=file_name,meta_data=meta_data)
-
-
-
-
-
 
 
 
@@ -121,9 +116,9 @@ class OsaMosaicQuery(ImageQuery):
         if api==False:
             #TODO  MAKE THIS BETTER
             try:
-                html_fig = query_image.get_html_draw(catalog=query_catalog.catalog,data_ID=0)
+                html_fig = query_image.get_html_draw(catalog=query_catalog.catalog,data_ID=4)
             except:
-                html_fig = query_image.get_html_draw(catalog=query_catalog.catalog, data_ID=1)
+                html_fig = query_image.get_html_draw(catalog=query_catalog.catalog, data_ID=4)
 
         #print('--> query was ok 2')
         query_out = QueryOutput()
