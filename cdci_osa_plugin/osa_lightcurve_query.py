@@ -225,7 +225,7 @@ class OsaLigthtCurve(LightCurveProduct):
         data=data[msk_non_zero]
 
         x = data['TIME']
-        dx= data['TIMEDEL']
+        dx= data['TIMEDEL']*0.5
         y = data['RATE']
         dy = data['ERROR']
         try:
