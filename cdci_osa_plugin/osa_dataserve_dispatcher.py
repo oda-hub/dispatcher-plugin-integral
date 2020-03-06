@@ -624,8 +624,15 @@ class OsaDispatcher(object):
         return scwlist_assumption,cat,extramodules,inject
 
     @classmethod
-    def get_instr_catalog(cls, instrument,user_catalog=None):
-        cat=None
+    def get_instr_catalog(cls, instrument, user_catalog=None):
+        cat = None
+
+        def get_col_data(t, n, default):
+            if n in user_catalog.table.colnames:
+                return t[n].data
+            else:
+                return default
+
         if user_catalog is not None:
             cat = ['SourceCatalog',
                    {
@@ -634,20 +641,29 @@ class OsaDispatcher(object):
                                "RA": float(ra.deg),
                                "DEC": float(dec.deg),
                                "NAME": str(name),
+                               "FLAG": int(flag),
+                               "ISGRI_FLAG": int(isgri_flag),
                            }
-                           for ra, dec, name in zip(user_catalog.ra, user_catalog.dec, user_catalog.name)
+                           for ra, dec, name, flag, isgri_flag in zip(
+                               user_catalog.ra,
+                               user_catalog.dec,
+                               user_catalog.name,
+                               get_col_data(user_catalog.table, 'FLAG', np.zeros(len(user_catalog.ra))),
+                               get_col_data(user_catalog.table, 'ISGRI_FLAG', np.zeros(len(user_catalog.ra))),
+                           )
                        ],
                        "version": "v2",  # catalog id here; good if user-understandable, but can be computed internally
                        "autoversion": True,
                    }
                    ]
 
-        if instrument.name=='jemx':
-            print('jemx cat',cat)
-        if instrument.name=='isgri':
-            print('isgri cat',cat)
+        if instrument.name == 'jemx':
+            print('jemx cat', cat)
+        if instrument.name == 'isgri':
+            print('isgri cat', cat)
 
-        #else:
+        # else:
         #    cat = None
 
         return cat
+
