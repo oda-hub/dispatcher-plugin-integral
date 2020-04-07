@@ -333,6 +333,10 @@ class OSATimebin(TimeDelta):
 
         self.t_bin_max_seconds=3000.
 
+    @property
+    def value(self):
+        return self._astropy_time_delta.value
+
     @value.setter
     def value(self, v):
         units = self.units
