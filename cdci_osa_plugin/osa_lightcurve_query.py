@@ -48,7 +48,7 @@ from pathlib import Path
 
 from astropy.io import fits as pf
 from cdci_data_analysis.analysis.io_helper import FitsFile
-from cdci_data_analysis.analysis.queries import LightCurveQuery
+from cdci_data_analysis.analysis.queries import LightCurveQuery,ProductQuery
 from cdci_data_analysis.analysis.products import LightCurveProduct,QueryProductList,QueryOutput
 from cdci_data_analysis.analysis.io_helper import FilePath
 from cdci_data_analysis.analysis.parameters import TimeDelta
@@ -345,18 +345,18 @@ class OSATimebin(TimeDelta):
         if self._astropy_time_delta.sec>self.t_bin_max_seconds:
             raise RuntimeError('Time bin max value exceeded =%f'%self.t_bin_max_seconds)
 
-class OsaLightCurveQuery(LightCurveQuery):
+class OsaLightCurveQuery(ProductQuery):
     def __init__(self, name):
 
-        super(OsaLightCurveQuery, self).__init__(name)
+        #super(OsaLightCurveQuery, self).__init__(name)
 
         # TODO define TimeDelta parameter with max value = 3ks
         # TODO done, verify
 
         osa_time_bin = OSATimebin(value=1000., name='time_bin', delta_T_format_name='time_bin_format')
 
-        self.parameters_list = [osa_time_bin]
-
+        parameters_list = [osa_time_bin]
+        super(LightCurveQuery, self).__init__(name, parameters_list, **kwargs)
 
 
     def get_data_server_query(self, instrument,
