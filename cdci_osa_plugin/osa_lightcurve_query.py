@@ -344,7 +344,7 @@ class OSATimebin(TimeDelta):
         if self._astropy_time_delta.sec>self.t_bin_max_seconds:
             raise RuntimeError('Time bin max value exceeded =%f'%self.t_bin_max_seconds)
 
-class OsaLightCurveQuery(ProductQuery):
+class OsaLightCurveQuery(LightCurveQuery):
     def __init__(self, name):
 
         super(OsaLightCurveQuery, self).__init__(name)
