@@ -356,7 +356,7 @@ class OsaLightCurveQuery(ProductQuery):
         osa_time_bin = OSATimebin(value=1000., name='time_bin', delta_T_format_name='time_bin_format')
 
         parameters_list = [osa_time_bin]
-        super(OsaLightCurveQuery, self).__init__(name, parameters_list, **kwargs)
+        super(OsaLightCurveQuery, self).__init__(name, parameters_list)
 
 
     def get_data_server_query(self, instrument,
