@@ -341,6 +341,7 @@ class OSATimebin(TimeDelta):
     def value(self, v):
         units = self.units
         self._set_time(v, format=units)
+        print('setting time bine to',v)
         if self._astropy_time_delta.sec>self.t_bin_max_seconds:
             raise RuntimeError('Time bin max value exceeded =%f'%self.t_bin_max_seconds)
 
