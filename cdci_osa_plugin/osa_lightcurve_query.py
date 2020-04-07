@@ -327,7 +327,7 @@ class OSATimebin(TimeDelta):
                  delta_T_format_name=None,
                  name=None):
 
-        super(TimeDelta, self).__init__(value=value,
+        super(OSATimebin, self).__init__(value=value,
                                         delta_T_format_name=delta_T_format_name,
                                         name=name)
 
