@@ -85,19 +85,19 @@ class OsaLigthtCurve(LightCurveProduct):
                                              file_name=file_name,
                                              meta_data=meta_data)
 
-    @staticmethod
-    def make_ogip_compliant(du):
-        timedel = du.header['TIMEDEL']
-        timepix = du.header['TIMEPIXR']
-        t_lc = du.data['TIME'] + (0.5 - timepix) * timedel
-        dt_lc = (timedel / 2) * np.ones(t_lc.shape)
-
-        for i in range(len(t_lc) - 1):
-            dt_lc[i + 1] = min(timedel / 2, t_lc[i + 1] - t_lc[i] - dt_lc[i])
-
-        _d = np.array(du.data)
-        _o = append_fields(_d, 'TIMEDEL', dt_lc*2)
-        du.data = _o.data
+    #@staticmethod
+    #def make_ogip_compliant(du):
+    #    timedel = du.header['TIMEDEL']
+    #    timepix = du.header['TIMEPIXR']
+    #    t_lc = du.data['TIME'] + (0.5 - timepix) * timedel
+    #    dt_lc = (timedel / 2) * np.ones(t_lc.shape)
+    #
+    #    for i in range(len(t_lc) - 1):
+    #        dt_lc[i + 1] = min(timedel / 2, t_lc[i + 1] - t_lc[i] - dt_lc[i])
+    #
+    #    _d = np.array(du.data)
+    #    _o = append_fields(_d, 'TIMEDEL', dt_lc*2)
+    #    du.data = _o.data
 
 
     @classmethod
@@ -133,7 +133,7 @@ class OsaLigthtCurve(LightCurveProduct):
 
                 out_file_name =  Path(input_lc_paht).resolve().stem
 
-                OsaLigthtCurve.make_ogip_compliant(du)
+                #OsaLigthtCurve.make_ogip_compliant(du)
 
                 lc = cls(name='isgri_lc', data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
                          src_name=src_name,meta_data=meta_data)
@@ -191,7 +191,7 @@ class OsaLigthtCurve(LightCurveProduct):
 
                 out_file_name = Path(input_lc_paht).resolve().stem
 
-                OsaLigthtCurve.make_ogip_compliant(du)
+                #OsaLigthtCurve.make_ogip_compliant(du)
 
                 lc = cls(name='jemx_lc', data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
                          src_name=src_name, meta_data=meta_data)
@@ -238,7 +238,21 @@ class OsaLigthtCurve(LightCurveProduct):
 
         sp=ScatterPlot(w=600,h=600,x_label='MJD-%d  (days)' % mjdref,y_label='Rate  (cts/s)')
         sp.add_errorbar(x,y,yerr=dy,xerr=dx)
-        footer_str=''
+
+        footer_str=None
+        if self.name == 'jemx_lc':
+            exposure = np.sum(data['FRACEXP']) * du.header['TIMEDEL']
+            exposure *= 86400.
+        elif self.name == 'isgri_lc':
+            exposure = np.sum(data['FRACEXP'] * du.header['XAX_E']) * 2
+            exposure *= 86400.
+        else:
+            # TODO update this option
+            footer_str ='Exposure non evaluated for product  %s'%self.name
+
+        if footer_str!=None:
+            footer_str = 'Exposure %5.5f (s) \n' % exposure
+        
         try:
             slope = None
             normalized_slope = None
@@ -246,9 +260,7 @@ class OsaLigthtCurve(LightCurveProduct):
             poly_deg = 0
             p, chisq, chisq_red, dof,xf,yf = self.do_linear_fit(x, y, dy, poly_deg, 'constant fit')
             sp.add_line(xf,yf,'constant fit',color='green')
-            exposure = np.sum(data['TIMEDEL']*data['FRACEXP'])
-            exposure *= 86400.
-            footer_str = 'Exposure %5.5f (s) \n' % exposure
+
             if p is not None:
                 footer_str += '\n'
                 footer_str += 'Constant fit\n'
@@ -308,10 +320,37 @@ class OsaLigthtCurve(LightCurveProduct):
 
 
 
-class OsaLightCurveQuery(LightCurveQuery):
+class OSATimebin(TimeDelta):
+    def __init__(self,
+                 value=None,
+                 delta_T_format_name=None,
+                 name=None):
+
+        super(TimeDelta, self).__init__(value=value,
+                                        delta_T_format_name=delta_T_format_name,
+                                        name=name)
+
+        self.t_bin_max_seconds=3000.
+
+    @value.setter
+    def value(self, v):
+        units = self.units
+        self._set_time(v, format=units)
+        if self._astropy_time_delta.sec>self.t_bin_max_seconds:
+            raise RuntimeError('Time bin max value exceeded =%f'%self.t_bin_max_seconds)
+
+class OsaLightCurveQuery(ProductQuery):
     def __init__(self, name):
 
         super(OsaLightCurveQuery, self).__init__(name)
+
+        # TODO define TimeDelta parameter with max value = 3ks
+        # TODO done, verify
+
+        osa_time_bin = OSATimebin(value=1000., name='time_bin', delta_T_format_name='time_bin_format')
+
+        self.parameters_list = [osa_time_bin]
+
 
 
     def get_data_server_query(self, instrument,
