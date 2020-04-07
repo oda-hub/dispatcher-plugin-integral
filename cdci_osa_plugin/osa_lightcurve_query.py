@@ -51,6 +51,7 @@ from cdci_data_analysis.analysis.io_helper import FitsFile
 from cdci_data_analysis.analysis.queries import LightCurveQuery
 from cdci_data_analysis.analysis.products import LightCurveProduct,QueryProductList,QueryOutput
 from cdci_data_analysis.analysis.io_helper import FilePath
+from cdci_data_analysis.analysis.paramters import TimeDelta
 from cdci_data_analysis.analysis.plot_tools import ScatterPlot
 from oda_api.data_products import NumpyDataProduct
 from .osa_dataserve_dispatcher import OsaDispatcher
@@ -252,7 +253,7 @@ class OsaLigthtCurve(LightCurveProduct):
 
         if footer_str!=None:
             footer_str = 'Exposure %5.5f (s) \n' % exposure
-        
+
         try:
             slope = None
             normalized_slope = None
