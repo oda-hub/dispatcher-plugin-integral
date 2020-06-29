@@ -326,7 +326,7 @@ class OSATimebin(TimeDelta):
                  value=None,
                  delta_T_format_name=None,
                  name=None):
-        self.t_bin_max_seconds = 3000.
+        self.t_bin_max_seconds = 4000.
         super(OSATimebin, self).__init__(value=value,
                                         delta_T_format_name=delta_T_format_name,
                                         name=name)
