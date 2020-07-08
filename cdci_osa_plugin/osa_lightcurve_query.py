@@ -38,7 +38,7 @@ import os
 # relative import eg: from .mod import f
 
 
-import ddosaclient as dc
+import ddaclient as dc
 
 # Project
 # relative import eg: from .mod import f
