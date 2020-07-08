@@ -15,6 +15,8 @@ __author__ = "Andrea Tramacere"
 
 import  os
 
+import logging
+
 # Project
 # relative import eg: from .mod import f
 from astropy.io import  fits as pf
@@ -29,6 +31,11 @@ from .osa_catalog import  OsaIsgriCatalog,OsaJemxCatalog
 from .osa_dataserve_dispatcher import    OsaDispatcher
 from .osa_common_pars import DummyOsaRes
 
+
+logger = logging.getLogger(__name__)
+
+class DataAccessIssue(Exception):
+    pass
 
 class OsaImageProduct(ImageProduct):
 
@@ -58,7 +65,12 @@ class OsaImageProduct(ImageProduct):
 
     @classmethod
     def build_from_ddosa_skyima(cls,file_name=None,skyima=None,ext=None,file_dir=None,prod_prefix=None,meta_data={}):
-        data=NumpyDataProduct.from_fits_file(skyima,ext=None,meta_data=meta_data)
+        try:
+            data=NumpyDataProduct.from_fits_file(skyima,ext=None,meta_data=meta_data)
+        except Exception as e:
+            logger.error(f"issue while reading skyima {skyima}: {repr(e)}")
+            raise DataAccessIssue(f"issue while reading skyima {skyima}: {repr(e)}")
+
         return  cls(data=data,file_dir=file_dir,prod_prefix=prod_prefix,file_name=file_name,meta_data=meta_data)
 
     @classmethod

@@ -1,14 +1,13 @@
-    instruments:
-      isgri:
-          dispatcher_mnt_point:
-          data_server_cache: reduced/ddcache
-          dummy_cache: dummy_prods
-          data_server_url:  http://cdcihn/staging-1.2/ddosa-worker
-          data_server_port:
+instruments:
+  isgri:
+      dispatcher_mnt_point: /data
+      data_server_cache: reduced/ddcache
+      dummy_cache: /data/dummy_prods
+      data_server_url: http://in.internal.odahub.io/staging-1-3/dda-interface
 
-      jemx:
-          dispatcher_mnt_point:
-          data_server_cache: reduced/ddcache
-          dummy_cache: dummy_prods
-          data_server_url: http://cdcihn/staging-1.2/ddosa-worker
-          data_server_port:
+  jemx:
+      dispatcher_mnt_point: /data
+      data_server_cache: reduced/ddcache
+      dummy_cache: /data/dummy_prods
+      data_server_url: 
+      data_server_url: interface-worker

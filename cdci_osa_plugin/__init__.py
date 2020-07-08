@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function
 
 
 import pkgutil
+import logging
 import os
 
 __author__ = "Andrea Tramacere"
@@ -31,3 +32,5 @@ env_conf_file=os.environ.get('CDCI_OSA_PLUGIN_CONF_FILE')
 if env_conf_file is not None:
     conf_file=env_conf_file
 
+
+logging.info("loading %s config from %s", __name__, conf_file)
