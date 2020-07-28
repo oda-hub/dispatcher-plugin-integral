@@ -49,7 +49,7 @@ from cdci_data_analysis.analysis.parameters import *
 def osa_common_instr_query():
     #not exposed to frontend
     #TODO make a special class
-    max_pointings=Integer(value=500,name='max_pointings')
+    max_pointings=Integer(value=500, name='max_pointings')
 
     radius = Angle(value=5.0, units='deg', name='radius')
     osa_version = Name(name_format='str', name='osa_version')
