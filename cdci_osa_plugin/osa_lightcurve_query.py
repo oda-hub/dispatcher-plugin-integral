@@ -484,9 +484,9 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
             extramodules = []
 
         if osa_version == "OSA10.2":
-            modules = ["git://ddosa",'git://process_isgri_lc'] + extramodules + ['git://ddosa_delegate']
+            modules = ["git://ddosa/staging-1-3",'git://process_isgri_lc'] + extramodules + ['git://ddosa_delegate']
         elif osa_version == "OSA11.0":
-            modules = ["git://ddosa", "git://findic/icversion","git://ddosa11/icversion",'git://process_isgri_lc'] + extramodules + ['git://ddosa_delegate']
+            modules = ["git://ddosa/staging-1-3", "git://findic/icversion","git://ddosa11/icversion",'git://process_isgri_lc'] + extramodules + ['git://ddosa_delegate']
         else:
             raise Exception("unknown osa version: "+osa_version)
                  
@@ -555,10 +555,10 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
             extramodules = []
 
         if osa_version == "OSA10.2":
-            modules = ["git://ddosa","git://ddjemx"] + extramodules +['git://ddosa_delegate']
+            modules = ["git://ddosa/staging-1-3","git://ddjemx"] + extramodules +['git://ddosa_delegate']
         elif osa_version == "OSA11.0":
 
-            modules = ["git://ddosa","git://ddjemx", "git://findic/icversion", "git://ddosa11/icversion"] \
+            modules = ["git://ddosa/staging-1-3","git://ddjemx", "git://findic/icversion", "git://ddosa11/icversion"] \
                       + extramodules + ['git://ddosa_delegate']
         else:
             raise Exception("unknown osa version: " + osa_version)
