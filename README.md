@@ -21,7 +21,7 @@ ISDC Data Centre for Astrophysics, Astronomy Department of the University of Gen
 test
 ------------------------------------
 * set the evn variable with the dispatcher url, e.g.
-  - `export DISP_URL='cdcicn01.isdc.unige.ch:32003/dispatch-data'`
+  - `export DISP_URL='cdcicn01.isdc.unige.ch:32003/dispatch-data'       `
 
 * if need set the token env var, e.g.
   - `export ODA_API_TOKEN=$HOME/.oda-api-token`

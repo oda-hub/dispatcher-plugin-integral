@@ -293,7 +293,7 @@ class OsaSpectrumQuery(SpectrumQuery):
     def set_instr_dictionaries(self,catalog,):
         raise RuntimeError('Must be specified for each instrument')
 
-    def process_product_method(self, instrument, prod_list,api=False):
+    def process_product_method(self, instrument, prod_list,api=False,**kw):
 
         #print('process_product_method,api',api)
         _names = []
