@@ -110,7 +110,7 @@ class OsaMosaicQuery(ImageQuery):
 
 
 
-    def process_product_method(self, instrument, prod_list,api=False, **kw):
+    def process_product_method  (self, instrument, prod_list,api=False, **kw):
 
         query_image = prod_list.get_prod_by_name('mosaic_image')
         query_catalog = prod_list.get_prod_by_name('mosaic_catalog')
