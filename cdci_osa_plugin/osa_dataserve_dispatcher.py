@@ -351,7 +351,7 @@ class OsaDispatcher(object):
             print ('input',RA,DEC,T1_iso,T2_iso)
 
             target = "ReportScWList"
-            modules = ['git://rangequery']
+            modules = ['git://rangequery/staging-1-3']
 
 
             scwlist_assumption = OsaDispatcher.get_scwlist_assumption(None, T1_iso, T2_iso, RA, DEC, radius, use_max_pointings)
@@ -605,7 +605,7 @@ class OsaDispatcher(object):
         if scw_list is None or scw_list == []:
             T1_iso = instrument.get_par_by_name('T1')._astropy_time.isot
             T2_iso = instrument.get_par_by_name('T2')._astropy_time.isot
-            extramodules.append('git://rangequery')
+            extramodules.append('git://rangequery/staging-1-3')
         else:
             T1_iso = None
             T2_iso = None
