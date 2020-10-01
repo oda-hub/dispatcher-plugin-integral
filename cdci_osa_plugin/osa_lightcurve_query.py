@@ -383,7 +383,7 @@ class OsaLightCurveQuery(ProductQuery):
     def set_instr_dictionaries(self, extramodules,scwlist_assumption,E1,E2,src_name,delta_t):
         raise RuntimeError('Must be specified for each instrument')
 
-    def process_product_method(self, instrument, prod_list,api=False):
+    def process_product_method(self, instrument, prod_list,api=False, **kw):
 
         _names = []
         _lc_path = []
