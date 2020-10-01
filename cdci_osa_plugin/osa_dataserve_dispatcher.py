@@ -163,7 +163,6 @@ class OsaDispatcher(object):
             #print('--> from data_server_conf_dict')
             try:
                 config = DataServerConf(data_server_url=instrument.data_server_conf_dict['data_server_url'],
-                                        data_server_port=instrument.data_server_conf_dict['data_server_port'],
                                        data_server_remote_cache=instrument.data_server_conf_dict['data_server_cache'],
                                        dispatcher_mnt_point=instrument.data_server_conf_dict['dispatcher_mnt_point'],
                                        dummy_cache=instrument.data_server_conf_dict['dummy_cache'])
