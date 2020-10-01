@@ -357,10 +357,10 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
 
         if osa_version=="OSA10.2":
             modules = ["git://ddosa/staging-1-3","git://useresponse/staging-1-3", "git://process_isgri_spectra/osa10-staging-1-3",
-                       "git://rangequery/staging-1-3"]+extramodules+['git://ddosa_delegate']
+                       "git://rangequery/staging-1-3"]+extramodules+['git://ddosa_delegate/staging-1-3']
         elif osa_version=="OSA11.0":
             modules = ["git://ddosa/staging-1-3","git://findic/icversionpy37","git://ddosa11/icversion","git://useresponse/osa11", "git://process_isgri_spectra/osa11",
-                               "git://rangequery/staging-1-3"]+extramodules+['git://ddosa_delegate']
+                               "git://rangequery/staging-1-3"]+extramodules+['git://ddosa_delegate/staging-1-3']
         else:
             raise Exception("unknown OSA version "+osa_version)
 
@@ -447,10 +447,10 @@ class JemxSpectrumQuery(OsaSpectrumQuery):
 
 
         if osa_version=="OSA10.2":
-            modules = ["git://ddosa/staging-1-3","git://ddjemx","git://rangequery/staging-1-3"]+extramodules+['git://ddosa_delegate']
+            modules = ["git://ddosa/staging-1-3","git://ddjemx","git://rangequery/staging-1-3"]+extramodules+['git://ddosa_delegate/staging-1-3']
         elif osa_version=="OSA11.0":
             modules = ["git://ddosa/staging-1-3","git://ddjemx","git://findic/icversionpy37","git://ddosa11/icversion",
-                               "git://rangequery/staging-1-3"]+extramodules+['git://ddosa_delegate']
+                               "git://rangequery/staging-1-3"]+extramodules+['git://ddosa_delegate/staging-1-3']
         else:
             raise Exception("unknown OSA version "+osa_version)
 
