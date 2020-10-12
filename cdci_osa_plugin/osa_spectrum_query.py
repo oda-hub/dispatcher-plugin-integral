@@ -403,7 +403,9 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
         spec_files.sort()
         arf_files.sort()
         rmf_files.sort()
-
+        print('==>,spec_files',spec_files )
+        print('==>,arf_files',arf_files )
+        print('==>,rmf_files', rmf_files)
         res = DummyOsaRes()
 
         extracted_sources = []
