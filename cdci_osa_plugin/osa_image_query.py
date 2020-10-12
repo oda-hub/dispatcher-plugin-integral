@@ -237,9 +237,9 @@ class IsgriMosaicQuery(OsaMosaicQuery):
         target = "mosaic_ii_skyimage"
 
         if osa_version=="OSA10.2":
-            modules = ["git://ddosa/staging-1-3"] + extramodules + ['git://ddosa_delegate']
+            modules = ["git://ddosa/staging-1-3"] + extramodules + ['git://ddosa_delegate/staging-1-3']
         elif osa_version=="OSA11.0":
-            modules = ["git://ddosa/staging-1-3","git://findic/icversionpy37","git://ddosa11/icversion"] + extramodules+['git://ddosa_delegate']
+            modules = ["git://ddosa/staging-1-3","git://findic/icversionpy37","git://ddosa11/icversion"] + extramodules+['git://ddosa_delegate/staging-1-3']
         else:
             raise Exception("unknown OSA version:",osa_version)
 
@@ -342,10 +342,10 @@ class JemxMosaicQuery(OsaMosaicQuery):
         target = "mosaic_jemx_osa"
 
         if osa_version == "OSA10.2":
-            modules = ["git://ddosa/staging-1-3", "git://ddjemx"]  + extramodules + ['git://ddosa_delegate']
+            modules = ["git://ddosa/staging-1-3", "git://ddjemx"]  + extramodules + ['git://ddosa_delegate/staging-1-3']
         elif osa_version == "OSA11.0":
             modules = ["git://ddosa/staging-1-3", "git://ddjemx", "git://findic/icversionpy37", "git://ddosa11/icversion"] + extramodules + [
-                'git://ddosa_delegate']
+                'git://ddosa_delegate/staging-1-3']
         else:
             raise Exception("unknown OSA version:", osa_version)
 
