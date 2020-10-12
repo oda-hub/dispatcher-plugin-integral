@@ -400,6 +400,9 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
         arf_files=glob.glob(config.dummy_cache+'/query_spectrum_rmf_sum_*.fits*')
         rmf_files=glob.glob(config.dummy_cache+'/query_spectrum_arf_sum_*.fits*')
 
+        spec_files.sort()
+        arf_files.sort()
+        rmf_files.sort()
 
         res = DummyOsaRes()
 
