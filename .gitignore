@@ -23,3 +23,5 @@ lib64
 notebooks/*
 !notebooks/*ipynb
 !notebooks/data
+*.gpg
+*.swp
