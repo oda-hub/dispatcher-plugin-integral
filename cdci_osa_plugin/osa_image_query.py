@@ -236,18 +236,29 @@ class IsgriMosaicQuery(OsaMosaicQuery):
         #print ('E1,E2',E1,E2)
         target = "mosaic_ii_skyimage"
 
-        if osa_version=="OSA10.2":
-            modules = ["git://ddosa/staging-1-3"] + extramodules + ['git://ddosa_delegate/staging-1-3']
-        elif osa_version=="OSA11.0":
-            modules = ["git://ddosa/staging-1-3","git://findic/icversionpy37","git://ddosa11/icversion"] + extramodules+['git://ddosa_delegate/staging-1-3']
+        versions = osa_version.split("-")
+        if len(versions) == 1:
+            osa_version_base, osa_subversion = versions[0], 'default-isdc'
+        elif len(versions) == 2:
+            osa_version_base, osa_subversion = versions
         else:
-            raise Exception("unknown OSA version:",osa_version)
+            raise RuntimeError(f"non-comforning OSA version: {versions}, expected 1 or 2 dash-separated fields")
+
+        if osa_version_base == "OSA10.2":
+            modules = ["git://ddosa/staging-1-3"] + extramodules + ['git://ddosa_delegate/staging-1-3']
+        elif osa_version_base == "OSA11.0":
+            modules = ["git://ddosa/staging-1-3","git://findic/staging-1-3-icversion","git://ddosa11/staging-1-3"] + extramodules+['git://ddosa_delegate/staging-1-3']
+        else:
+            raise RuntimeError(f"unknown OSA version {osa_version_base}, complete version {osa_version}")
 
         assume = ['ddosa.ImageGroups(input_scwlist=%s)' % scwlist_assumption[0],
                    scwlist_assumption[1],
                   'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")'%dict(E1=E1,E2=E2),
                   'ddosa.ImagingConfig(use_SouFit=0,use_version="soufit0")',
                    ]
+
+        if osa_subversion != "default-isdc":
+            assume.append(f'ddosa.ICRoot(use_ic_root_version="{osa_subversion}")')
 
         return target, modules, assume
         
