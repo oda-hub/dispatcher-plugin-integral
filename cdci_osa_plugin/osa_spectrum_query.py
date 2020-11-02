@@ -362,6 +362,7 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
         else:
             raise RuntimeError(f"non-comforning OSA version: {versions}, expected 1 or 2 dash-separated fields")
 
+        #TODO: this really should be re-used
         if osa_version_base == "OSA10.2":
             modules = ["git://ddosa/staging-1-3","git://useresponse/staging-1-3", "git://process_isgri_spectra/osa10-staging-1-3"]
         elif osa_version_base == "OSA11.0":
@@ -381,7 +382,9 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
                   'ddosa.ImagingConfig(use_SouFit=0,use_DoPart2=1,use_version="soufit0_p2")',
                   'ddosa.CatForSpectraFromImaging(use_minsig=3)',
                   ]
-
+ 
+        if osa_subversion != "default-isdc":
+            assume.append(f'ddosa.ICRoot(use_ic_root_version="{osa_subversion}")')
 
         #print ('ciccio',target,modules,assume)
         return target,modules,assume
