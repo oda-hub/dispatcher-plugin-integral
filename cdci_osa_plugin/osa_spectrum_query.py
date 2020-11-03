@@ -367,7 +367,7 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
             modules = ["git://ddosa/staging-1-3","git://useresponse/staging-1-3", "git://process_isgri_spectra/osa10-staging-1-3"]
         elif osa_version_base == "OSA11.0":
             modules = ["git://ddosa/staging-1-3","git://findic/staging-1-3-icversion","git://ddosa11/staging-1-3"] 
-            modules += ["git://useresponse/osa11", "git://process_isgri_spectra/osa11"]
+            modules += ["git://useresponse/staging-1-3-osa11", "git://process_isgri_spectra/staging-1-3-osa11"]
         else:
             raise RuntimeError(f"unknown OSA version {osa_version_base}, complete version {osa_version}")
 
