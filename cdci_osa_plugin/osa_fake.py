@@ -139,6 +139,7 @@ class FakeQuery(ProductQuery):
                               config=None):
 
         t = instrument.get_par_by_name('waiting_time').value
+        print('wating time',t)
         time.sleep(t)
 
         return FakeDispatcher()
