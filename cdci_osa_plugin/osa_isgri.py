@@ -45,7 +45,7 @@ from .osa_spectrum_query import IsgriSpectrumQuery
 from .osa_lightcurve_query import IsgriLightCurveQuery
 from .osa_dataserve_dispatcher import OsaDispatcher
 from .osa_common_pars import  osa_common_instr_query
-from .osa_fake_query import FakeQuery
+from .osa_fake import FakeQuery
 
 
 
@@ -60,9 +60,9 @@ def osa_isgri_factory():
     E1_keV = SpectralBoundary(value=10., E_units='keV', name='E1_keV')
     E2_keV = SpectralBoundary(value=40., E_units='keV', name='E2_keV')
     spec_window = ParameterRange(E1_keV, E2_keV, 'spec_window')
-    waiting_time= Integer(value=5,name='waiting_time')
+
     instr_query_pars.append(spec_window)
-    instr_query_pars.append(waiting_time)
+
 
     instr_query=InstrumentQuery(
         name='isgri_parameters',
@@ -84,8 +84,9 @@ def osa_isgri_factory():
 
     xspec_fit = SpectralFitQuery('spectral_fit_query', None)
 
+    waiting_time = Integer(value=5, name='waiting_time')
     fake_long_request = FakeQuery('fake_long_request')
-
+    fake_long_request.parameters.append(waiting_time)
     #update_image=ImageProcessQuery('update_image')
 
     query_dictionary={}

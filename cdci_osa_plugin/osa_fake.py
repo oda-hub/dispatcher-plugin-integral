@@ -19,14 +19,64 @@ import logging
 import  time
 # Project
 # relative import eg: from .mod import f
-from astropy.io import  fits as pf
 
 from cdci_data_analysis.analysis.queries import ProductQuery
 from cdci_data_analysis.analysis.products import QueryOutput
+from .osa_common_pars import  osa_common_instr_query
+
+from cdci_data_analysis.analysis.queries import  *
+from cdci_osa_plugin import conf_file,conf_dir
 
 
 logger = logging.getLogger(__name__)
 
+
+
+def osa_fake_factory():
+
+    src_query=SourceQuery('src_query')
+
+    instr_query_pars=osa_common_instr_query()
+
+    E1_keV = SpectralBoundary(value=10., E_units='keV', name='E1_keV')
+    E2_keV = SpectralBoundary(value=40., E_units='keV', name='E2_keV')
+    spec_window = ParameterRange(E1_keV, E2_keV, 'spec_window')
+
+    instr_query_pars.append(spec_window)
+
+
+    instr_query=InstrumentQuery(
+        name='fake_parameters',
+        extra_parameters_list=instr_query_pars,
+        input_prod_list_name='scw_list',
+        input_prod_value=None,
+        catalog=None,
+        catalog_name='user_catalog')
+
+
+
+
+
+    waiting_time = Integer(value=5, name='waiting_time')
+    fake_long_request = FakeQuery('fake_long_request')
+    fake_long_request.parameters.append(waiting_time)
+    #update_image=ImageProcessQuery('update_image')
+
+    query_dictionary={}
+
+    query_dictionary['fake_long_request'] = 'fake_long_request'
+
+
+    #print('--> conf_file',conf_file)
+    #print('--> conf_dir', conf_dir)
+
+    return  Instrument('osa_fake',
+                       data_serve_conf_file=conf_file,
+                       src_query=src_query,
+                       instrumet_query=instr_query,
+                       product_queries_list=[fake_long_request],
+                       data_server_query_class=FakeDispatcher,
+                       query_dictionary=query_dictionary)
 
 
 class FakeDispatcher(object):
