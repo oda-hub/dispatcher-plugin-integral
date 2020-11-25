@@ -96,11 +96,18 @@ class FakeDispatcher(object):
 
 
     def test_communication(self, max_trial=120, sleep_s=1,logger=None):
-        pass
+        query_out = QueryOutput()
+
+        message = ''
+        debug_message = ''
+        connection_status_message = ''
+        busy_exception = False
+        query_out.set_done(message=message, debug_message=str(debug_message))
 
     def test_has_input_products(self,instrument,logger=None):
-       pass
-
+        query_out = QueryOutput()
+        query_out.set_done(message='message', debug_message=str('debug_message'))
+        return  query_out,[]
 
     def get_comments(self,res):
         pass
