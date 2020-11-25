@@ -20,9 +20,9 @@ import  time
 # Project
 # relative import eg: from .mod import f
 
-from cdci_data_analysis.analysis.queries import ProductQuery
-from cdci_data_analysis.analysis.products import QueryOutput
+
 from .osa_common_pars import  osa_common_instr_query
+from cdci_data_analysis.analysis.instrument import Instrument
 
 from cdci_data_analysis.analysis.queries import  *
 from cdci_osa_plugin import conf_file,conf_dir
