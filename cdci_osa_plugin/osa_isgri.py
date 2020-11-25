@@ -84,9 +84,6 @@ def osa_isgri_factory():
 
     xspec_fit = SpectralFitQuery('spectral_fit_query', None)
 
-    waiting_time = Integer(value=5, name='waiting_time')
-    fake_long_request = FakeQuery('fake_long_request')
-    fake_long_request.parameters.append(waiting_time)
     #update_image=ImageProcessQuery('update_image')
 
     query_dictionary={}
@@ -94,7 +91,6 @@ def osa_isgri_factory():
     query_dictionary['isgri_spectrum'] = 'isgri_spectrum_query'
     query_dictionary['isgri_lc'] = 'isgri_lc_query'
     query_dictionary['spectral_fit'] = 'spectral_fit_query'
-    query_dictionary['fake_long_request'] = 'fake_long_request'
 
 
     #print('--> conf_file',conf_file)
@@ -104,7 +100,7 @@ def osa_isgri_factory():
                        data_serve_conf_file=conf_file,
                        src_query=src_query,
                        instrumet_query=instr_query,
-                       product_queries_list=[image,spectrum,light_curve,xspec_fit,fake_long_request],
+                       product_queries_list=[image,spectrum,light_curve,xspec_fit],
                        data_server_query_class=OsaDispatcher,
                        query_dictionary=query_dictionary)
 

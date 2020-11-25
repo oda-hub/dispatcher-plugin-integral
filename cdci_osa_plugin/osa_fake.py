@@ -16,7 +16,7 @@ __author__ = "Andrea Tramacere"
 import  os
 
 import logging
-import  time
+import  time as system_time
 # Project
 # relative import eg: from .mod import f
 
@@ -140,9 +140,9 @@ class FakeQuery(ProductQuery):
 
         t = instrument.get_par_by_name('waiting_time').value
         print('wating time',t)
-        time.sleep(t)
-
-        return FakeDispatcher()
+        system_time.sleep(t)
+        d=FakeDispatcher()
+        return d
 
 
     def build_product_list(self, instrument, res, out_dir, prod_prefix=None, api=False):
