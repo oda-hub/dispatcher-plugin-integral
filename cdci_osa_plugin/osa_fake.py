@@ -103,6 +103,7 @@ class FakeDispatcher(object):
         connection_status_message = ''
         busy_exception = False
         query_out.set_done(message=message, debug_message=str(debug_message))
+        return query_out
 
     def test_has_input_products(self,instrument,logger=None):
         query_out = QueryOutput()
