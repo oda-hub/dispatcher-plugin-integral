@@ -354,13 +354,13 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
     def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2"):
         target = "ISGRISpectraSum"
 
-        versions = osa_version.split("-")
+        versions = osa_version.split("-", 1)
         if len(versions) == 1:
             osa_version_base, osa_subversion = versions[0], 'default-isdc'
         elif len(versions) == 2:
             osa_version_base, osa_subversion = versions
         else:
-            raise RuntimeError(f"non-comforning OSA version: {versions}, expected 1 or 2 dash-separated fields")
+            raise RuntimeError(f"this should not be possible, OSA version split did not split as it should")
 
         #TODO: this really should be re-used
         if osa_version_base == "OSA10.2":
