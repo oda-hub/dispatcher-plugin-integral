@@ -236,13 +236,14 @@ class IsgriMosaicQuery(OsaMosaicQuery):
         #print ('E1,E2',E1,E2)
         target = "mosaic_ii_skyimage"
 
-        versions = osa_version.split("-")
+        #TODO: this should be re-used. where?
+        versions = osa_version.split("-", 1)
         if len(versions) == 1:
             osa_version_base, osa_subversion = versions[0], 'default-isdc'
         elif len(versions) == 2:
             osa_version_base, osa_subversion = versions
         else:
-            raise RuntimeError(f"non-comforning OSA version: {versions}, expected 1 or 2 dash-separated fields")
+            raise RuntimeError(f"this should not happen")
 
         if osa_version_base == "OSA10.2":
             modules = ["git://ddosa/staging-1-3"] + extramodules + ['git://ddosa_delegate/staging-1-3']
