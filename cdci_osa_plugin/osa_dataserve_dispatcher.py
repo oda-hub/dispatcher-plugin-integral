@@ -92,18 +92,18 @@ class OsaDispatcherException(Exception):
 
 
 
-class DDOSAException(Exception):
+class DDAException(Exception):
 
     def __init__(self, message='', debug_message=''):
-        super(DDOSAException, self).__init__(message)
+        super(DDAException, self).__init__(message)
         self.message=message
         self.debug_message=debug_message
 
 
-class DDOSAUnknownException(DDOSAException):
+class DDAUnknownException(DDAException):
 
     def __init__(self,message='ddosa unknown exception',debug_message=''):
-        super(DDOSAUnknownException, self).__init__(message,debug_message)
+        super(DDAUnknownException, self).__init__(message,debug_message)
 
 
 class ConfigProblem(Exception):
@@ -137,7 +137,7 @@ class OsaDispatcher(object):
 
         if use_dicosverer == True:
             try:
-                c = discover_docker.DDOSAWorkerContainer()
+                c = discover_docker.DDAWorkerContainer()
 
                 self.data_server_url = c.data_server_url
                 self.data_server_cache = c.dataserver_cache
@@ -242,7 +242,7 @@ class OsaDispatcher(object):
 
     def test_communication(self, max_trial=120, sleep_s=1,logger=None):
         print('--> start test connection to',self.data_server_url)
-        remote = dc.RemoteDDOSA(self.data_server_url, self.data_server_cache)
+        remote = dc.RemoteDDA(self.data_server_url, self.data_server_cache)
 
         query_out = QueryOutput()
 
@@ -300,7 +300,7 @@ class OsaDispatcher(object):
                                      e_message=run_query_message,
                                      debug_message=debug_message)
 
-                raise DDOSAException('Connection Error',debug_message)
+                raise DDAException('Connection Error',debug_message)
 
         if connection_status_message == 'busy' or busy_exception==True:
             print('server is busy')
@@ -317,7 +317,7 @@ class OsaDispatcher(object):
                                  e_message='data server busy',
                                  debug_message='data server busy')
 
-            raise DDOSAException('Connection Error', debug_message)
+            raise DDAException('Connection Error', debug_message)
 
 
 
@@ -359,7 +359,7 @@ class OsaDispatcher(object):
                       scwlist_assumption[1]]
 
 
-            remote = dc.RemoteDDOSA(self.data_server_url, self.data_server_cache)
+            remote = dc.RemoteDDA(self.data_server_url, self.data_server_cache)
 
             try:
                 product = remote.query(target=target, modules=modules, assume=assume, prompt_delegate=False)
@@ -377,7 +377,7 @@ class OsaDispatcher(object):
                                          e_message=run_query_message,
                                          debug_message='')
 
-                    raise DDOSAException(message='scwlist empty', debug_message='')
+                    raise DDAException(message='scwlist empty', debug_message='')
 
 
 
@@ -393,7 +393,7 @@ class OsaDispatcher(object):
                                      e_message=run_query_message,
                                      debug_message=debug_message)
 
-                raise DDOSAException('WorkerException', debug_message)
+                raise DDAException('WorkerException', debug_message)
 
 
             except dc.AnalysisException as e:
@@ -409,10 +409,10 @@ class OsaDispatcher(object):
                                      e_message=run_query_message,
                                      debug_message=debug_message)
 
-                raise DDOSAException(message=run_query_message, debug_message=debug_message)
+                raise DDAException(message=run_query_message, debug_message=debug_message)
 
             except Exception as e:
-                run_query_message = 'DDOSAUnknownException in test has input prods'
+                run_query_message = 'DDAUnknownException in test has input prods'
                 query_out.set_failed('test has input prods ',
                                      message='run query message=%s' % run_query_message,
                                      logger=logger,
@@ -421,7 +421,7 @@ class OsaDispatcher(object):
                                      e_message=run_query_message,
                                      debug_message='')
 
-                raise DDOSAUnknownException()
+                raise DDAUnknownException()
 
         return query_out,prod_list
 
@@ -473,7 +473,7 @@ class OsaDispatcher(object):
 
 
 
-            res= dc.RemoteDDOSA(self.data_server_url, self.data_server_cache).query(target=target,
+            res= dc.RemoteDDA(self.data_server_url, self.data_server_cache).query(target=target,
                                                     modules=modules,
                                                     assume=assume,
                                                     inject=self.inject,
@@ -517,7 +517,7 @@ class OsaDispatcher(object):
                                  e_message=run_query_message,
                                  debug_message=debug_message)
 
-            raise DDOSAException(message=run_query_message,debug_message=debug_message)
+            raise DDAException(message=run_query_message,debug_message=debug_message)
 
         except dc.WorkerException as e:
 
@@ -532,7 +532,7 @@ class OsaDispatcher(object):
                                  e_message=run_query_message,
                                  debug_message=debug_message)
 
-            raise DDOSAException(message=run_query_message, debug_message=debug_message)
+            raise DDAException(message=run_query_message, debug_message=debug_message)
 
 
         except dc.AnalysisDelegatedException as e:
@@ -541,7 +541,7 @@ class OsaDispatcher(object):
             query_out.set_done(message=message, debug_message=str(debug_message), job_status='submitted',comment=backend_comment,warning=backend_warning)
 
         except Exception as e:
-                run_query_message = 'DDOSAUnknownException in run_query'
+                run_query_message = 'DDAUnknownException in run_query'
                 query_out.set_failed('run query ',
                                      message='run query message=%s' %run_query_message,
                                      logger=logger,
@@ -550,7 +550,7 @@ class OsaDispatcher(object):
                                      e_message=run_query_message,
                                      debug_message='')
 
-                raise DDOSAUnknownException(message=run_query_message)
+                raise DDAUnknownException(message=run_query_message)
 
 
 
@@ -569,7 +569,7 @@ class OsaDispatcher(object):
             acceptList = [item.strip() for item in scw_list if template.match(item)]
             if len(acceptList) != len(scw_list):
                 wrong_list = [item for item in scw_list if item not in acceptList]
-                raise DDOSAException(message='the following scws have a wrong format %s' % wrong_list)
+                raise DDAException(message='the following scws have a wrong format %s' % wrong_list)
 
 
             scwlist_assumption = ['ddosa.IDScWList','ddosa.IDScWList(use_scwid_list=[%s])' % (", ".join(["\""+str(scw)+"\"" for scw in scw_list])) ]
