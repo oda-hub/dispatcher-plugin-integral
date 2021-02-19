@@ -25,7 +25,7 @@ from cdci_data_analysis.analysis.queries import ImageQuery
 from cdci_data_analysis.analysis.products import QueryProductList,CatalogProduct,ImageProduct,QueryOutput
 from cdci_data_analysis.analysis.catalog import BasicCatalog
 from cdci_data_analysis.analysis.io_helper import  FitsFile
-from cdci_data_analysis.analysis.io_helper import  BadReqest
+from cdci_data_analysis.analysis.exceptions import RequestNotUnderstood, MissingParameter
 from oda_api.data_products import NumpyDataProduct,NumpyDataUnit
 import  numpy as np
 from .osa_catalog import  OsaIsgriCatalog,OsaJemxCatalog

@@ -1,13 +1,13 @@
 instruments:
   isgri:
-      dispatcher_mnt_point: /data
+      dispatcher_mnt_point: .
       data_server_cache: reduced/ddcache
       dummy_cache: /data/dummy_prods
       data_server_url: http://in.internal.odahub.io/staging-1-3/dda
       data_server_port:
 
   jemx:
-      dispatcher_mnt_point: /data
+      dispatcher_mnt_point: .
       data_server_cache: reduced/ddcache
       dummy_cache: /data/dummy_prods
       data_server_port:
