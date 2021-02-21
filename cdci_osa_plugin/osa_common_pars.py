@@ -46,6 +46,21 @@ from cdci_data_analysis.analysis.parameters import *
 
 import odakb
 import socket
+import redis
+from datetime import timedelta
+
+Redis = redis.Redis(host='localhost', port=6379, db=0)
+
+def reload_osa_versions():
+    r = [ a['vs'] for a in odakb.sparql.select('oda:osa_version oda:osa_option ?vs') ]
+    Redis.set('osa-versions', r)
+    return r
+
+
+def get_osa_versions():
+    r = Redis.get('osa-versions')
+    if r is None:
+        return reload_osa_versions()
 
 def osa_common_instr_query():
     #not exposed to frontend
@@ -57,7 +72,7 @@ def osa_common_instr_query():
     if 'cdciweb01' in socket.gethostname():
         osa_version._allowed_values=['OSA10.2', 'OSA11.0', 'OSA11.0-dev'] #TODO-VS: add kb request
     else:
-        osa_version._allowed_values = [ a['vs'] for a in odakb.sparql.select('oda:osa_version oda:osa_option ?vs') ]
+        osa_version._allowed_values = get_osa_versions()
 
     instr_query_pars=[radius,max_pointings,osa_version]
 
