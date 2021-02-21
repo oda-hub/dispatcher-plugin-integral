@@ -47,18 +47,19 @@ from cdci_data_analysis.analysis.parameters import *
 import odakb
 import socket
 import redis
+import json
 from datetime import timedelta
 
 Redis = redis.Redis(host='localhost', port=6379, db=0)
 
 def reload_osa_versions():
     r = [ a['vs'] for a in odakb.sparql.select('oda:osa_version oda:osa_option ?vs') ]
-    Redis.set('osa-versions', r)
+    Redis.set('osa-versions', json.dumps(r))
     return r
 
 
 def get_osa_versions():
-    r = Redis.get('osa-versions')
+    r = json.loads(Redis.get('osa-versions'))
     if r is None:
         return reload_osa_versions()
 
