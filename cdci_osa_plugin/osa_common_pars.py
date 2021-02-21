@@ -59,9 +59,10 @@ def reload_osa_versions():
 
 
 def get_osa_versions():
-    r = json.loads(Redis.get('osa-versions'))
+    r = Redis.get('osa-versions')
     if r is None:
         return reload_osa_versions()
+    return json.loads(r)
 
 def osa_common_instr_query():
     #not exposed to frontend
