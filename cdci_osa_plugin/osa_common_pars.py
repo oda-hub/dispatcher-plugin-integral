@@ -53,8 +53,8 @@ from datetime import timedelta
 Redis = redis.Redis(host='localhost', port=6379, db=0)
 
 def reload_osa_versions():
-    r = [ a['vs'].decode() for a in odakb.sparql.select('oda:osa_version oda:osa_option ?vs') ]
-    Redis.set('osa-versions', json.dumps(r))
+    r = [ a['vs'] for a in odakb.sparql.select('oda:osa_version oda:osa_option ?vs') ]
+    Redis.set('osa-versions', json.dumps(r).encode())
     return r
 
 
@@ -62,7 +62,7 @@ def get_osa_versions():
     r = Redis.get('osa-versions')
     if r is None:
         return reload_osa_versions()
-    return json.loads(r)
+    return json.loads(r.decode())
 
 def osa_common_instr_query():
     #not exposed to frontend
