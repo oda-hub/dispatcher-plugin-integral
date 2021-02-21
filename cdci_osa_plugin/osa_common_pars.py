@@ -23,7 +23,7 @@ from __future__ import absolute_import, division, print_function
 from builtins import (bytes, str, open, super, range,
                       zip, round, input, int, pow, object, map, zip)
 
-__author__ = "Andrea Tramacere"
+__author__ = "Andrea Tramacere, Volodymyr Savchenko"
 
 # Standard library
 # eg copy
@@ -53,7 +53,7 @@ from datetime import timedelta
 Redis = redis.Redis(host='localhost', port=6379, db=0)
 
 def reload_osa_versions():
-    r = [ a['vs'] for a in odakb.sparql.select('oda:osa_version oda:osa_option ?vs') ]
+    r = [ a['vs'].decode() for a in odakb.sparql.select('oda:osa_version oda:osa_option ?vs') ]
     Redis.set('osa-versions', json.dumps(r))
     return r
 
