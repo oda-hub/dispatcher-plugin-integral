@@ -48,21 +48,37 @@ import odakb
 import socket
 import redis
 import json
+import logging
 from datetime import timedelta
 
-Redis = redis.Redis(host='localhost', port=6379, db=0)
+logger = logging.getLogger(__name__)
 
-def reload_osa_versions():
+def get_redis():
+    return redis.Redis(host='localhost', port=6379, db=0)
+
+def learn_osa_versions():
     r = [ a['vs'] for a in odakb.sparql.select('oda:osa_version oda:osa_option ?vs') ]
-    Redis.set('osa-versions', json.dumps(r).encode())
     return r
 
-
 def get_osa_versions():
-    r = Redis.get('osa-versions')
+    r = None
+
+    try:
+        r = get_redis().get('osa-versions')
+    except Exception as e:
+        logger.warning('issue accessing redis: %s', e)
+
+    r_j = json.loads(r.decode())
+
     if r is None:
-        return reload_osa_versions()
-    return json.loads(r.decode())
+        r_j = learn_osa_versions()
+    
+        try:
+            get_redis().set('osa-versions', json.dumps(r).encode())
+        except Exception as e:
+            logger.warning('issue accessing redis: %s', e)
+
+    return r_j
 
 def osa_common_instr_query():
     #not exposed to frontend
