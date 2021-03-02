@@ -46,6 +46,7 @@ from cdci_data_analysis.analysis.queries import  *
 from cdci_data_analysis.analysis.job_manager import  Job
 from cdci_data_analysis.analysis.io_helper import FilePath
 from cdci_data_analysis.analysis.products import  QueryOutput
+from cdci_data_analysis.analysis.exceptions import UnfortunateRequestResults, RequestNotUnderstood
 import json
 import traceback
 import time
@@ -85,16 +86,8 @@ from astropy.coordinates import SkyCoord
 logger = logging.getLogger(__name__)
 
 
-class OsaDispatcherException(Exception):
 
-    def __init__(self, message='', debug_message=''):
-        super(OsaDispatcherException, self).__init__(message)
-        self.message=message
-        self.debug_message=debug_message
-
-
-
-class DDAException(Exception):
+class DDAException(UnfortunateRequestResults):
 
     def __init__(self, message='', debug_message=''):
         super(DDAException, self).__init__(message)
@@ -153,8 +146,8 @@ class OsaDispatcher(object):
                 raise RuntimeError(f"failed to instrument.from_conf_file from {plugin_conf_file}: {e}")
 
         else:
-            raise OsaDispatcherException(message='instrument cannot be None',
-                                 debug_message='instrument set to None in OsaDispatcher __init__')
+            raise RequestNotUnderstood(message='instrument cannot be None',
+                                       debug_message='instrument set to None in OsaDispatcher __init__')
 
         try:
             _data_server_url = config.data_server_url
@@ -380,7 +373,6 @@ class OsaDispatcher(object):
 
                     raise DDAException('WorkerException', debug_message)
 
-
                 except dc.AnalysisException as e:
 
                     run_query_message = 'AnalysisException'
@@ -559,7 +551,7 @@ class OsaDispatcher(object):
 
             scwlist_assumption = ['ddosa.IDScWList','ddosa.IDScWList(use_scwid_list=[%s])' % (", ".join(["\""+str(scw)+"\"" for scw in scw_list])) ]
             if len(scw_list) > use_max_pointings:
-                raise OsaDispatcherException(message='scws are limited to %d' % use_max_pointings)
+                raise RequestNotUnderstood(message='scws are limited to %d' % use_max_pointings)
         else:
             scwlist_assumption = ['rangequery.TimeDirectionScWList',
                                   f'''rangequery.TimeDirectionScWList(
