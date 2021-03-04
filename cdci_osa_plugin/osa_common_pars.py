@@ -65,10 +65,10 @@ def get_osa_versions():
 
     try:
         r = get_redis().get('osa-versions')
+        r_j = json.loads(r.decode())
     except Exception as e:
         logger.warning('issue accessing redis: %s', e)
 
-    r_j = json.loads(r.decode())
 
     if r is None:
         r_j = learn_osa_versions()
