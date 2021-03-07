@@ -74,7 +74,7 @@ def get_osa_versions():
         r_j = learn_osa_versions()
     
         try:
-            get_redis().set('osa-versions', json.dumps(r).encode())
+            get_redis().set('osa-versions', json.dumps(r).encode(), ex=600)
         except Exception as e:
             logger.warning('issue accessing redis: %s', e)
 
