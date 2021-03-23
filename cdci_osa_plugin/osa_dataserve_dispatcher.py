@@ -25,6 +25,8 @@ from builtins import (bytes, str, open, super, range,
 
 __author__ = "Andrea Tramacere, Volodymyr Savchenko"
 
+#TODO: constrain dispatcher interface version
+
 # Standard library
 # eg copy
 # absolute import rg:from copy import deepcopy
@@ -130,7 +132,9 @@ class OsaDispatcher(object):
                 config = DataServerConf(data_server_url=instrument.data_server_conf_dict['data_server_url'],
                                        data_server_remote_cache=instrument.data_server_conf_dict['data_server_cache'],
                                        dispatcher_mnt_point=instrument.data_server_conf_dict['dispatcher_mnt_point'],
-                                       dummy_cache=instrument.data_server_conf_dict['dummy_cache'])
+                                       dummy_cache=instrument.data_server_conf_dict['dummy_cache'],
+                                       allowed_keys=["data_server_remote_cache", "dispatcher_mnt_point"],
+                                       )
                 
                 logger.info("built config from instrument.data_server_conf_dict: %s, config: %s", instrument.data_server_conf_dict, config)
 

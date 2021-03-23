@@ -1,3 +1,2 @@
-#cdci_data_analysis
 ddaclient
 oda-knowledge-base[rdf,cwl]
