@@ -17,7 +17,7 @@ develop-eggs
 lib
 lib64
 /.svn
-/.idea
+/venv
 /run_tests
 /diagrams
 notebooks/*
