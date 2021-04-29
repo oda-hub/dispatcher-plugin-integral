@@ -1,2 +1,5 @@
+# as also specified for the antares plugin
+# -e git+https://github.com/oda-hub/dispatcher-app#egg=cdci_data_analysis
+cdci_data_analysis
 ddaclient
 oda-knowledge-base[rdf,cwl]
