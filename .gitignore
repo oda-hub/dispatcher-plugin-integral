@@ -25,3 +25,7 @@ notebooks/*
 !notebooks/data
 *.gpg
 *.swp
+cdci_osa_plugin.egg-info/*
+cdci_osa_plugin/__pycache__/*
+tests/__pychace__/*
+scratch_sid*
