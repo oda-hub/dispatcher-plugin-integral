@@ -32,6 +32,7 @@ def test_jemx_products(dispatcher_live_fixture, product_type):
     logger.info("constructed server: %s", server)
     c = requests.get(server + "/run_analysis",
                       params=params)
+
     logger.info("content: %s", c.text)
     jdata = c.json()
     logger.info(list(jdata.keys()))
