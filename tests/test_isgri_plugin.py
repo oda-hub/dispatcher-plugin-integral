@@ -38,8 +38,9 @@ def test_default(dispatcher_live_fixture):
     server = dispatcher_live_fixture
 
 
-@pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image'])
+@pytest.mark.isgri_plugin
 @pytest.mark.depends(on=['test_default'])
+@pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image'])
 def test_isgri_dummy(dispatcher_live_fixture, product_type):
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)
@@ -55,8 +56,10 @@ def test_isgri_dummy(dispatcher_live_fixture, product_type):
     logger.info(jdata)
 
 
-@pytest.mark.parametrize("selection", ["range", "280200470010.001"])
 @pytest.mark.xfail
+@pytest.mark.dda
+@pytest.mark.isgri_plugin
+@pytest.mark.parametrize("selection", ["range", "280200470010.001"])
 def test_isgri_image_no_pointings(dispatcher_live_fixture, selection):
     """
     this will reproduce the entire flow of frontend-dispatcher, apart from receiving callback
@@ -84,7 +87,10 @@ def test_isgri_image_no_pointings(dispatcher_live_fixture, selection):
     assert jdata["exit_status"]["message"] == "failed: get dataserver products "
 
 
-def test_isgri_image_fixed_done(dispatcher_live_fixture):
+@pytest.mark.dda
+@pytest.mark.isgri_plugin
+@pytest.mark.parametrize("method", ['get', 'post'])
+def test_isgri_image_fixed_done(dispatcher_live_fixture, method):
     """
     something already done at backend
     """
@@ -97,10 +103,15 @@ def test_isgri_image_fixed_done(dispatcher_live_fixture):
         'async_dispatcher': False,
     }
 
-    jdata = ask(server, params, expected_query_status="done")
+    jdata = ask(server, params,
+                expected_query_status=["done"],
+                max_time_s=50,
+                method=method)
     json.dump(jdata, open("jdata.json", "w"))
 
 
+@pytest.mark.dda
+@pytest.mark.isgri_plugin
 def test_isgri_image_fixed_done_async_postproc(dispatcher_live_fixture):
     """
     something already done at backend
@@ -119,6 +130,8 @@ def test_isgri_image_fixed_done_async_postproc(dispatcher_live_fixture):
     assert 20 < tspent < 40
 
 
+@pytest.mark.dda
+@pytest.mark.isgri_plugin
 def test_isgri_image_random_emax(dispatcher_live_fixture):
     """
     something already done at backend

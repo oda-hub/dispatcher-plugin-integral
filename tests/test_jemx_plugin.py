@@ -3,6 +3,8 @@ import logging
 import requests
 import json
 
+from tests.test_basic import ask
+
 logger = logging.getLogger(__name__)
 
 default_params = dict(instrument='jemx',
@@ -14,11 +16,37 @@ default_params = dict(instrument='jemx',
                         radius=15.,
                         query_type='Real')
 
+dummy_params = dict(
+    query_status="new",
+    query_type="Dummy",
+    instrument="jemx",
+    async_dispatcher=False
+)
+
 
 def test_default(dispatcher_live_fixture):
     server = dispatcher_live_fixture
 
+
+@pytest.mark.jemx_plugin
+@pytest.mark.depends(on=['test_default'])
+def test_jemx_dummy(dispatcher_live_fixture):
+    server = dispatcher_live_fixture
+    logger.info("constructed server: %s", server)
+
+    params = {
+        **dummy_params,
+        "product_type": "jemx_image"
+    }
+
+    logger.info("constructed server: %s", server)
+    jdata = ask(server, params, expected_query_status='done', expected_job_status='done', max_time_s=5)
+    logger.info(list(jdata.keys()))
+    logger.info(jdata)
+
+
 # TODO are those parameters ok? I am sure the values are correct or the tests are properly set
+@pytest.mark.jemx_plugin
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
 @pytest.mark.depends(on=['test_default'])
 def test_jemx_products(dispatcher_live_fixture, product_type):
