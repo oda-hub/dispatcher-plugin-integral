@@ -18,7 +18,7 @@ default_params = dict(instrument='jemx',
 def test_default(dispatcher_live_fixture):
     server = dispatcher_live_fixture
 
-
+# TODO are those parameters ok? I am sure the values are correct or the tests are properly set
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
 @pytest.mark.depends(on=['test_default'])
 def test_jemx_products(dispatcher_live_fixture, product_type):
