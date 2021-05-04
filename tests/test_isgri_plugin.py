@@ -58,8 +58,6 @@ def test_isgri_dummy(dispatcher_live_fixture, product_type):
 
 
 @pytest.mark.parametrize("selection", ["range", "280200470010.001"])
-@pytest.mark.dda
-@pytest.mark.isgri_plugin
 @pytest.mark.xfail
 def test_isgri_image_no_pointings(dispatcher_live_fixture, selection):
     """
@@ -96,8 +94,6 @@ def test_isgri_image_no_pointings(dispatcher_live_fixture, selection):
     assert jdata["job_status"] == "failed"
 
 
-@pytest.mark.dda
-@pytest.mark.isgri_plugin
 def test_isgri_image_fixed_done(dispatcher_live_fixture):
     """
     something already done at backend
@@ -122,8 +118,6 @@ def test_isgri_image_fixed_done(dispatcher_live_fixture):
     json.dump(jdata, open("jdata.json", "w"))
 
 
-@pytest.mark.dda
-@pytest.mark.isgri_plugin
 def test_isgri_image_fixed_done_async_postproc(dispatcher_live_fixture):
     """
     something already done at backend
@@ -142,8 +136,6 @@ def test_isgri_image_fixed_done_async_postproc(dispatcher_live_fixture):
     assert 20 < tspent < 40
 
 
-@pytest.mark.dda
-@pytest.mark.isgri_plugin
 def test_isgri_image_random_emax(dispatcher_live_fixture):
     """
     something already done at backend
