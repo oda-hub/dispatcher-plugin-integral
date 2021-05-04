@@ -42,6 +42,7 @@ def test_default(dispatcher_live_fixture):
 @pytest.mark.depends(on=['test_default'])
 def test_isgri_dummy(dispatcher_live_fixture, product_type):
     server = dispatcher_live_fixture
+    logger.info("constructed server: %s", server)
 
     params = {
         **dummy_params,
@@ -89,7 +90,7 @@ def test_isgri_image_fixed_done(dispatcher_live_fixture):
     """
 
     server = dispatcher_live_fixture
-    print("constructed server:", server)
+    logger.info("constructed server: %s", server)
 
     params = {
         **default_params,
@@ -107,7 +108,7 @@ def test_isgri_image_fixed_done_async_postproc(dispatcher_live_fixture):
     """
 
     server = dispatcher_live_fixture
-    print("constructed server:", server)
+    logger.info("constructed server: %s", server)
 
     params = {
         **default_params,
@@ -124,7 +125,7 @@ def test_isgri_image_random_emax(dispatcher_live_fixture):
     """
 
     server = dispatcher_live_fixture
-    print("constructed server:", server)
+    logger.info("constructed server: %s", server)
 
     try:
         emax = int(open("emax-last", "rt").read())
