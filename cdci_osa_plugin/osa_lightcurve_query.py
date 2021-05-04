@@ -486,7 +486,7 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
         if osa_version == "OSA10.2":
             modules = ["git://ddosa/staging-1-3",'git://process_isgri_lc/staging'] + extramodules + ['git://ddosa_delegate/staging-1-3']
         elif osa_version == "OSA11.0":
-            modules = ["git://ddosa/staging-1-3", "git://findic/icversionpy37","git://ddosa11/icversion",'git://process_isgri_lc'] + extramodules + ['git://ddosa_delegate/staging-1-3']
+            modules = ["git://ddosa/staging-1-3", "git://findic/icversionpy37","git://ddosa11/icversion",'git://process_isgri_lc/staging'] + extramodules + ['git://ddosa_delegate/staging-1-3']
         else:
             raise Exception("unknown osa version: "+osa_version)
                  
