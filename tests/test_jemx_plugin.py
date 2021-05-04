@@ -12,22 +12,21 @@ default_params = dict(instrument='jemx',
                         osa_version='OSA10.2',
                         detection_threshold=5.0,
                         radius=15.,
-                        query_type='dummy')
+                        query_type='Real')
 
 
 def test_default(dispatcher_live_fixture):
     server = dispatcher_live_fixture
 
 
-@pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_spectrum'])
+@pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
 @pytest.mark.depends(on=['test_default'])
 def test_jemx_dummy(dispatcher_live_fixture, product_type):
     server = dispatcher_live_fixture
 
     params = {
         **default_params,
-        "product_type": product_type,
-        "query_type": 'real'
+        "product_type": product_type
     }
 
     logger.info("constructed server: %s", server)
