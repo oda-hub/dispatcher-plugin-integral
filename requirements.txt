@@ -1,3 +1,4 @@
+-e git+https://github.com/oda-hub/dispatcher-app.git@master#egg=cdci_data_analysis
 cdci_data_analysis
 ddaclient
 oda-knowledge-base[rdf,cwl]
