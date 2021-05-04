@@ -21,7 +21,7 @@ def test_default(dispatcher_live_fixture):
 
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
 @pytest.mark.depends(on=['test_default'])
-def test_jemx_dummy(dispatcher_live_fixture, product_type):
+def test_jemx_products(dispatcher_live_fixture, product_type):
     server = dispatcher_live_fixture
 
     params = {
