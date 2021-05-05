@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 
 from builtins import (bytes, str, open, super, range,
                       zip, round, input, int, pow, object, map, zip)
-
+import re
 __author__ = 'andrea tramacere'
 
 
@@ -14,10 +14,17 @@ __author__ = 'andrea tramacere'
 from setuptools import setup, find_packages
 import glob
 
-f = open("./requirements.txt",'r')
-install_req=f.readlines()
-f.close()
+install_req = [
+    'cdci_data_analysis',
+    'astropy',
+    'simple_logger',
+    'numpy'
+]
 
+test_req = [
+    'pytest',
+    'pytest-depends',
+]
 
 packs=find_packages()
 
@@ -28,7 +35,7 @@ include_package_data = True
 scripts_list=glob.glob('./bin/*')
 setup(name='cdci_osa_plugin',
       version=1.0,
-      description='A  OSA plugin  for CDCI online data analysis',
+      description='A OSA plugin for CDCI online data analysis',
       author='Andrea Tramacere',
       author_email='andrea.tramacere@unige.ch',
       scripts=scripts_list,
@@ -36,7 +43,8 @@ setup(name='cdci_osa_plugin',
       package_data={'cdci_osa_plugin':['config_dir/*']},
       include_package_data=True,
       install_requires=install_req,
-)
-
-
+      extras_require={
+          'test': test_req
+      }
+      )
 

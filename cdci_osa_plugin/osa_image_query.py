@@ -35,8 +35,10 @@ from .osa_common_pars import DummyOsaRes
 
 logger = logging.getLogger(__name__)
 
+
 class DataAccessIssue(Exception):
     pass
+
 
 class OsaImageProduct(ImageProduct):
 
@@ -60,10 +62,6 @@ class OsaImageProduct(ImageProduct):
                                               file_name=file_name,
                                               meta_data=meta_data)
 
-
-
-
-
     @classmethod
     def build_from_ddosa_skyima(cls,file_name=None,skyima=None,ext=None,file_dir=None,prod_prefix=None,meta_data={}):
         try:
@@ -81,17 +79,11 @@ class OsaImageProduct(ImageProduct):
         return  cls(data=data,file_dir=file_dir,prod_prefix=prod_prefix,file_name=file_name,meta_data=meta_data)
 
 
-
 class OsaMosaicQuery(ImageQuery):
-
     def __init__(self,name):
-
         super(OsaMosaicQuery, self).__init__(name)
 
-
-    def get_data_server_query(self,instrument,
-                              config=None):
-
+    def get_data_server_query(self, instrument, config=None):
 
         scwlist_assumption, cat, extramodules, inject=OsaDispatcher.get_osa_query_base(instrument)
         E1=instrument.get_par_by_name('E1_keV').value
@@ -104,12 +96,9 @@ class OsaMosaicQuery(ImageQuery):
         else:
             target, modules, assume = self.set_instr_dictionaries(extramodules, scwlist_assumption, E1, E2, osa_version)
 
-
         q=OsaDispatcher(config=config, target=target, modules=modules, assume=assume, inject=inject,instrument=instrument)
 
         return q
-
-
 
     def process_product_method  (self, instrument, prod_list,api=False, **kw):
 

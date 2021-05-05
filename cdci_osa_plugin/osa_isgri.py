@@ -37,7 +37,7 @@ __author__ = "Andrea Tramacere"
 
 from cdci_osa_plugin import conf_file,conf_dir
 
-from cdci_data_analysis.analysis.queries import  *
+from cdci_data_analysis.analysis.queries import *
 from cdci_data_analysis.analysis.instrument import Instrument
 
 from .osa_image_query import IsgriMosaicQuery
@@ -46,9 +46,6 @@ from .osa_lightcurve_query import IsgriLightCurveQuery
 from .osa_dataserve_dispatcher import OsaDispatcher
 from .osa_common_pars import  osa_common_instr_query
 from .osa_fake import FakeQuery
-
-
-
 
 
 def osa_isgri_factory():
@@ -63,7 +60,6 @@ def osa_isgri_factory():
 
     instr_query_pars.append(spec_window)
 
-
     instr_query=InstrumentQuery(
         name='isgri_parameters',
         extra_parameters_list=instr_query_pars,
@@ -71,10 +67,6 @@ def osa_isgri_factory():
         input_prod_value=None,
         catalog=None,
         catalog_name='user_catalog')
-
-
-
-
 
     light_curve =IsgriLightCurveQuery('isgri_lc_query')
 
@@ -92,11 +84,10 @@ def osa_isgri_factory():
     query_dictionary['isgri_lc'] = 'isgri_lc_query'
     query_dictionary['spectral_fit'] = 'spectral_fit_query'
 
-
     #print('--> conf_file',conf_file)
     #print('--> conf_dir', conf_dir)
 
-    return  Instrument('isgri',
+    return Instrument('isgri',
                        data_serve_conf_file=conf_file,
                        src_query=src_query,
                        instrumet_query=instr_query,

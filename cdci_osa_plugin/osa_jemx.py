@@ -36,7 +36,7 @@ __author__ = "Andrea Tramacere"
 
 
 from cdci_osa_plugin import conf_file,conf_dir
-from cdci_data_analysis.analysis.queries import  *
+from cdci_data_analysis.analysis.queries import *
 from cdci_data_analysis.analysis.instrument import Instrument
 
 from .osa_image_query import JemxMosaicQuery
@@ -44,7 +44,6 @@ from .osa_dataserve_dispatcher import OsaDispatcher
 from .osa_common_pars import  osa_common_instr_query
 from .osa_spectrum_query import JemxSpectrumQuery
 from .osa_lightcurve_query import JemxLightCurveQuery
-
 
 
 def osa_jemx_factory():
@@ -69,16 +68,11 @@ def osa_jemx_factory():
         catalog=None,
         catalog_name='user_catalog')
 
-
-
-
-
     image=JemxMosaicQuery('jemx_image_query')
 
     spectrum = JemxSpectrumQuery('jemx_spectrum_query')
 
     light_curve = JemxLightCurveQuery('jemx_lc_query')
-
 
     xspec_fit = SpectralFitQuery('spectral_fit_query', None)
 
@@ -91,7 +85,7 @@ def osa_jemx_factory():
     #print('--> conf_file', conf_file)
     #print('--> conf_dir', conf_dir)
 
-    return  Instrument('jemx',
+    return Instrument('jemx',
                        data_serve_conf_file=conf_file,
                        src_query=src_query,
                        instrumet_query=instr_query,
