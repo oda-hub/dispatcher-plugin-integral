@@ -40,7 +40,7 @@ def test_default(dispatcher_live_fixture):
 
 
 @pytest.mark.isgri_plugin
-@pytest.mark.depends(on=['test_default'])
+@pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image'])
 @pytest.mark.xfail
 def test_isgri_dummy(dispatcher_live_fixture, product_type):
@@ -62,6 +62,7 @@ def test_isgri_dummy(dispatcher_live_fixture, product_type):
 @pytest.mark.xfail
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
+@pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("selection", ["range", "280200470010.001"])
 def test_isgri_image_no_pointings(dispatcher_live_fixture, selection):
     """
@@ -93,6 +94,7 @@ def test_isgri_image_no_pointings(dispatcher_live_fixture, selection):
 
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
+@pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("method", ['get', 'post'])
 def test_isgri_image_fixed_done(dispatcher_live_fixture, method):
     """
