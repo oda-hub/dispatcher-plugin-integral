@@ -5,7 +5,7 @@ import json
 import time
 import random
 
-from tests.test_server_basic import loop_ask, ask
+from cdci_data_analysis.pytest_fixtures import loop_ask, ask
 
 logger = logging.getLogger(__name__)
 
@@ -162,7 +162,7 @@ def test_isgri_image_random_emax(dispatcher_live_fixture):
 def test_isgri_lc(dispatcher_live_fixture):
     """
     something already done at backend
-    """
+    """    
 
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)  
