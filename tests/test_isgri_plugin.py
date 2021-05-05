@@ -214,9 +214,16 @@ def test_isgri_lc_odaapi(dispatcher_live_fixture):
 
     print(product.isgri_lc_0_Crab)
 
+    print(product.isgri_lc_0_Crab.data_unit[1])
+
+    print(product.isgri_lc_0_Crab.data_unit[1].header)
+
     print(product.isgri_lc_0_Crab.data_unit[1].data)
 
-    assert 'XAX_E' in product.isgri_lc_0_Crab.data_unit[1].data
+    product.isgri_lc_0_Crab.data_unit[1].header['TTYPE8'] == 'XAX_E'
+
+
+    
 
 
 
