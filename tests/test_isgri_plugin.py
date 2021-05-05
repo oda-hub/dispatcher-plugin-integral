@@ -202,9 +202,23 @@ def test_isgri_lc_odaapi(dispatcher_live_fixture):
         session_id="TESTSESSION",
     )
 
-    print(product)
+    print("product:", product)
+
+    print("product show", product.show())
+    
+    print("")
 
     print(product.show())
+
+    print(product._p_list)
+
+    print(product.isgri_lc_0_Crab)
+
+    print(product.isgri_lc_0_Crab.data_unit[1].data)
+
+    assert 'XAX_E' in product.isgri_lc_0_Crab.data_unit[1].data
+
+
 
     #assert product_spiacs.spi_acs_lc_0_query.data_unit[1].header['INSTRUME'] == "SPI-ACS"
 

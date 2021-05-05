@@ -118,11 +118,15 @@ class OsaLigthtCurve(LightCurveProduct):
         if prod_prefix is None:
             prod_prefix=''
 
+        print(f"\033[31m build_isgri_lc_from_ddosa_res: {res.extracted_sources} \033[0m")
+
         for source_name, lightcurve_attr in res.extracted_sources:
             meta_data = {}
-            input_lc_paht = getattr(res, lightcurve_attr)
+            input_lc_path = getattr(res, lightcurve_attr)
 
-            npd = NumpyDataProduct.from_fits_file(input_lc_paht, meta_data=meta_data)
+            npd = NumpyDataProduct.from_fits_file(input_lc_path, meta_data=meta_data)
+
+            print(f"\033[31m build_isgri_lc_from_ddosa_res: {res.extracted_sources} \033[0m")
 
             du = npd.get_data_unit_by_name('ISGR-SRC.-LCR')
 
@@ -132,7 +136,7 @@ class OsaLigthtCurve(LightCurveProduct):
                 meta_data['src_name'] = src_name
                 meta_data['time_bin'] = du.header['TIMEDEL']
 
-                out_file_name =  Path(input_lc_paht).resolve().stem
+                out_file_name =  Path(input_lc_path).resolve().stem
 
                 #OsaLigthtCurve.make_ogip_compliant(du)
 
@@ -390,9 +394,11 @@ class OsaLightCurveQuery(ProductQuery):
         _html_fig = []
         _data_list=[]
 
+        print("\033[31mprocess_product_method: prod_list", prod_list.prod_list, "\033[0m")
+
         for query_lc in prod_list.prod_list:
-            #print('--> lc  name',query_lc.name)
-            #print('-->file name', query_lc.file_path.path)
+            print('--> lc  name',query_lc.name)
+            print('-->file name', query_lc.file_path.path)
 
             query_lc.add_url_to_fits_file(instrument._current_par_dic, url=instrument.disp_conf.products_url)
             query_lc.write()
