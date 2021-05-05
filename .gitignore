@@ -32,3 +32,11 @@ scratch_sid*
 tests/data
 tests/scratch_sid_*
 tests/emax-last
+tmp_Exception*
+data_*.json
+reduced
+.vscode
+data
+emax-last
+jdata.json
+log
