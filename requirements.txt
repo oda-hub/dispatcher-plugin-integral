@@ -1,2 +1,7 @@
+-e git+https://github.com/oda-hub/dispatcher-app.git@master#egg=cdci_data_analysis
 ddaclient
 oda-knowledge-base[rdf,cwl]
+astroquery-integral==0.1.0 # not needed apart from test
+astropy
+simple_logger
+numpy

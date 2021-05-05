@@ -17,7 +17,7 @@ develop-eggs
 lib
 lib64
 /.svn
-/.idea
+/venv
 /run_tests
 /diagrams
 notebooks/*
@@ -25,3 +25,18 @@ notebooks/*
 !notebooks/data
 *.gpg
 *.swp
+cdci_osa_plugin.egg-info/*
+cdci_osa_plugin/__pycache__/*
+tests/__pycache__/*
+scratch_sid*
+tests/data
+tests/scratch_sid_*
+tests/emax-last
+tmp_Exception*
+data_*.json
+reduced
+.vscode
+data
+emax-last
+jdata.json
+log
