@@ -3,7 +3,7 @@ import logging
 import requests
 import json
 
-from tests.test_basic import ask
+from tests.test_server_basic import ask
 
 logger = logging.getLogger(__name__)
 
