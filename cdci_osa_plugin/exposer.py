@@ -41,7 +41,7 @@ from .osa_fake import osa_fake_factory
 
 instr_factory_list = [osa_isgri_factory, osa_jemx_factory, osa_fake_factory]
 instr_name_dict = dict(
-    isgri=osa_isgri_factory(),
-    jemx=osa_jemx_factory(),
+    isgri=osa_isgri_factory,
+    jemx=osa_jemx_factory,
     osa_fake=osa_fake_factory
 )
