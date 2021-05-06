@@ -35,10 +35,13 @@ __author__ = "Andrea Tramacere"
 
 # Project
 # relative import eg: from .mod import f
-
-
 from .osa_isgri import  osa_isgri_factory
 from .osa_jemx import osa_jemx_factory
 from .osa_fake import osa_fake_factory
 
 instr_factory_list = [osa_isgri_factory, osa_jemx_factory, osa_fake_factory]
+instr_name_dict = dict(
+    isgri=osa_isgri_factory(),
+    jemx=osa_jemx_factory(),
+    osa_fake=osa_fake_factory
+)
