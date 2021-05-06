@@ -232,3 +232,52 @@ def test_isgri_lc_odaapi(dispatcher_live_fixture):
     #data = np.array(product_spiacs.spi_acs_lc_0_query.data_unit[1].data)
     #assert len(data) > 100
     
+
+@pytest.mark.odaapi
+@pytest.mark.dda
+@pytest.mark.isgri_plugin
+def test_isgri_image_format_odaapi(dispatcher_live_fixture):
+    import oda_api.api
+
+    product = oda_api.api.DispatcherAPI(
+        url=dispatcher_live_fixture).get_product(
+        query_type="Real",
+        instrument="isgri",
+        product="isgri_image",
+        osa_version="OSA10.2",
+        E1_keV=20.,
+        E2_keV=40.,
+        scw_list="066500220010.001",
+        session_id="TESTSESSION",
+    )
+
+    print("product:", product)
+
+    print("product show", product.show())
+    
+    print("")
+
+    print(product.show())
+
+    print(product._p_list)
+
+    print(product.isgri_lc_0_Crab)
+
+    print(product.isgri_lc_0_Crab.data_unit[1])
+
+    print(product.isgri_lc_0_Crab.data_unit[1].header)
+
+    print(product.isgri_lc_0_Crab.data_unit[1].data)
+
+    product.isgri_lc_0_Crab.data_unit[1].header['TTYPE8'] == 'XAX_E'
+
+
+    
+
+
+
+    #assert product_spiacs.spi_acs_lc_0_query.data_unit[1].header['INSTRUME'] == "SPI-ACS"
+
+    #data = np.array(product_spiacs.spi_acs_lc_0_query.data_unit[1].data)
+    #assert len(data) > 100
+    
