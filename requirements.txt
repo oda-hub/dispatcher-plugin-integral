@@ -5,3 +5,4 @@ astroquery-integral==0.1.0 # not needed apart from test
 astropy
 simple_logger
 numpy
+pyjwt

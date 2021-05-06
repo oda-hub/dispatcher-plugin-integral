@@ -1,9 +1,13 @@
+import cdci_data_analysis.analysis.exceptions
 import pytest
 import logging
 import requests
 import json
 import time
 import random
+import jwt
+import os
+import contextlib
 
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask
 
@@ -27,6 +31,7 @@ default_params = dict(
     async_dispatcher=False,
 )
 
+secret_key = 'secretkey_test'
 dummy_params = dict(
     query_status="new",
     query_type="Dummy",
@@ -34,9 +39,34 @@ dummy_params = dict(
     async_dispatcher=False
 )
 
+default_exp_time = int(time.time()) + 5000
+default_token_payload = dict(
+    sub="mtm@mtmco.net",
+    name="mmeharga",
+    roles="general",
+    exp=default_exp_time,
+    tem=0,
+    mstout=True,
+    mssub=True
+)
+
 
 def test_default(dispatcher_live_fixture):
     server = dispatcher_live_fixture
+
+
+@contextlib.contextmanager
+def raises_if_failing(scw_kind, exception):
+    if scw_kind == "failing":
+        try:
+            print("\033[31mthis should raise", exception, "\033[0m")
+            with pytest.raises(exception):
+                yield
+        except Exception as e:
+            print("this raised something else", e)
+            raise
+    else:
+        yield
 
 
 @pytest.mark.isgri_plugin
@@ -224,13 +254,88 @@ def test_isgri_lc_odaapi(dispatcher_live_fixture):
 
     product.isgri_lc_0_Crab.data_unit[1].header['TTYPE8'] == 'XAX_E'
 
-
-    
-
-
-
     #assert product_spiacs.spi_acs_lc_0_query.data_unit[1].header['INSTRUME'] == "SPI-ACS"
 
     #data = np.array(product_spiacs.spi_acs_lc_0_query.data_unit[1].data)
     #assert len(data) > 100
-    
+
+
+@pytest.mark.odaapi
+@pytest.mark.isgri_plugin
+def test_valid_token_oda_api(dispatcher_live_fixture):
+    import oda_api.api
+
+    # let's generate a valid token
+    token_payload = {
+        **default_token_payload,
+    }
+    encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
+
+    disp = oda_api.api.DispatcherAPI(
+        url=dispatcher_live_fixture)
+    product = disp.get_product(
+        query_status="new",
+        product_type="Dummy",
+        instrument="empty",
+        product="dummy",
+        osa_version="OSA10.2",
+        E1_keV=40.0,
+        E2_keV=200.0,
+        scw_list=[f"0665{i:04d}0010.001" for i in range(200)],
+        token=encoded_token
+    )
+
+    logger.info("product: %s", product)
+    logger.info("product show %s", product.show())
+
+    session_id = disp.session_id
+    job_id = disp.job_id
+
+    # check query output are generated
+    query_output_json_fn = f'scratch_sid_{session_id}_jid_{job_id}/query_output.json'
+    # the aliased version might have been created
+    query_output_json_fn_aliased = f'scratch_sid_{session_id}_jid_{job_id}_aliased/query_output.json'
+    assert os.path.exists(query_output_json_fn) or os.path.exists(query_output_json_fn_aliased)
+    # get the query output
+    if os.path.exists(query_output_json_fn):
+        f = open(query_output_json_fn)
+    else:
+        f = open(query_output_json_fn_aliased)
+
+    jdata = json.load(f)
+
+    assert jdata["status_dictionary"]["debug_message"] == ""
+    assert jdata["status_dictionary"]["error_message"] == ""
+    assert jdata["status_dictionary"]["message"] == ""
+
+
+@pytest.mark.odaapi
+@pytest.mark.isgri_plugin
+@pytest.mark.xfail
+def test_invalid_token_oda_api(dispatcher_live_fixture):
+    import oda_api.api
+
+    # let's generate an expired token
+    exp_time = int(time.time()) - 500
+    # expired token
+    token_payload = {
+        **default_token_payload,
+        "exp": exp_time
+    }
+    encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
+
+    disp = oda_api.api.DispatcherAPI(
+        url=dispatcher_live_fixture)
+    # with raises_if_failing("failing", Exception):
+    with pytest.raises(oda_api.api.RemoteException):
+        product = disp.get_product(
+            query_status="new",
+            product_type="Dummy",
+            instrument="empty",
+            product="dummy",
+            osa_version="OSA10.2",
+            E1_keV=40.0,
+            E2_keV=200.0,
+            scw_list=[f"0665{i:04d}0010.001" for i in range(5)],
+            token=encoded_token
+        )
