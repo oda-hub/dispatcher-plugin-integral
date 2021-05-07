@@ -215,7 +215,6 @@ def test_isgri_lc(dispatcher_live_fixture):
     jdata, tspent = loop_ask(server, params, max_time_s=100, async_dispatcher=False)
 
 
-
 @pytest.mark.odaapi
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
@@ -260,6 +259,7 @@ def test_isgri_lc_odaapi(dispatcher_live_fixture):
     #assert len(data) > 100
 
 
+# TODO are the parameters for the request ok?
 @pytest.mark.odaapi
 @pytest.mark.isgri_plugin
 def test_valid_token_oda_api(dispatcher_live_fixture):
@@ -268,6 +268,7 @@ def test_valid_token_oda_api(dispatcher_live_fixture):
     # let's generate a valid token
     token_payload = {
         **default_token_payload,
+        "roles": ['unige-hpc-full', 'integral-private']
     }
     encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
 
@@ -275,9 +276,9 @@ def test_valid_token_oda_api(dispatcher_live_fixture):
         url=dispatcher_live_fixture)
     product = disp.get_product(
         query_status="new",
-        product_type="Dummy",
-        instrument="empty",
-        product="dummy",
+        product_type="Real",
+        instrument="isgri",
+        product="isgri_image",
         osa_version="OSA10.2",
         E1_keV=40.0,
         E2_keV=200.0,
@@ -309,9 +310,9 @@ def test_valid_token_oda_api(dispatcher_live_fixture):
     assert jdata["status_dictionary"]["message"] == ""
 
 
+# TODO are the parameters for the request ok?
 @pytest.mark.odaapi
 @pytest.mark.isgri_plugin
-@pytest.mark.xfail
 def test_invalid_token_oda_api(dispatcher_live_fixture):
     import oda_api.api
 
@@ -330,9 +331,9 @@ def test_invalid_token_oda_api(dispatcher_live_fixture):
     with pytest.raises(oda_api.api.RemoteException):
         product = disp.get_product(
             query_status="new",
-            product_type="Dummy",
-            instrument="empty",
-            product="dummy",
+            product_type="Real",
+            instrument="isgri",
+            product="isgri_image",
             osa_version="OSA10.2",
             E1_keV=40.0,
             E2_keV=200.0,
