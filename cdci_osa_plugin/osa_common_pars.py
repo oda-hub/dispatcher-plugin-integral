@@ -97,9 +97,7 @@ def osa_common_instr_query():
     else:
         osa_version._allowed_values = get_osa_versions()
 
-        osa_version = Name(name_format='str', name='osa_version')
-
-    data_rights = Name(name_format='str', name='osa_version')
+    data_rights = Name(name_format='str', name='integral_data_rights')
     data_rights._allowed_values = ["public", "all-private"]
 
     instr_query_pars = [

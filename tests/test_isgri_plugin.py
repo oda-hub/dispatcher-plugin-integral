@@ -1,13 +1,9 @@
-import cdci_data_analysis.analysis.exceptions
 import pytest
 import logging
 import requests
 import json
 import time
 import random
-import jwt
-import os
-import contextlib
 
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask
 
@@ -29,6 +25,7 @@ default_params = dict(
     radius=6,
     scw_list="066500220010.001",
     async_dispatcher=False,
+    integral_data_rights="public"
 )
 
 secret_key = 'secretkey_test'
@@ -53,20 +50,6 @@ default_token_payload = dict(
 
 def test_default(dispatcher_live_fixture):
     server = dispatcher_live_fixture
-
-
-@contextlib.contextmanager
-def raises_if_failing(scw_kind, exception):
-    if scw_kind == "failing":
-        try:
-            print("\033[31mthis should raise", exception, "\033[0m")
-            with pytest.raises(exception):
-                yield
-        except Exception as e:
-            print("this raised something else", e)
-            raise
-    else:
-        yield
 
 
 @pytest.mark.isgri_plugin
@@ -253,11 +236,6 @@ def test_isgri_lc_odaapi(dispatcher_live_fixture):
 
     product.isgri_lc_0_Crab.data_unit[1].header['TTYPE8'] == 'XAX_E'
 
-    #assert product_spiacs.spi_acs_lc_0_query.data_unit[1].header['INSTRUME'] == "SPI-ACS"
-
-    #data = np.array(product_spiacs.spi_acs_lc_0_query.data_unit[1].data)
-    #assert len(data) > 100
-
 
 # TODO are the parameters for the request ok?
 @pytest.mark.odaapi
@@ -327,7 +305,6 @@ def test_invalid_token_oda_api(dispatcher_live_fixture):
 
     disp = oda_api.api.DispatcherAPI(
         url=dispatcher_live_fixture)
-    # with raises_if_failing("failing", Exception):
     with pytest.raises(oda_api.api.RemoteException):
         product = disp.get_product(
             query_status="new",
