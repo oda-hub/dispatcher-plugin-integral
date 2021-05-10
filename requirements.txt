@@ -1,4 +1,6 @@
--e git+https://github.com/oda-hub/dispatcher-app.git@master#egg=cdci_data_analysis
+# change to master after!
+-e git+https://github.com/oda-hub/dispatcher-app.git@rearranged-requires#egg=cdci_data_analysis[test]
+
 ddaclient
 oda-knowledge-base[rdf,cwl]
 astroquery-integral==0.1.0 # not needed apart from test

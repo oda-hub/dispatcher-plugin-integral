@@ -25,6 +25,7 @@ default_params = dict(
     radius=6,
     scw_list="066500220010.001",
     async_dispatcher=False,
+    integral_data_rights="public"
 )
 
 dummy_params = dict(
@@ -225,12 +226,4 @@ def test_isgri_lc_odaapi(dispatcher_live_fixture):
     product.isgri_lc_0_Crab.data_unit[1].header['TTYPE8'] == 'XAX_E'
 
 
-    
-
-
-
-    #assert product_spiacs.spi_acs_lc_0_query.data_unit[1].header['INSTRUME'] == "SPI-ACS"
-
-    #data = np.array(product_spiacs.spi_acs_lc_0_query.data_unit[1].data)
-    #assert len(data) > 100
     
