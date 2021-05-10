@@ -53,7 +53,7 @@ from cdci_data_analysis.analysis.queries import SpectrumQuery
 from cdci_data_analysis.analysis.products import SpectrumProduct,QueryProductList,QueryOutput
 from cdci_data_analysis.analysis.io_helper import FilePath
 
-from .osa_dataserve_dispatcher import    OsaDispatcher
+from .osa_dataserve_dispatcher import  OsaDispatcher, OsaQuery
 from oda_api.data_products import NumpyDataProduct
 
 from .osa_common_pars import  DummyOsaRes
@@ -265,7 +265,7 @@ class IsgriSpectrumProduct(SpectrumProduct):
 
 
 
-class OsaSpectrumQuery(SpectrumQuery):
+class OsaSpectrumQuery(SpectrumQuery, OsaQuery):
 
     def __init__(self, name):
 
