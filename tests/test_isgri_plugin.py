@@ -4,6 +4,7 @@ import requests
 import json
 import time
 import random
+import jwt
 
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask
 
