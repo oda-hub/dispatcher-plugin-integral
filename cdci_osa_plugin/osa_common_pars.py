@@ -19,6 +19,13 @@ Module API
 """
 
 from __future__ import absolute_import, division, print_function
+from cdci_data_analysis.analysis.parameters import *
+from datetime import timedelta
+import logging
+import json
+import redis
+import socket
+import odakb
 
 from builtins import (bytes, str, open, super, range,
                       zip, round, input, int, pow, object, map, zip)
@@ -30,7 +37,7 @@ __author__ = "Andrea Tramacere, Volodymyr Savchenko"
 # absolute import rg:from copy import deepcopy
 
 # Dependencies
-# eg numpy 
+# eg numpy
 # absolute import eg: import numpy as np
 
 # Project
@@ -42,23 +49,19 @@ class DummyOsaRes(object):
     def __init__(self):
         pass
 
-from cdci_data_analysis.analysis.parameters import *
-
-import odakb
-import socket
-import redis
-import json
-import logging
-from datetime import timedelta
 
 logger = logging.getLogger(__name__)
+
 
 def get_redis():
     return redis.Redis(host='localhost', port=6379, db=0)
 
+
 def learn_osa_versions():
-    r = [ a['vs'] for a in odakb.sparql.select('oda:osa_version oda:osa_option ?vs') ]
+    r = [a['vs'] for a in odakb.sparql.select(
+        'oda:osa_version oda:osa_option ?vs')]
     return r
+
 
 def get_osa_versions():
     r = None
@@ -69,10 +72,9 @@ def get_osa_versions():
     except Exception as e:
         logger.warning('issue accessing redis: %s', e)
 
-
     if r is None:
         r_j = learn_osa_versions()
-    
+
         try:
             get_redis().set('osa-versions', json.dumps(r).encode(), ex=600)
         except Exception as e:
@@ -80,22 +82,31 @@ def get_osa_versions():
 
     return r_j
 
+
 def osa_common_instr_query():
-    #not exposed to frontend
-    #TODO make a special class
-    max_pointings=Integer(value=500, name='max_pointings')
+    # not exposed to frontend
+    # TODO make a special class
+    max_pointings = Integer(value=500, name='max_pointings')
 
     radius = Angle(value=5.0, units='deg', name='radius')
+
     osa_version = Name(name_format='str', name='osa_version')
     if 'cdciweb01' in socket.gethostname():
-        osa_version._allowed_values=['OSA10.2', 'OSA11.0', 'OSA11.0-dev'] #TODO-VS: add kb request
+        osa_version._allowed_values = [
+            'OSA10.2', 'OSA11.0', 'OSA11.0-dev']  # TODO-VS: add kb request
     else:
         osa_version._allowed_values = get_osa_versions()
 
-    instr_query_pars=[radius,max_pointings,osa_version]
+        osa_version = Name(name_format='str', name='osa_version')
 
+    data_rights = Name(name_format='str', name='osa_version')
+    data_rights._allowed_values = ["public", "all-private"]
+
+    instr_query_pars = [
+        radius,
+        max_pointings,
+        osa_version,
+        data_rights
+    ]
 
     return instr_query_pars
-
-
-
