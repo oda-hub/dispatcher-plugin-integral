@@ -659,8 +659,8 @@ class OsaQuery(ProductQuery):
         # TODO: there is this get_par_by_name there, to check if it can be made work
         
         max_pointings = int(par_dic.get('max_pointings', 50))
-        scw_list = par_dic['scw_list'] 
-        integral_data_rights = par_dic['integral_data_rights'] 
+        scw_list = par_dic.get('scw_list', '')
+        integral_data_rights = par_dic.get('integral_data_rights', 'public')
 
         needed_roles = []
 

@@ -82,7 +82,7 @@ def test_isgri_dummy_many_pointings(dispatcher_live_fixture, product_type):
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
-    assert jdata['exit_status']['message'] == "Roles [] not authorized to request the product isgri_spectrum, ['unige-hpc-full'] roles are needed"
+    assert jdata['exit_status']['message'].replace('isgri_image', 'isgri_spectrum') == "Roles [] not authorized to request the product isgri_spectrum, ['unige-hpc-full'] roles are needed"
 
 
     params = {
@@ -112,7 +112,7 @@ def test_isgri_dummy_many_pointings(dispatcher_live_fixture, product_type):
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
-    assert jdata['exit_status']['message'] == "Roles [] not authorized to request the product isgri_spectrum, ['integral-private'] roles are needed"
+    assert jdata['exit_status']['message'].replace('isgri_image', 'isgri_spectrum') == "Roles [] not authorized to request the product isgri_spectrum, ['integral-private'] roles are needed"
     
     
 
