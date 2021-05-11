@@ -10,6 +10,7 @@ from cdci_data_analysis.pytest_fixtures import loop_ask, ask
 logger = logging.getLogger(__name__)
 
 default_params = dict(instrument='jemx',
+                        query_status="new",
                         jemx_num='2',
                         product_type='jemx_image',
                         scw_list=['010200230010.001'],
