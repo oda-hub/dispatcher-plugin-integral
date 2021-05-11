@@ -78,8 +78,8 @@ def test_isgri_dummy(dispatcher_live_fixture, product_type):
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
-@pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc']) #TODO: jemx too, also lightcurve; and also allowed role passing test
-def test_isgri_dummy_many_pointings(dispatcher_live_fixture, product_type):
+@pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc']) #TODO: allowed role passing test
+def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type):
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)
 
@@ -98,7 +98,6 @@ def test_isgri_dummy_many_pointings(dispatcher_live_fixture, product_type):
 
     assert jdata['exit_status']['message'] == f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
 
-
     params = {
         **dummy_params,
         "product_type": product_type,
@@ -112,6 +111,7 @@ def test_isgri_dummy_many_pointings(dispatcher_live_fixture, product_type):
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
+    assert jdata['exit_status']['message'] == ""
 
     params = {
         **dummy_params,
@@ -129,20 +129,27 @@ def test_isgri_dummy_many_pointings(dispatcher_live_fixture, product_type):
     assert jdata['exit_status']['message'] == f"Roles [] not authorized to request the product {product_type}, ['integral-private'] roles are needed"
 
 
-@pytest.mark.jemx_plugin
-@pytest.mark.jemx_plugin_dummy
+@pytest.mark.isgri_plugin
+@pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
-@pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
-def test_jemx_dummy_many_pointings(dispatcher_live_fixture, product_type):
+@pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc'])
+def test_isgri_dummy_roles_private_data(dispatcher_live_fixture, product_type):
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)
 
+    # let's generate a valid token without roles assigned
+    token_payload = {
+        **default_token_payload,
+        "roles": []
+    }
+    encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
+
     params = {
         **dummy_params,
-        "instrument": "jemx",
         "product_type": product_type,
         "max_pointings": 100,
-        "integral_data_rights": "public",
+        "token": encoded_token,
+        "integral_data_rights": "all-private"
     }
 
     logger.info("constructed server: %s", server)
@@ -151,15 +158,46 @@ def test_jemx_dummy_many_pointings(dispatcher_live_fixture, product_type):
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
-    assert jdata['exit_status']['message'] \
-           == f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
+    assert jdata['exit_status']['message'] == f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full', 'integral-private'] roles are needed"
+
+    # let's generate a valid token with roles added
+    token_payload = {
+        **default_token_payload,
+        "roles": ['unige-hpc-full', 'integral-private']
+    }
+    encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
+    params = {
+        **params,
+        "token": encoded_token
+    }
+    jdata = ask(server, params, expected_query_status='done',
+                expected_job_status='done', max_time_s=50, expected_status_code=200)
+    logger.info(list(jdata.keys()))
+    logger.info(jdata)
+
+    assert jdata['exit_status']['message'] == ""
+
+
+@pytest.mark.isgri_plugin
+@pytest.mark.isgri_plugin_dummy
+@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc'])
+def test_isgri_dummy_roles_public_data(dispatcher_live_fixture, product_type):
+    server = dispatcher_live_fixture
+    logger.info("constructed server: %s", server)
+
+    # let's generate a valid token without roles assigned
+    token_payload = {
+        **default_token_payload,
+        "roles": []
+    }
+    encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
 
     params = {
         **dummy_params,
-        "instrument": "jemx",
         "product_type": product_type,
         "max_pointings": 10,
-        "integral_data_rights": "public",
+        "token": encoded_token
     }
 
     logger.info("constructed server: %s", server)
@@ -168,12 +206,13 @@ def test_jemx_dummy_many_pointings(dispatcher_live_fixture, product_type):
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
+    assert jdata['exit_status']['message'] == ""
+
     params = {
         **dummy_params,
-        "instrument": "jemx",
         "product_type": product_type,
-        "max_pointings": 10,
-        "integral_data_rights": "all-private",
+        "max_pointings": 100,
+        "token": encoded_token
     }
 
     logger.info("constructed server: %s", server)
@@ -182,8 +221,7 @@ def test_jemx_dummy_many_pointings(dispatcher_live_fixture, product_type):
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
-    assert jdata['exit_status']['message'] \
-           == f"Roles [] not authorized to request the product {product_type}, ['integral-private'] roles are needed"
+    assert jdata['exit_status']['message'] == f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
 
 
 @pytest.mark.xfail
@@ -233,14 +271,14 @@ def test_isgri_image_fixed_done(dispatcher_live_fixture, method):
 
     params = {
         **default_params,
-        'async_dispatcher': False,
+        'async_dispatcher': False
     }
 
     jdata = ask(server, params,
                 expected_query_status=["done"],
                 max_time_s=50,
                 method=method)
-    json.dump(jdata, open("jdata.json", "w"))
+
 
 
 @pytest.mark.dda
