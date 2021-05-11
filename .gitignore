@@ -40,3 +40,4 @@ data
 emax-last
 jdata.json
 log
+.coverage
