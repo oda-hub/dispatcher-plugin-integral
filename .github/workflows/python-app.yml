@@ -47,7 +47,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        python -m coverage run --source=cdci_osa_plugin -m pytest tests -sv --full-trace --log-cli-level=DEBUG  -m 'not dda and not jemx_plugin'
+        python -m coverage run --source=cdci_osa_plugin -m pytest tests -sv --full-trace --log-cli-level=DEBUG  -m 'not dda and not jemx_plugin and not isgri_plugin'
 
     # I wonder how this interacts with the Github App. But this is not only for PR. Also this does not always work
     - name: Codecov
