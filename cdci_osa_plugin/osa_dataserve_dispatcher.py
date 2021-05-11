@@ -662,12 +662,15 @@ class OsaQuery(ProductQuery):
         # max_pointings = self.get_par_by_name('max_pointings')
         scw_list = par_dic.get('scw_list', '')
         # scw_list = self.get_par_by_name('scw_list')
+        if isinstance(scw_list, str):
+            scw_list = scw_list.split(",")
+
         integral_data_rights = par_dic.get('integral_data_rights', 'public')
         # integral_data_rights = self.get_par_by_name('integral_data_rights')
 
         needed_roles = []
 
-        if max_pointings > 50 or len(scw_list.split(",")) > 50:
+        if max_pointings > 50 or len(scw_list) > 50:
             needed_roles.append('unige-hpc-full')            
 
         if integral_data_rights == "all-private": 

@@ -5,6 +5,7 @@ import json
 import time
 import random
 import jwt
+import os
 
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask
 
@@ -373,7 +374,7 @@ def test_valid_token_oda_api(dispatcher_live_fixture):
         osa_version="OSA10.2",
         E1_keV=40.0,
         E2_keV=200.0,
-        scw_list=[f"0665{i:04d}0010.001" for i in range(200)],
+        scw_list=[f"0665{i:04d}0010.001" for i in range(51)],
         token=encoded_token
     )
 
