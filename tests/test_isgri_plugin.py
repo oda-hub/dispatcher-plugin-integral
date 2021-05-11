@@ -77,7 +77,7 @@ def test_isgri_dummy(dispatcher_live_fixture, product_type):
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
-@pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image']) #TODO: jemx too, also lightcurve; and also allowed role passing test
+@pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc']) #TODO: jemx too, also lightcurve; and also allowed role passing test
 def test_isgri_dummy_many_pointings(dispatcher_live_fixture, product_type):
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)
@@ -91,11 +91,11 @@ def test_isgri_dummy_many_pointings(dispatcher_live_fixture, product_type):
 
     logger.info("constructed server: %s", server)
     jdata = ask(server, params, expected_query_status='failed',
-                expected_job_status='failed', max_time_s=5, expected_status_code=403)
+                expected_job_status='failed', max_time_s=50, expected_status_code=403)
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
-    assert jdata['exit_status']['message'].replace('isgri_image', 'isgri_spectrum') == "Roles [] not authorized to request the product isgri_spectrum, ['unige-hpc-full'] roles are needed"
+    assert jdata['exit_status']['message'] == f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
 
 
     params = {
@@ -107,7 +107,7 @@ def test_isgri_dummy_many_pointings(dispatcher_live_fixture, product_type):
 
     logger.info("constructed server: %s", server)
     jdata = ask(server, params, expected_query_status='done',
-                expected_job_status='done', max_time_s=5, expected_status_code=200)
+                expected_job_status='done', max_time_s=50, expected_status_code=200)
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
@@ -121,13 +121,68 @@ def test_isgri_dummy_many_pointings(dispatcher_live_fixture, product_type):
 
     logger.info("constructed server: %s", server)
     jdata = ask(server, params, expected_query_status='failed',
-                expected_job_status='failed', max_time_s=5, expected_status_code=403)
+                expected_job_status='failed', max_time_s=50, expected_status_code=403)
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
-    assert jdata['exit_status']['message'].replace('isgri_image', 'isgri_spectrum') == "Roles [] not authorized to request the product isgri_spectrum, ['integral-private'] roles are needed"
-    
-    
+    assert jdata['exit_status']['message'] == f"Roles [] not authorized to request the product {product_type}, ['integral-private'] roles are needed"
+
+
+@pytest.mark.jemx_plugin
+@pytest.mark.jemx_plugin_dummy
+@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
+def test_jemx_dummy_many_pointings(dispatcher_live_fixture, product_type):
+    server = dispatcher_live_fixture
+    logger.info("constructed server: %s", server)
+
+    params = {
+        **dummy_params,
+        "instrument": "jemx",
+        "product_type": product_type,
+        "max_pointings": 100,
+        "integral_data_rights": "public",
+    }
+
+    logger.info("constructed server: %s", server)
+    jdata = ask(server, params, expected_query_status='failed',
+                expected_job_status='failed', max_time_s=50, expected_status_code=403)
+    logger.info(list(jdata.keys()))
+    logger.info(jdata)
+
+    assert jdata['exit_status']['message'] \
+           == f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
+
+    params = {
+        **dummy_params,
+        "instrument": "jemx",
+        "product_type": product_type,
+        "max_pointings": 10,
+        "integral_data_rights": "public",
+    }
+
+    logger.info("constructed server: %s", server)
+    jdata = ask(server, params, expected_query_status='done',
+                expected_job_status='done', max_time_s=50, expected_status_code=200)
+    logger.info(list(jdata.keys()))
+    logger.info(jdata)
+
+    params = {
+        **dummy_params,
+        "instrument": "jemx",
+        "product_type": product_type,
+        "max_pointings": 10,
+        "integral_data_rights": "all-private",
+    }
+
+    logger.info("constructed server: %s", server)
+    jdata = ask(server, params, expected_query_status='failed',
+                expected_job_status='failed', max_time_s=50, expected_status_code=403)
+    logger.info(list(jdata.keys()))
+    logger.info(jdata)
+
+    assert jdata['exit_status']['message'] \
+           == f"Roles [] not authorized to request the product {product_type}, ['integral-private'] roles are needed"
 
 
 @pytest.mark.xfail

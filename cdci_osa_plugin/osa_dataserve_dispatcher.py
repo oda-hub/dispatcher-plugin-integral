@@ -657,10 +657,13 @@ class OsaQuery(ProductQuery):
     
     def check_query_roles(self, provided_roles: List[str], par_dic: dict):
         # TODO: there is this get_par_by_name there, to check if it can be made work
-        
+        # the _parameters_list for the query should be set
         max_pointings = int(par_dic.get('max_pointings', 50))
+        # max_pointings = self.get_par_by_name('max_pointings')
         scw_list = par_dic.get('scw_list', '')
+        # scw_list = self.get_par_by_name('scw_list')
         integral_data_rights = par_dic.get('integral_data_rights', 'public')
+        # integral_data_rights = self.get_par_by_name('integral_data_rights')
 
         needed_roles = []
 
