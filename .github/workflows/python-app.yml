@@ -28,6 +28,7 @@ jobs:
         pip install flake8 pytest mypy pylint coverage wheel
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install -e .[test]
+        curl https://www.isdc.unige.ch/~savchenk/dispatcher-plugin-integral-data-dummy_prods.tgz | tar xvf - # should put in a better place
 
     - name: Lint with flake8
       run: |
@@ -46,7 +47,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        python -m coverage run --source=cdci_osa_plugin -m pytest tests -sv --full-trace --log-cli-level=DEBUG  -m 'not isgri_plugin and not dda and not jemx_plugin'
+        python -m coverage run --source=cdci_osa_plugin -m pytest tests -sv --full-trace --log-cli-level=DEBUG  -m 'not dda and not jemx_plugin'
 
     # I wonder how this interacts with the Github App. But this is not only for PR. Also this does not always work
     - name: Codecov

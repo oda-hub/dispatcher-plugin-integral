@@ -32,6 +32,8 @@ __author__ = "Andrea Tramacere, Volodymyr Savchenko"
 # absolute import rg:from copy import deepcopy
 import  ast
 
+from typing import List
+
 # Dependencies
 # eg numpy 
 # absolute import eg: import numpy as np
@@ -48,6 +50,7 @@ from cdci_data_analysis.analysis.queries import  *
 from cdci_data_analysis.analysis.job_manager import  Job
 from cdci_data_analysis.analysis.io_helper import FilePath
 from cdci_data_analysis.analysis.products import  QueryOutput
+from cdci_data_analysis.analysis.queries import ProductQuery
 from cdci_data_analysis.analysis.exceptions import UnfortunateRequestResults, RequestNotUnderstood
 import json
 import traceback
@@ -645,4 +648,33 @@ class OsaDispatcher(object):
         #    cat = None
 
         return cat
+
+
+class OsaQuery(ProductQuery): 
+    """
+    base class for all osa
+    """
+    
+    def check_query_roles(self, provided_roles: List[str], par_dic: dict):
+        # TODO: there is this get_par_by_name there, to check if it can be made work
+        
+        max_pointings = int(par_dic.get('max_pointings', 50))
+        scw_list = par_dic.get('scw_list', '')
+        integral_data_rights = par_dic.get('integral_data_rights', 'public')
+
+        needed_roles = []
+
+        if max_pointings > 50 or len(scw_list.split(",")) > 50:
+            needed_roles.append('unige-hpc-full')            
+
+        if integral_data_rights == "all-private": 
+            needed_roles.append('integral-private')            
+        elif integral_data_rights != "public": 
+            raise RuntimeError(f"unknown data rights role {integral_data_rights}") # duplication for safety
+
+        if all([ needed_role in provided_roles for needed_role in needed_roles ]):                                
+            return dict(authorization=True, needed_roles=[])        
+        else:
+            return dict(authorization=False, needed_roles=needed_roles)
+            
 
