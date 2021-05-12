@@ -348,7 +348,11 @@ class OsaDispatcher(object):
                         #DONE
                         query_out.set_done(message=message, debug_message=str(debug_message))
 
+                        logger.info("scwlist result product: %s", product)
+
                         prod_list = getattr(product, 'scwidlist', None)
+
+                        logger.info("scwlist result prod_list: %s", prod_list)
 
                         if prod_list is None:
                             raise RuntimeError(f"product.prod_list is None")
