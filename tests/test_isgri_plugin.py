@@ -7,7 +7,7 @@ import random
 import jwt
 import os
 
-from cdci_data_analysis.pytest_fixtures import loop_ask, ask
+from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +60,8 @@ def test_default(dispatcher_live_fixture):
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image'])
 def test_isgri_dummy(dispatcher_live_fixture, product_type):
+    dispatcher_fetch_dummy_products("default")
+
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)
 
@@ -81,6 +83,8 @@ def test_isgri_dummy(dispatcher_live_fixture, product_type):
 @pytest.mark.parametrize("max_pointings", [10, 100])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc']) #TODO: allowed role passing test
 def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_pointings):
+    dispatcher_fetch_dummy_products("default")
+
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)
 
