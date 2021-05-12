@@ -81,8 +81,9 @@ def test_isgri_dummy(dispatcher_live_fixture, product_type):
 @pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("max_pointings", [10, 100])
+@pytest.mark.parametrize("integral_data_rights", ["public", "all-private"])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc'])
-def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_pointings):
+def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_pointings, integral_data_rights):
     dispatcher_fetch_dummy_products("default")
 
     server = dispatcher_live_fixture
@@ -92,17 +93,25 @@ def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_poin
         **dummy_params,
         "product_type": product_type,
         "max_pointings": max_pointings,
-        "integral_data_rights": "public",
+        "integral_data_rights": integral_data_rights,
     }
 
     if max_pointings > 50:
         expected_status_code = 403
         expected_status = 'failed'
-        exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
+        if integral_data_rights == "public":
+            exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
+        elif integral_data_rights == "all-private":
+            exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full', 'integral-private'] roles are needed"
     else:
-        expected_status_code = 200
-        expected_status = 'done'
-        exit_status_message = ""
+        if integral_data_rights == "public":
+            expected_status_code = 200
+            expected_status = 'done'
+            exit_status_message = ""
+        elif integral_data_rights == "all-private":
+            expected_status_code = 403
+            expected_status = 'failed'
+            exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['integral-private'] roles are needed"
 
     logger.info("constructed server: %s", server)
     jdata = ask(server, params, expected_query_status=expected_status,
@@ -112,25 +121,25 @@ def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_poin
 
     assert jdata['exit_status']['message'] == exit_status_message
 
-    params = {
-        **dummy_params,
-        "product_type": product_type,
-        "max_pointings": max_pointings,
-        "integral_data_rights": "all-private",
-    }
-
-    if max_pointings > 50:
-        exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full', 'integral-private'] roles are needed"
-    else:
-        exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['integral-private'] roles are needed"
-
-    logger.info("constructed server: %s", server)
-    jdata = ask(server, params, expected_query_status='failed',
-                expected_job_status='failed', max_time_s=50, expected_status_code=403)
-    logger.info(list(jdata.keys()))
-    logger.info(jdata)
-
-    assert jdata['exit_status']['message'] == exit_status_message
+    # params = {
+    #     **dummy_params,
+    #     "product_type": product_type,
+    #     "max_pointings": max_pointings,
+    #     "integral_data_rights": "all-private",
+    # }
+    #
+    # if max_pointings > 50:
+    #     exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full', 'integral-private'] roles are needed"
+    # else:
+    #     exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['integral-private'] roles are needed"
+    #
+    # logger.info("constructed server: %s", server)
+    # jdata = ask(server, params, expected_query_status='failed',
+    #             expected_job_status='failed', max_time_s=50, expected_status_code=403)
+    # logger.info(list(jdata.keys()))
+    # logger.info(jdata)
+    #
+    # assert jdata['exit_status']['message'] == exit_status_message
 
 
 @pytest.mark.isgri_plugin
