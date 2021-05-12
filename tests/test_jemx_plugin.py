@@ -3,7 +3,7 @@ import logging
 import requests
 import json
 
-from cdci_data_analysis.pytest_fixtures import loop_ask, ask
+from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,10 @@ def test_default(dispatcher_live_fixture):
 
 @pytest.mark.jemx_plugin
 @pytest.mark.dependency(depends=["test_default"])
-def test_jemx_dummy(dispatcher_live_fixture):
+@pytest.mark.parametrize('dummy_pack', ['default', 'empty'])
+def test_jemx_dummy(dispatcher_live_fixture, dummy_pack):
+    dispatcher_fetch_dummy_products(dummy_pack)
+
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)
 
