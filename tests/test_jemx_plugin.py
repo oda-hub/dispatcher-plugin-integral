@@ -48,6 +48,16 @@ def test_jemx_dummy(dispatcher_live_fixture, dummy_pack):
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
+    logger.info(jdata["products"]["catalog"])
+
+    if dummy_pack == "empty":
+        assert len(jdata["products"]["catalog"]["cat_column_list"][0]) == 0
+    else:
+        #TODO:
+        #assert len(jdata["products"]["catalog"]["cat_column_list"][0]) > 0
+        pass
+        
+
 
 # TODO are those parameters ok? I am sure the values are correct or the tests are properly set
 @pytest.mark.dda
