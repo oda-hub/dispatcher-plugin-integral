@@ -81,7 +81,7 @@ def test_isgri_dummy(dispatcher_live_fixture, product_type):
 @pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("max_pointings", [10, 100])
-@pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc']) #TODO: allowed role passing test
+@pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc'])
 def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_pointings):
     dispatcher_fetch_dummy_products("default")
 
@@ -139,6 +139,8 @@ def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_poin
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc'])
 @pytest.mark.parametrize("roles", [[], ["integral-private"]])
 def test_isgri_dummy_roles_private_data(dispatcher_live_fixture, product_type, roles):
+    dispatcher_fetch_dummy_products("default")
+
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)
 
@@ -181,6 +183,8 @@ def test_isgri_dummy_roles_private_data(dispatcher_live_fixture, product_type, r
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc'])
 @pytest.mark.parametrize("roles", [[], ["unige-hpc-full"]])
 def test_isgri_dummy_roles_public_data(dispatcher_live_fixture, product_type, roles):
+    dispatcher_fetch_dummy_products("default")
+
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)
 

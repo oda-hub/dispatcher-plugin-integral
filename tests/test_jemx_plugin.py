@@ -103,71 +103,118 @@ def test_jemx_products(dispatcher_live_fixture, product_type):
 @pytest.mark.jemx_plugin
 @pytest.mark.jemx_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.parametrize("max_pointings", [10, 100])
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
-def test_jemx_dummy_many_pointings(dispatcher_live_fixture, product_type):
+def test_jemx_dummy_data_rights(dispatcher_live_fixture, product_type, max_pointings):
+    dispatcher_fetch_dummy_products("default")
+
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)
 
     params = {
         **dummy_params,
         "product_type": product_type,
-        "max_pointings": 100,
+        "max_pointings": max_pointings,
         "integral_data_rights": "public",
     }
 
+    if max_pointings > 50:
+        expected_status_code = 403
+        expected_status = 'failed'
+        exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
+    else:
+        expected_status_code = 200
+        expected_status = 'done'
+        exit_status_message = ""
+
     logger.info("constructed server: %s", server)
-    jdata = ask(server, params, expected_query_status='failed',
-                expected_job_status='failed', max_time_s=50, expected_status_code=403)
+    jdata = ask(server, params, expected_query_status=expected_status,
+                expected_job_status=expected_status, max_time_s=50, expected_status_code=expected_status_code)
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
-    assert jdata['exit_status']['message'] \
-           == f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
+    assert jdata['exit_status']['message'] == exit_status_message
 
     params = {
         **dummy_params,
-        "instrument": "jemx",
         "product_type": product_type,
-        "max_pointings": 10,
-        "integral_data_rights": "public",
-    }
-
-    logger.info("constructed server: %s", server)
-    jdata = ask(server, params, expected_query_status='done',
-                expected_job_status='done', max_time_s=50, expected_status_code=200)
-    logger.info(list(jdata.keys()))
-    logger.info(jdata)
-
-    params = {
-        **dummy_params,
-        "instrument": "jemx",
-        "product_type": product_type,
-        "max_pointings": 10,
+        "max_pointings": max_pointings,
         "integral_data_rights": "all-private",
     }
 
+    if max_pointings > 50:
+        exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full', 'integral-private'] roles are needed"
+    else:
+        exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['integral-private'] roles are needed"
+
     logger.info("constructed server: %s", server)
     jdata = ask(server, params, expected_query_status='failed',
                 expected_job_status='failed', max_time_s=50, expected_status_code=403)
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
-    assert jdata['exit_status']['message'] \
-           == f"Roles [] not authorized to request the product {product_type}, ['integral-private'] roles are needed"
+    assert jdata['exit_status']['message'] == exit_status_message
 
 
 @pytest.mark.jemx_plugin
 @pytest.mark.jemx_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
-def test_jemx_dummy_roles_private_data(dispatcher_live_fixture, product_type):
+@pytest.mark.parametrize("roles", [[], ["integral-private"]])
+def test_jemx_dummy_roles_private_data(dispatcher_live_fixture, product_type, roles):
+    dispatcher_fetch_dummy_products("default")
+
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)
 
     # let's generate a valid token without roles assigned
     token_payload = {
         **default_token_payload,
-        "roles": []
+        "roles": roles
+    }
+    encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
+
+    params = {
+        **dummy_params,
+        "product_type": product_type,
+        "max_pointings": 10,
+        "token": encoded_token,
+        "integral_data_rights": "all-private"
+    }
+
+    if not roles:
+        expected_status_code = 403
+        expected_status = 'failed'
+        exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['integral-private'] roles are needed"
+    else:
+        expected_status_code = 200
+        expected_status = 'done'
+        exit_status_message = ""
+
+    logger.info("constructed server: %s", server)
+    jdata = ask(server, params, expected_query_status=expected_status,
+                expected_job_status=expected_status, max_time_s=50, expected_status_code=expected_status_code)
+    logger.info(list(jdata.keys()))
+    logger.info(jdata)
+
+    assert jdata['exit_status']['message'] == exit_status_message
+
+
+@pytest.mark.jemx_plugin
+@pytest.mark.jemx_plugin_dummy
+@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
+@pytest.mark.parametrize("roles", [[], ["unige-hpc-full"]])
+def test_jemx_dummy_roles_public_data(dispatcher_live_fixture, product_type, roles):
+    dispatcher_fetch_dummy_products("default")
+
+    server = dispatcher_live_fixture
+    logger.info("constructed server: %s", server)
+
+    # let's generate a valid token without roles assigned
+    token_payload = {
+        **default_token_payload,
+        "roles": roles
     }
     encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
 
@@ -176,76 +223,22 @@ def test_jemx_dummy_roles_private_data(dispatcher_live_fixture, product_type):
         "product_type": product_type,
         "max_pointings": 100,
         "token": encoded_token,
-        "integral_data_rights": "all-private"
+        "integral_data_rights": "public"
     }
 
+    if not roles:
+        expected_status_code = 403
+        expected_status = 'failed'
+        exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
+    else:
+        expected_status_code = 200
+        expected_status = 'done'
+        exit_status_message = ""
+
     logger.info("constructed server: %s", server)
-    jdata = ask(server, params, expected_query_status='failed',
-                expected_job_status='failed', max_time_s=50, expected_status_code=403)
+    jdata = ask(server, params, expected_query_status=expected_status,
+                expected_job_status=expected_status, max_time_s=50, expected_status_code=expected_status_code)
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
-    assert jdata['exit_status']['message'] == f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full', 'integral-private'] roles are needed"
-
-    # let's generate a valid token with roles added
-    token_payload = {
-        **default_token_payload,
-        "roles": ['unige-hpc-full', 'integral-private']
-    }
-    encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
-    params = {
-        **params,
-        "token": encoded_token
-    }
-    jdata = ask(server, params, expected_query_status='done',
-                expected_job_status='done', max_time_s=50, expected_status_code=200)
-    logger.info(list(jdata.keys()))
-    logger.info(jdata)
-
-    assert jdata['exit_status']['message'] == ""
-
-
-@pytest.mark.jemx_plugin
-@pytest.mark.jemx_plugin_dummy
-@pytest.mark.dependency(depends=["test_default"])
-@pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
-def test_jemx_dummy_roles_public_data(dispatcher_live_fixture, product_type):
-    server = dispatcher_live_fixture
-    logger.info("constructed server: %s", server)
-
-    # let's generate a valid token without roles assigned
-    token_payload = {
-        **default_token_payload,
-        "roles": []
-    }
-    encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
-
-    params = {
-        **dummy_params,
-        "product_type": product_type,
-        "max_pointings": 10,
-        "token": encoded_token
-    }
-
-    logger.info("constructed server: %s", server)
-    jdata = ask(server, params, expected_query_status='done',
-                expected_job_status='done', max_time_s=50, expected_status_code=200)
-    logger.info(list(jdata.keys()))
-    logger.info(jdata)
-
-    assert jdata['exit_status']['message'] == ""
-
-    params = {
-        **dummy_params,
-        "product_type": product_type,
-        "max_pointings": 100,
-        "token": encoded_token
-    }
-
-    logger.info("constructed server: %s", server)
-    jdata = ask(server, params, expected_query_status='failed',
-                expected_job_status='failed', max_time_s=50, expected_status_code=403)
-    logger.info(list(jdata.keys()))
-    logger.info(jdata)
-
-    assert jdata['exit_status']['message'] == f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
+    assert jdata['exit_status']['message'] == exit_status_message
