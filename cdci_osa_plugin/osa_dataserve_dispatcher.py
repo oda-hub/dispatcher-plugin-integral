@@ -332,8 +332,11 @@ class OsaDispatcher(object):
                             )
 
             elif self._test_products_method == "timesystem":
+                # cons is expected
                 timesystem_api_base = "https://www.astro.unige.ch/cdci/astrooda/dispatch-data/gw/timesystem/api"
-                prod_list = requests.get(f"{timesystem_api_base}/v1.0/scwlist/cons/{T1_iso}/{T2_iso}?&ra={RA}&dec={DEC}&radius={radius}").json()
+                prod_list_raw = requests.get(f"{timesystem_api_base}/v1.0/scwlist/cons/{T1_iso}/{T2_iso}?&ra={RA}&dec={DEC}&radius={radius}").json()
+
+                prod_list = [ scw for scw in prod_list_raw if scw.endswith("0010.001") ] 
                 # ? &min_good_isgri=1000
 
             elif self._test_products_method == "ReportScWList":
