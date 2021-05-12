@@ -42,7 +42,8 @@ import json
 # Project
 # relative import eg: from .mod import f
 import ddaclient as dc
-import  logging
+import logging
+import requests
 from cdci_osa_plugin import conf_file as plugin_conf_file
 
 from cdci_data_analysis.configurer import DataServerConf
@@ -126,7 +127,7 @@ class OsaDispatcher(object):
         self.assume = assume
         self.inject = inject
 
-        self._test_products_with_astroquery = False # TODO: this should be configurable
+        self._test_products_method = "timesystem" # TODO: this should be configurable, could be astroquery, ReportScWList, timesystem
 
         config=None
 
@@ -310,7 +311,7 @@ class OsaDispatcher(object):
 
             print ('input',RA,DEC,T1_iso,T2_iso)
 
-            if self._test_products_with_astroquery:
+            if self._test_products_method == "astroquery":
                 # note that this just might introduce discrepancy, since it is not the exact workflow used by the backend
 
                 from astroquery.heasarc import Heasarc
@@ -324,13 +325,18 @@ class OsaDispatcher(object):
                                 SkyCoord(RA, DEC, unit="deg"), 
                                 mission='integral_rev3_scw', 
                                 resultmax=1000000, # all ppo
-                                radius="200 deg", 
+                                radius="{radius} deg", 
                                 cache=False,
                                 time=T1_iso.replace("T", " ") + " .. " + T2_iso.replace("T", " "),
                                 fields='All'
                             )
 
-            else:
+            elif self._test_products_method == "timesystem":
+                timesystem_api_base = "https://www.astro.unige.ch/cdci/astrooda/dispatch-data/gw/timesystem/api"
+                prod_list = requests.get(f"{timesystem_api_base}/v1.0/scwlist/cons/{T1_iso}/{T2_iso}?&ra={RA}&dec={DEC}&radius={radius}").json()
+                # ? &min_good_isgri=1000
+
+            elif self._test_products_method == "ReportScWList":
                 target = "ReportScWList"
                 modules = ['git://rangequery/staging-1-3']
 
