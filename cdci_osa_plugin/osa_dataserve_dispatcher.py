@@ -126,7 +126,7 @@ class OsaDispatcher(object):
         self.assume = assume
         self.inject = inject
 
-        self._test_products_with_astroquery = True
+        self._test_products_with_astroquery = False # TODO: this should be configurable
 
         config=None
 
