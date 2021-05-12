@@ -342,70 +342,76 @@ class OsaDispatcher(object):
 
                 remote = dc.RemoteDDA(self.data_server_url, self.data_server_cache)
 
-                try:
-                    product = remote.query(target=target, modules=modules, assume=assume, sync=True)
-                    #DONE
-                    query_out.set_done(message=message, debug_message=str(debug_message))
+                while True:
+                    try:
+                        product = remote.query(target=target, modules=modules, assume=assume, sync=True)
+                        #DONE
+                        query_out.set_done(message=message, debug_message=str(debug_message))
 
-                    prod_list = getattr(product, 'scwidlist', None)
+                        prod_list = getattr(product, 'scwidlist', None)
 
-                    if prod_list is None:
-                        raise RuntimeError(f"product.prod_list is None")
+                        if prod_list is None:
+                            raise RuntimeError(f"product.prod_list is None")
 
-                    if len(prod_list)<1:
-                        run_query_message = 'scwlist empty'
-                        debug_message = ''
+                        if len(prod_list)<1:
+                            run_query_message = 'scwlist empty'
+                            debug_message = ''
+                            query_out.set_failed('test has input prods',
+                                                message=run_query_message,
+                                                logger=logger,
+                                                job_status='failed',
+                                                e_message=run_query_message,
+                                                debug_message='')
+
+                            raise DDAException(message='scwlist empty', debug_message='')
+
+                        break
+
+                    except dc.AnalysisDelegatedException as e:
+                        logger.info("waiting for ReportScWList: %s", e)
+                        time.sleep(2)
+                        continue
+
+                    except dc.WorkerException as e:
+                        run_query_message = 'WorkerException'
+                        debug_message = self.get_exceptions_message(e)
+                        # FAILED
                         query_out.set_failed('test has input prods',
-                                             message=run_query_message,
-                                             logger=logger,
-                                             job_status='failed',
-                                             e_message=run_query_message,
-                                             debug_message='')
+                                            message='has input_products=%s' % run_query_message,
+                                            logger=logger,
+                                            excep=e,
+                                            job_status='failed',
+                                            e_message=run_query_message,
+                                            debug_message=debug_message)
 
-                        raise DDAException(message='scwlist empty', debug_message='')
+                        raise DDAException('WorkerException', debug_message)
 
+                    except dc.AnalysisException as e:
 
+                        run_query_message = 'AnalysisException'
+                        debug_message = self.get_exceptions_message(e)
 
-                except dc.WorkerException as e:
-                    run_query_message = 'WorkerException'
-                    debug_message = self.get_exceptions_message(e)
-                    # FAILED
-                    query_out.set_failed('test has input prods',
-                                         message='has input_products=%s' % run_query_message,
-                                         logger=logger,
-                                         excep=e,
-                                         job_status='failed',
-                                         e_message=run_query_message,
-                                         debug_message=debug_message)
+                        query_out.set_failed('test has input prods',
+                                            message='run query message=%s' % run_query_message,
+                                            logger=logger,
+                                            excep=e,
+                                            job_status='failed',
+                                            e_message=run_query_message,
+                                            debug_message=debug_message)
 
-                    raise DDAException('WorkerException', debug_message)
+                        raise DDAException(message=run_query_message, debug_message=debug_message)
 
-                except dc.AnalysisException as e:
+                    except Exception as e:
+                        run_query_message = 'DDAUnknownException in test has input prods: ' + repr(e)
+                        query_out.set_failed('test has input prods ',
+                                            message='run query message=%s' % run_query_message,
+                                            logger=logger,
+                                            excep=e,
+                                            job_status='failed',
+                                            e_message=run_query_message,
+                                            debug_message='')
 
-                    run_query_message = 'AnalysisException'
-                    debug_message = self.get_exceptions_message(e)
-
-                    query_out.set_failed('test has input prods',
-                                         message='run query message=%s' % run_query_message,
-                                         logger=logger,
-                                         excep=e,
-                                         job_status='failed',
-                                         e_message=run_query_message,
-                                         debug_message=debug_message)
-
-                    raise DDAException(message=run_query_message, debug_message=debug_message)
-
-                except Exception as e:
-                    run_query_message = 'DDAUnknownException in test has input prods: ' + repr(e)
-                    query_out.set_failed('test has input prods ',
-                                         message='run query message=%s' % run_query_message,
-                                         logger=logger,
-                                         excep=e,
-                                         job_status='failed',
-                                         e_message=run_query_message,
-                                         debug_message='')
-
-                    raise DDAUnknownException()
+                        raise DDAUnknownException()
 
         return query_out,prod_list
 
