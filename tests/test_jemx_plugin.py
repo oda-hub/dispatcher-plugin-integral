@@ -8,9 +8,10 @@ from cdci_data_analysis.pytest_fixtures import loop_ask, ask
 logger = logging.getLogger(__name__)
 
 default_params = dict(instrument='jemx',
+                      query_status="new",
                         jemx_num='2',
                         product_type='jemx_image',
-                        scw_list=['010200230010.001'],
+                        scw_list=['066500230010.001'],
                         osa_version='OSA10.2',
                         detection_threshold=5.0,
                         radius=15.,
@@ -46,10 +47,10 @@ def test_jemx_dummy(dispatcher_live_fixture):
 
 
 # TODO are those parameters ok? I am sure the values are correct or the tests are properly set
+@pytest.mark.dda
 @pytest.mark.jemx_plugin
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
 @pytest.mark.dependency(depends=["test_default"])
-@pytest.mark.xfail
 def test_jemx_products(dispatcher_live_fixture, product_type):
     server = dispatcher_live_fixture
 
