@@ -123,14 +123,17 @@ class OsaMosaicQuery(ImageQuery, OsaQuery):
         query_catalog.write(overwrite=True, format='fits')
         query_catalog.write(overwrite=True, format='ds9')
 
-        if api == False:
+        if not api:
             # TODO  MAKE THIS BETTER
-            try:
+            
+            try:                
                 html_fig = query_image.get_html_draw(
                     catalog=query_catalog.catalog, data_ID=4)
-            except:
+            except Exception as e:
+                logger.error(
+                    "\033[31mproblem calling query_image.get_html_draw on query_catalog.catalog %s: %s\033[0m", query_catalog.catalog, e)
                 html_fig = query_image.get_html_draw(
-                    catalog=query_catalog.catalog, data_ID=4)
+                    catalog=query_catalog.catalog, data_ID=1)
 
         #print('--> query was ok 2')
         query_out = QueryOutput()

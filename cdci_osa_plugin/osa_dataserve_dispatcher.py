@@ -318,7 +318,7 @@ class OsaDispatcher(object):
 
                 heasarc = Heasarc()
 
-
+                #TODO: this is very slow and breaks
                 with astroquery.heasarc.Conf.server.set_temp('https://www.isdc.unige.ch/browse/w3query.pl'):
                     T_i=heasarc.query_region(
                                 SkyCoord(RA, DEC, unit="deg"), 

@@ -3,7 +3,7 @@ import logging
 import requests
 import json
 
-from cdci_data_analysis.pytest_fixtures import loop_ask, ask
+from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,10 @@ def test_default(dispatcher_live_fixture):
 
 @pytest.mark.jemx_plugin
 @pytest.mark.dependency(depends=["test_default"])
-def test_jemx_dummy(dispatcher_live_fixture):
+@pytest.mark.parametrize('dummy_pack', ['default', 'empty'])
+def test_jemx_dummy(dispatcher_live_fixture, dummy_pack):
+    dispatcher_fetch_dummy_products(dummy_pack)
+
     server = dispatcher_live_fixture
     logger.info("constructed server: %s", server)
 
@@ -44,6 +47,16 @@ def test_jemx_dummy(dispatcher_live_fixture):
     jdata = ask(server, params, expected_query_status='done', expected_job_status='done', max_time_s=5)
     logger.info(list(jdata.keys()))
     logger.info(jdata)
+
+    logger.info(jdata["products"]["catalog"])
+
+    if dummy_pack == "empty":
+        assert len(jdata["products"]["catalog"]["cat_column_list"][0]) == 0
+    else:
+        #TODO:
+        #assert len(jdata["products"]["catalog"]["cat_column_list"][0]) > 0
+        pass
+        
 
 
 # TODO are those parameters ok? I am sure the values are correct or the tests are properly set
