@@ -82,7 +82,7 @@ def test_isgri_dummy_many_pointings(dispatcher_live_fixture, product_type):
 
     logger.info("constructed server: %s", server)
     jdata = ask(server, params, expected_query_status='failed',
-                expected_job_status='failed', max_time_s=5, expected_status_code=403)
+                expected_job_status='failed', max_time_s=10, expected_status_code=403)
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
