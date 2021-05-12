@@ -86,7 +86,7 @@ def get_osa_versions():
 def osa_common_instr_query():
     # not exposed to frontend
     # TODO make a special class
-    max_pointings = Integer(value=500, name='max_pointings')
+    max_pointings = Integer(value=50, name='max_pointings')
 
     radius = Angle(value=5.0, units='deg', name='radius')
 
@@ -97,7 +97,7 @@ def osa_common_instr_query():
     else:
         osa_version._allowed_values = get_osa_versions()
 
-    data_rights = Name(name_format='str', name='integral_data_rights')
+    data_rights = Name(name_format='str', name='integral_data_rights', value="public")
     data_rights._allowed_values = ["public", "all-private"]
 
     instr_query_pars = [
