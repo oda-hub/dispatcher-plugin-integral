@@ -247,7 +247,10 @@ def test_isgri_image_no_pointings(dispatcher_live_fixture, selection):
         params = {
             **default_params,
             'T1': "2008-01-01T11:11:11.0",
-            'T2': "2009-01-01T11:11:11.0",
+            'T2': "2012-01-01T11:11:11.0",
+            'RA': 83,
+            'DEC': 22,
+            'radius': 6,
             'max_pointings': 1
         }
     else:
@@ -258,6 +261,36 @@ def test_isgri_image_no_pointings(dispatcher_live_fixture, selection):
 
     jdata = ask(server, params, expected_query_status="failed",
                 expected_job_status="failed", max_time_s=5)
+    assert jdata["exit_status"]["debug_message"] == "{\"node\": \"dataanalysis.core.AnalysisException\", \"exception\": \"{}\", \"exception_kind\": \"handled\"}"
+    assert jdata["exit_status"]["error_message"] == "AnalysisException:{}"
+    assert jdata["exit_status"]["message"] == "failed: get dataserver products "
+
+
+@pytest.mark.dda
+@pytest.mark.isgri_plugin
+@pytest.mark.dependency(depends=["test_default"])
+def test_isgri_image_find_pointings(dispatcher_live_fixture):
+    """
+    this will reproduce the entire flow of frontend-dispatcher, apart from receiving callback
+    """
+
+    server = dispatcher_live_fixture
+    logger.info("constructed server: %s", server)
+
+    params = {
+        **default_params,
+        'T1': "2008-01-01T11:11:11.0",
+        'T2': "2019-01-01T11:11:11.0",
+        'RA': 83,
+        'DEC': 22,
+        'radius': 6,
+        'max_pointings': 2,
+        'scw_list': ''
+    }
+    
+    jdata = ask(server, params, expected_query_status="done",
+                expected_job_status="done", max_time_s=50)
+
     assert jdata["exit_status"]["debug_message"] == "{\"node\": \"dataanalysis.core.AnalysisException\", \"exception\": \"{}\", \"exception_kind\": \"handled\"}"
     assert jdata["exit_status"]["error_message"] == "AnalysisException:{}"
     assert jdata["exit_status"]["message"] == "failed: get dataserver products "
