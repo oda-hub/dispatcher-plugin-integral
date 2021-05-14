@@ -7,6 +7,7 @@ import random
 import jwt
 import os
 
+from _pytest.debugging import pytestPDB
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
 
 logger = logging.getLogger(__name__)
@@ -81,9 +82,10 @@ def test_isgri_dummy(dispatcher_live_fixture, product_type):
 @pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("max_pointings", [10, 100])
+@pytest.mark.parametrize("scw_list_size", [10, 100])
 @pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc'])
-def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_pointings, integral_data_rights):
+def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_pointings, integral_data_rights, scw_list_size):
     dispatcher_fetch_dummy_products("default")
 
     server = dispatcher_live_fixture
@@ -94,9 +96,10 @@ def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_poin
         "product_type": product_type,
         "max_pointings": max_pointings,
         "integral_data_rights": integral_data_rights,
+        "scw_list": [f"0665{i:04d}0010.001" for i in range(scw_list_size)]
     }
 
-    if max_pointings > 50:
+    if max_pointings > 50 or scw_list_size > 50:
         expected_status_code = 403
         expected_status = 'failed'
         if integral_data_rights == "public" or integral_data_rights is None:
