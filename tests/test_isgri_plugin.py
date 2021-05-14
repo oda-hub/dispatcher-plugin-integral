@@ -411,6 +411,7 @@ def test_isgri_lc_odaapi(dispatcher_live_fixture):
 
 # TODO are the parameters for the request ok?
 @pytest.mark.odaapi
+@pytest.mark.dda
 @pytest.mark.isgri_plugin
 def test_valid_token_oda_api(dispatcher_live_fixture):
     import oda_api.api
@@ -432,7 +433,7 @@ def test_valid_token_oda_api(dispatcher_live_fixture):
         osa_version="OSA10.2",
         E1_keV=40.0,
         E2_keV=200.0,
-        scw_list=[f"0665{i:04d}0010.001" for i in range(51)],
+        scw_list="066500220010.001",
         token=encoded_token
     )
 
