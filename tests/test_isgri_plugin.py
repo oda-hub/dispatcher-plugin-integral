@@ -73,7 +73,7 @@ def test_isgri_dummy(dispatcher_live_fixture, product_type):
 
     logger.info("constructed server: %s", server)
     jdata = ask(server, params, expected_query_status='done',
-                expected_job_status='done', max_time_s=5)
+                expected_job_status='done', max_time_s=15)
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 
