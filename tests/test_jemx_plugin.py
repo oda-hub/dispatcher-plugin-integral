@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 default_params = dict(instrument='jemx',
                         query_status="new",
-                        jemx_num='2',
+                        jemx_num='1',
                         product_type='jemx_image',
                         scw_list=['066500230010.001'],
                         osa_version='OSA10.2',
@@ -73,19 +73,17 @@ def test_jemx_dummy(dispatcher_live_fixture, dummy_pack):
         pass
         
 
-
-# TODO are those parameters ok? I am sure the values are correct or the tests are properly set
 @pytest.mark.dda
 @pytest.mark.jemx_plugin
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
 @pytest.mark.dependency(depends=["test_default"])
-@pytest.mark.xfail
 def test_jemx_products(dispatcher_live_fixture, product_type):
     server = dispatcher_live_fixture
 
     params = {
         **default_params,
-        "product_type": product_type
+        "product_type": product_type,
+        "swc_list": [f"0665{i:04d}0010.001" for i in range(10)]
     }
 
     logger.info("constructed server: %s", server)
@@ -104,8 +102,10 @@ def test_jemx_products(dispatcher_live_fixture, product_type):
 @pytest.mark.jemx_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("max_pointings", [10, 100])
+@pytest.mark.parametrize("scw_list_size", [10, 100])
+@pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
-def test_jemx_dummy_data_rights(dispatcher_live_fixture, product_type, max_pointings):
+def test_jemx_dummy_data_rights(dispatcher_live_fixture, product_type, max_pointings, integral_data_rights, scw_list_size):
     dispatcher_fetch_dummy_products("default")
 
     server = dispatcher_live_fixture
@@ -115,41 +115,30 @@ def test_jemx_dummy_data_rights(dispatcher_live_fixture, product_type, max_point
         **dummy_params,
         "product_type": product_type,
         "max_pointings": max_pointings,
-        "integral_data_rights": "public",
+        "integral_data_rights": integral_data_rights,
+        "scw_list": [f"0665{i:04d}0010.001" for i in range(scw_list_size)]
     }
 
-    if max_pointings > 50:
+    if max_pointings > 50 or scw_list_size > 50:
         expected_status_code = 403
         expected_status = 'failed'
-        exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
+        if integral_data_rights == "public" or integral_data_rights is None:
+            exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full'] roles are needed"
+        elif integral_data_rights == "all-private":
+            exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full', 'integral-private'] roles are needed"
     else:
-        expected_status_code = 200
-        expected_status = 'done'
-        exit_status_message = ""
+        if integral_data_rights == "public" or integral_data_rights is None:
+            expected_status_code = 200
+            expected_status = 'done'
+            exit_status_message = ""
+        elif integral_data_rights == "all-private":
+            expected_status_code = 403
+            expected_status = 'failed'
+            exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['integral-private'] roles are needed"
 
     logger.info("constructed server: %s", server)
     jdata = ask(server, params, expected_query_status=expected_status,
                 expected_job_status=expected_status, max_time_s=50, expected_status_code=expected_status_code)
-    logger.info(list(jdata.keys()))
-    logger.info(jdata)
-
-    assert jdata['exit_status']['message'] == exit_status_message
-
-    params = {
-        **dummy_params,
-        "product_type": product_type,
-        "max_pointings": max_pointings,
-        "integral_data_rights": "all-private",
-    }
-
-    if max_pointings > 50:
-        exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['unige-hpc-full', 'integral-private'] roles are needed"
-    else:
-        exit_status_message = f"Roles [] not authorized to request the product {product_type}, ['integral-private'] roles are needed"
-
-    logger.info("constructed server: %s", server)
-    jdata = ask(server, params, expected_query_status='failed',
-                expected_job_status='failed', max_time_s=50, expected_status_code=403)
     logger.info(list(jdata.keys()))
     logger.info(jdata)
 

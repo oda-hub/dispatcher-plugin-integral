@@ -146,7 +146,6 @@ def test_isgri_dummy_roles_private_data(dispatcher_live_fixture, product_type, r
     params = {
         **dummy_params,
         "product_type": product_type,
-        "max_pointings": 10,
         "token": encoded_token,
         "integral_data_rights": "all-private"
     }
@@ -300,7 +299,6 @@ def test_isgri_image_fixed_done(dispatcher_live_fixture, method):
                 expected_query_status=["done"],
                 max_time_s=50,
                 method=method)
-
 
 
 @pytest.mark.dda
