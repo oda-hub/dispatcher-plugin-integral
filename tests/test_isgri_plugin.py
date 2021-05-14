@@ -78,6 +78,53 @@ def test_isgri_dummy(dispatcher_live_fixture, product_type):
     logger.info(jdata)
 
 
+@pytest.mark.odaapi
+@pytest.mark.isgri_plugin
+@pytest.mark.isgri_plugin_dummy
+@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image'])
+def test_isgri_dummy_oda_api(dispatcher_live_fixture, product_type):
+    dispatcher_fetch_dummy_products("default")
+
+    import oda_api.api
+
+    disp = oda_api.api.DispatcherAPI(
+        url=dispatcher_live_fixture)
+    product = disp.get_product(
+        product_type="Dummy",
+        instrument="isgri",
+        product=product_type,
+        osa_version="OSA10.2",
+        E1_keV=20.,
+        E2_keV=40.,
+        scw_list="066500220010.001",
+        session_id="TESTSESSION",
+    )
+
+    logger.info("product: %s", product)
+    logger.info("product show %s", product.show())
+
+    session_id = disp.session_id
+    job_id = disp.job_id
+
+    # check query output are generated
+    query_output_json_fn = f'scratch_sid_{session_id}_jid_{job_id}/query_output.json'
+    # the aliased version might have been created
+    query_output_json_fn_aliased = f'scratch_sid_{session_id}_jid_{job_id}_aliased/query_output.json'
+    assert os.path.exists(query_output_json_fn) or os.path.exists(query_output_json_fn_aliased)
+    # get the query output
+    if os.path.exists(query_output_json_fn):
+        f = open(query_output_json_fn)
+    else:
+        f = open(query_output_json_fn_aliased)
+
+    jdata = json.load(f)
+
+    assert jdata["status_dictionary"]["debug_message"] == ""
+    assert jdata["status_dictionary"]["error_message"] == ""
+    assert jdata["status_dictionary"]["message"] == ""
+
+
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
@@ -123,6 +170,71 @@ def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_poin
     logger.info(jdata)
 
     assert jdata['exit_status']['message'] == exit_status_message
+
+
+@pytest.mark.odaapi
+@pytest.mark.isgri_plugin
+@pytest.mark.isgri_plugin_dummy
+@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.parametrize("max_pointings", [10, 100])
+@pytest.mark.parametrize("scw_list_size", [10, 100])
+@pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
+@pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc'])
+def test_isgri_dummy_data_rights_oda_api(dispatcher_live_fixture, product_type, max_pointings, integral_data_rights, scw_list_size):
+    dispatcher_fetch_dummy_products("default")
+
+    server = dispatcher_live_fixture
+    logger.info("constructed server: %s", server)
+
+    import oda_api.api
+
+    disp = oda_api.api.DispatcherAPI(
+        url=dispatcher_live_fixture)
+
+    if (integral_data_rights == "public" or integral_data_rights is None) and (max_pointings < 50 and scw_list_size < 50):
+        product = disp.get_product(
+            product_type="Dummy",
+            instrument="isgri",
+            max_pointings=max_pointings,
+            integral_data_rights=integral_data_rights,
+            product=product_type,
+            osa_version="OSA10.2",
+            scw_list=[f"0665{i:04d}0010.001" for i in range(scw_list_size)]
+        )
+        logger.info("product: %s", product)
+        logger.info("product show %s", product.show())
+
+        session_id = disp.session_id
+        job_id = disp.job_id
+
+        # check query output are generated
+        query_output_json_fn = f'scratch_sid_{session_id}_jid_{job_id}/query_output.json'
+        # the aliased version might have been created
+        query_output_json_fn_aliased = f'scratch_sid_{session_id}_jid_{job_id}_aliased/query_output.json'
+        assert os.path.exists(query_output_json_fn) or os.path.exists(query_output_json_fn_aliased)
+        # get the query output
+        if os.path.exists(query_output_json_fn):
+            f = open(query_output_json_fn)
+        else:
+            f = open(query_output_json_fn_aliased)
+
+        jdata = json.load(f)
+
+        assert jdata["status_dictionary"]["debug_message"] == ""
+        assert jdata["status_dictionary"]["error_message"] == ""
+        assert jdata["status_dictionary"]["job_status"] == "done"
+        assert jdata["status_dictionary"]["message"] == ""
+    else:
+        with pytest.raises(oda_api.api.RemoteException):
+            product = disp.get_product(
+                product_type="Dummy",
+                instrument="isgri",
+                max_pointings=max_pointings,
+                integral_data_rights=integral_data_rights,
+                product=product_type,
+                osa_version="OSA10.2",
+                scw_list=[f"0665{i:04d}0010.001" for i in range(scw_list_size)]
+            )
 
 
 @pytest.mark.isgri_plugin
@@ -370,6 +482,9 @@ def test_isgri_lc(dispatcher_live_fixture):
     jdata, tspent = loop_ask(server, params, max_time_s=100, async_dispatcher=False)
 
 
+
+
+
 @pytest.mark.odaapi
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
@@ -389,23 +504,14 @@ def test_isgri_lc_odaapi(dispatcher_live_fixture):
     )
 
     print("product:", product)
-
     print("product show", product.show())
-    
     print("")
-
     print(product.show())
-
     print(product._p_list)
-
     print(product.isgri_lc_0_Crab)
-
     print(product.isgri_lc_0_Crab.data_unit[1])
-
     print(product.isgri_lc_0_Crab.data_unit[1].header)
-
     print(product.isgri_lc_0_Crab.data_unit[1].data)
-
     product.isgri_lc_0_Crab.data_unit[1].header['TTYPE8'] == 'XAX_E'
 
 

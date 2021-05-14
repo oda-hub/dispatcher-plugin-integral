@@ -4,6 +4,7 @@ import requests
 import json
 import time
 import jwt
+import os
 
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
 
@@ -71,7 +72,7 @@ def test_jemx_dummy(dispatcher_live_fixture, dummy_pack):
         #TODO:
         #assert len(jdata["products"]["catalog"]["cat_column_list"][0]) > 0
         pass
-        
+
 
 @pytest.mark.dda
 @pytest.mark.jemx_plugin
@@ -143,6 +144,71 @@ def test_jemx_dummy_data_rights(dispatcher_live_fixture, product_type, max_point
     logger.info(jdata)
 
     assert jdata['exit_status']['message'] == exit_status_message
+
+
+@pytest.mark.odaapi
+@pytest.mark.jemx_plugin
+@pytest.mark.jemx_plugin_dummy
+@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.parametrize("max_pointings", [10, 100])
+@pytest.mark.parametrize("scw_list_size", [10, 100])
+@pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
+@pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
+def test_jemx_dummy_data_rights_oda_api(dispatcher_live_fixture, product_type, max_pointings, integral_data_rights, scw_list_size):
+    dispatcher_fetch_dummy_products("default")
+
+    server = dispatcher_live_fixture
+    logger.info("constructed server: %s", server)
+
+    import oda_api.api
+
+    disp = oda_api.api.DispatcherAPI(
+        url=dispatcher_live_fixture)
+
+    if (integral_data_rights == "public" or integral_data_rights is None) and (max_pointings < 50 and scw_list_size < 50):
+        product = disp.get_product(
+            product_type="Dummy",
+            instrument="jemx",
+            max_pointings=max_pointings,
+            integral_data_rights=integral_data_rights,
+            product=product_type,
+            osa_version="OSA10.2",
+            scw_list=[f"0665{i:04d}0010.001" for i in range(scw_list_size)]
+        )
+        logger.info("product: %s", product)
+        logger.info("product show %s", product.show())
+
+        session_id = disp.session_id
+        job_id = disp.job_id
+
+        # check query output are generated
+        query_output_json_fn = f'scratch_sid_{session_id}_jid_{job_id}/query_output.json'
+        # the aliased version might have been created
+        query_output_json_fn_aliased = f'scratch_sid_{session_id}_jid_{job_id}_aliased/query_output.json'
+        assert os.path.exists(query_output_json_fn) or os.path.exists(query_output_json_fn_aliased)
+        # get the query output
+        if os.path.exists(query_output_json_fn):
+            f = open(query_output_json_fn)
+        else:
+            f = open(query_output_json_fn_aliased)
+
+        jdata = json.load(f)
+
+        assert jdata["status_dictionary"]["debug_message"] == ""
+        assert jdata["status_dictionary"]["error_message"] == ""
+        assert jdata["status_dictionary"]["job_status"] == "done"
+        assert jdata["status_dictionary"]["message"] == ""
+    else:
+        with pytest.raises(oda_api.api.RemoteException):
+            product = disp.get_product(
+                product_type="Dummy",
+                instrument="jemx",
+                max_pointings=max_pointings,
+                integral_data_rights=integral_data_rights,
+                product=product_type,
+                osa_version="OSA10.2",
+                scw_list=[f"0665{i:04d}0010.001" for i in range(scw_list_size)]
+            )
 
 
 @pytest.mark.jemx_plugin
