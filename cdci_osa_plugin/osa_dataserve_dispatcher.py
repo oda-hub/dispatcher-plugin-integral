@@ -692,7 +692,7 @@ class OsaQuery(ProductQuery):
         if max_pointings > 50 or len(scw_list) > 50:
             needed_roles.append('unige-hpc-full')            
 
-        if max_pointings > 500 or len(scw_list.split(",")) > 500:
+        if max_pointings > 500 or len(scw_list) > 500:
             needed_roles.append('unige-hpc-extreme') 
 
         if integral_data_rights == "all-private": 
