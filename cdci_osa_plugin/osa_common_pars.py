@@ -85,7 +85,11 @@ def get_osa_versions():
 
 def osa_common_instr_query():
     # not exposed to frontend
-    # TODO make a special class
+    # TODO make a special class (VS:??)
+
+    # it is *CRITICAL* that default parameters are public, 
+    # or at least coincide with the defaults in check_query_roles else they are not validated
+    # TODO: ensure this is guaranteed
     max_pointings = Integer(value=50, name='max_pointings')
 
     radius = Angle(value=5.0, units='deg', name='radius')
