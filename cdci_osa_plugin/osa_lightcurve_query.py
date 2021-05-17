@@ -87,19 +87,25 @@ class OsaLightCurve(LightCurveProduct):
                                             file_name=file_name,
                                             meta_data=meta_data)
 
-    # @staticmethod
-    # def make_ogip_compliant(du):
-    #    timedel = du.header['TIMEDEL']
-    #    timepix = du.header['TIMEPIXR']
-    #    t_lc = du.data['TIME'] + (0.5 - timepix) * timedel
-    #    dt_lc = (timedel / 2) * np.ones(t_lc.shape)
-    #
-    #    for i in range(len(t_lc) - 1):
-    #        dt_lc[i + 1] = min(timedel / 2, t_lc[i + 1] - t_lc[i] - dt_lc[i])
-    #
-    #    _d = np.array(du.data)
-    #    _o = append_fields(_d, 'TIMEDEL', dt_lc*2)
-    #    du.data = _o.data
+    @staticmethod
+    def ensure_timedel(du):
+        # TODO: move to https://github.com/integral-observatory/ogip/
+        if 'TIMEDEL' in du.data:
+            print(
+                f"\033[31m TIMEDEL column already available in du: {du} \033[0m")
+        else:
+            timedel = du.header['TIMEDEL']
+            timepix = du.header['TIMEPIXR']
+            t_lc = du.data['TIME'] + (0.5 - timepix) * timedel
+            dt_lc = (timedel / 2) * np.ones(t_lc.shape)
+        
+            for i in range(len(t_lc) - 1):
+                dt_lc[i + 1] = min(timedel / 2, t_lc[i + 1] - t_lc[i] - dt_lc[i])
+        
+            _d = np.array(du.data)
+            _o = append_fields(_d, 'TIMEDEL', dt_lc*2)
+
+            du.data = _o.data
 
     @classmethod
     def build_isgri_lc_from_ddosa_res(cls,
@@ -140,7 +146,7 @@ class OsaLightCurve(LightCurveProduct):
 
                 out_file_name = Path(input_lc_path).resolve().stem
 
-                # OsaLigthtCurve.make_ogip_compliant(du)
+                OsaLightCurve.ensure_timedel(du)
 
                 lc = cls(name='isgri_lc', data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
                          src_name=src_name, meta_data=meta_data)
@@ -197,7 +203,7 @@ class OsaLightCurve(LightCurveProduct):
 
                 out_file_name = Path(input_lc_paht).resolve().stem
 
-                # OsaLigthtCurve.make_ogip_compliant(du)
+                OsaLightCurve.ensure_timedel(du)
 
                 lc = cls(name='jemx_lc', data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
                          src_name=src_name, meta_data=meta_data)
@@ -249,7 +255,10 @@ class OsaLightCurve(LightCurveProduct):
             exposure = np.sum(data['FRACEXP']) * du.header['TIMEDEL']
             exposure *= 86400.
         elif self.name == 'isgri_lc':
-            exposure = np.sum(data['FRACEXP'] * du.header['XAX_E']) * 2
+            # TODO: clarify
+            # XAX_E is a XRONOS-specific non-OGIP keyword https://heasarc.gsfc.nasa.gov/lheasoft/xanadu/xronos/manual/node8.html
+            # exposure = np.sum(data['FRACEXP'] * du.header['XAX_E']) * 2
+            exposure = np.sum(data['FRACEXP'] * du.header['TIMEDEL'])
             exposure *= 86400.
         else:
             # TODO update this option

@@ -6,6 +6,10 @@ import time
 import random
 import jwt
 import os
+import itertools
+
+from astropy.io import fits
+import oda_api.api
 
 from _pytest.debugging import pytestPDB
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
@@ -52,18 +56,18 @@ default_token_payload = dict(
 )
 
 
-def test_default(dispatcher_live_fixture):
-    server = dispatcher_live_fixture
+def test_default(dispatcher_long_living_fixture):
+    server = dispatcher_long_living_fixture
 
 
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image'])
-def test_isgri_dummy(dispatcher_live_fixture, product_type):
+def test_isgri_dummy(dispatcher_long_living_fixture, product_type):
     dispatcher_fetch_dummy_products("default")
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     params = {
@@ -83,13 +87,13 @@ def test_isgri_dummy(dispatcher_live_fixture, product_type):
 @pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image'])
-def test_isgri_dummy_oda_api(dispatcher_live_fixture, product_type):
+def test_isgri_dummy_oda_api(dispatcher_long_living_fixture, product_type):
     dispatcher_fetch_dummy_products("default")
 
     import oda_api.api
 
     disp = oda_api.api.DispatcherAPI(
-        url=dispatcher_live_fixture)
+        url=dispatcher_long_living_fixture)
     product = disp.get_product(
         product_type="Dummy",
         instrument="isgri",
@@ -132,10 +136,10 @@ def test_isgri_dummy_oda_api(dispatcher_live_fixture, product_type):
 @pytest.mark.parametrize("scw_list_size", [10, 100])
 @pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc'])
-def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_pointings, integral_data_rights, scw_list_size):
-    dispatcher_fetch_dummy_products("default")
+def test_isgri_dummy_data_rights(dispatcher_long_living_fixture, product_type, max_pointings, integral_data_rights, scw_list_size):
+    dispatcher_fetch_dummy_products("default", reuse=True)
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     params = {
@@ -172,6 +176,26 @@ def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_poin
     assert jdata['exit_status']['message'] == exit_status_message
 
 
+def validate_product(product_type, product: oda_api.api.DataCollection):
+    if product_type == "isgri_lc":
+        print(product.show())
+        print(dir(product))
+
+        lc = product.isgri_lc_0_OAO1657m415
+
+        print(lc)
+        print(dir(lc))
+
+        lc.write_fits_file("lc.fits")
+
+        f = fits.open("lc.fits")
+
+        assert len(f[1].data) == 2
+        assert any(['TIMEDEL' == c.name for c in f[1].data.columns])
+
+        # TODO: validate OGIP here  with python ogip module
+    #TODO: other validations
+
 @pytest.mark.odaapi
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
@@ -180,16 +204,18 @@ def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_poin
 @pytest.mark.parametrize("scw_list_size", [10, 100])
 @pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc'])
-def test_isgri_dummy_data_rights_oda_api(dispatcher_live_fixture, product_type, max_pointings, integral_data_rights, scw_list_size):
-    dispatcher_fetch_dummy_products("default")
+def test_isgri_dummy_data_rights_oda_api(dispatcher_long_living_fixture, product_type, max_pointings, scw_list_size, integral_data_rights):
+    dispatcher_fetch_dummy_products("default", reuse=True)
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     import oda_api.api
 
     disp = oda_api.api.DispatcherAPI(
-        url=dispatcher_live_fixture)
+        url=dispatcher_long_living_fixture)
+
+    print("\033[31m", max_pointings, scw_list_size, integral_data_rights, "\033[0m")
 
     if (integral_data_rights == "public" or integral_data_rights is None) and (max_pointings < 50 and scw_list_size < 50):
         product = disp.get_product(
@@ -203,6 +229,8 @@ def test_isgri_dummy_data_rights_oda_api(dispatcher_live_fixture, product_type, 
         )
         logger.info("product: %s", product)
         logger.info("product show %s", product.show())
+
+        validate_product(product_type, product)
 
         session_id = disp.session_id
         job_id = disp.job_id
@@ -242,10 +270,10 @@ def test_isgri_dummy_data_rights_oda_api(dispatcher_live_fixture, product_type, 
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc'])
 @pytest.mark.parametrize("roles", [[], ["integral-private"]])
-def test_isgri_dummy_roles_private_data(dispatcher_live_fixture, product_type, roles):
+def test_isgri_dummy_roles_private_data(dispatcher_long_living_fixture, product_type, roles):
     dispatcher_fetch_dummy_products("default")
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     # let's generate a valid token without roles assigned
@@ -285,10 +313,10 @@ def test_isgri_dummy_roles_private_data(dispatcher_live_fixture, product_type, r
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc'])
 @pytest.mark.parametrize("roles", [[], ["unige-hpc-full"]])
-def test_isgri_dummy_roles_public_data(dispatcher_live_fixture, product_type, roles):
+def test_isgri_dummy_roles_public_data(dispatcher_long_living_fixture, product_type, roles):
     dispatcher_fetch_dummy_products("default")
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     # let's generate a valid token without roles assigned
@@ -329,12 +357,12 @@ def test_isgri_dummy_roles_public_data(dispatcher_live_fixture, product_type, ro
 @pytest.mark.isgri_plugin
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("selection", ["range", "280200470010.001"])
-def test_isgri_image_no_pointings(dispatcher_live_fixture, selection):
+def test_isgri_image_no_pointings(dispatcher_long_living_fixture, selection):
     """
     this will reproduce the entire flow of frontend-dispatcher, apart from receiving callback
     """
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     if selection == "range":
@@ -363,12 +391,12 @@ def test_isgri_image_no_pointings(dispatcher_live_fixture, selection):
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
 @pytest.mark.dependency(depends=["test_default"])
-def test_isgri_image_find_pointings(dispatcher_live_fixture):
+def test_isgri_image_find_pointings(dispatcher_long_living_fixture):
     """
     this will reproduce the entire flow of frontend-dispatcher, apart from receiving callback
     """
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     params = {
@@ -394,12 +422,12 @@ def test_isgri_image_find_pointings(dispatcher_live_fixture):
 @pytest.mark.isgri_plugin
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("method", ['get', 'post'])
-def test_isgri_image_fixed_done(dispatcher_live_fixture, method):
+def test_isgri_image_fixed_done(dispatcher_long_living_fixture, method):
     """
     something already done at backend
     """
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     params = {
@@ -415,13 +443,13 @@ def test_isgri_image_fixed_done(dispatcher_live_fixture, method):
 
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
-def test_isgri_image_fixed_done_async_postproc(dispatcher_live_fixture):
+def test_isgri_image_fixed_done_async_postproc(dispatcher_long_living_fixture):
     """
     something already done at backend
     new session every time, hence re-do post-process
     """
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     params = {
@@ -435,12 +463,12 @@ def test_isgri_image_fixed_done_async_postproc(dispatcher_live_fixture):
 
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
-def test_isgri_image_random_emax(dispatcher_live_fixture):
+def test_isgri_image_random_emax(dispatcher_long_living_fixture):
     """
     something already done at backend
     """
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     try:
@@ -458,12 +486,12 @@ def test_isgri_image_random_emax(dispatcher_live_fixture):
 
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
-def test_isgri_lc(dispatcher_live_fixture):
+def test_isgri_lc(dispatcher_long_living_fixture):
     """
     something already done at backend
     """    
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)  
 
     params = dict(
@@ -488,11 +516,11 @@ def test_isgri_lc(dispatcher_live_fixture):
 @pytest.mark.odaapi
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
-def test_isgri_lc_odaapi(dispatcher_live_fixture):
+def test_isgri_lc_odaapi(dispatcher_long_living_fixture):
     import oda_api.api
 
     product = oda_api.api.DispatcherAPI(
-        url=dispatcher_live_fixture).get_product(
+        url=dispatcher_long_living_fixture).get_product(
         query_type="Real",
         instrument="isgri",
         product="isgri_lc",
@@ -519,7 +547,7 @@ def test_isgri_lc_odaapi(dispatcher_live_fixture):
 @pytest.mark.odaapi
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
-def test_valid_token_oda_api(dispatcher_live_fixture):
+def test_valid_token_oda_api(dispatcher_long_living_fixture):
     import oda_api.api
 
     # let's generate a valid token
@@ -530,7 +558,7 @@ def test_valid_token_oda_api(dispatcher_live_fixture):
     encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
 
     disp = oda_api.api.DispatcherAPI(
-        url=dispatcher_live_fixture)
+        url=dispatcher_long_living_fixture)
     product = disp.get_product(
         query_status="new",
         product_type="Real",
@@ -570,7 +598,7 @@ def test_valid_token_oda_api(dispatcher_live_fixture):
 # TODO are the parameters for the request ok?
 @pytest.mark.odaapi
 @pytest.mark.isgri_plugin
-def test_invalid_token_oda_api(dispatcher_live_fixture):
+def test_invalid_token_oda_api(dispatcher_long_living_fixture):
     import oda_api.api
 
     # let's generate an expired token
@@ -583,7 +611,7 @@ def test_invalid_token_oda_api(dispatcher_live_fixture):
     encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
 
     disp = oda_api.api.DispatcherAPI(
-        url=dispatcher_live_fixture)
+        url=dispatcher_long_living_fixture)
     with pytest.raises(oda_api.api.RemoteException):
         product = disp.get_product(
             query_status="new",

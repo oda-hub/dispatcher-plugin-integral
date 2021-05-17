@@ -123,8 +123,12 @@ class JemxSpectrumProduct(SpectrumProduct):
             meta_data['src_name'] = source_name
             meta_data['product'] = 'jemx_arf'
             np_arf = NumpyDataProduct.from_fits_file(arf_filename, meta_data=meta_data)
-
-            np_arf.get_data_unit_by_name('JMX%d-AXIS-ARF'%jemx_num).name='SPECRESP'
+            
+            r = np_arf.get_data_unit_by_name('JMX%d-AXIS-ARF'%jemx_num)
+            if r is None:
+                r = np_arf.get_data_unit_by_name('SPECRESP')
+            else:
+                r.name='SPECRESP'            
 
             arf = cls(name=name, data=np_arf, file_name=out_arf_file, file_dir=out_dir, prod_prefix=prod_prefix,
                        meta_data=meta_data)
@@ -137,9 +141,18 @@ class JemxSpectrumProduct(SpectrumProduct):
             meta_data['product'] = 'jemx_rmf'
             np_rmf = NumpyDataProduct.from_fits_file(rmf_filename, meta_data=meta_data)
 
-            np_rmf.get_data_unit_by_name('JMX%d-RMF.-RSP'%jemx_num).name='SPECRESP MATRIX'
 
-            np_rmf.get_data_unit_by_name('JMX%d-FBDS-MOD'%jemx_num).name='EBOUNDS'
+            r = np_rmf.get_data_unit_by_name('JMX%d-RMF.-RSP'%jemx_num)
+            if r is None:
+                r = np_arf.get_data_unit_by_name('SPECRESP MATRIX')
+            else:
+                r.name='SPECRESP MATRIX'
+            
+            r = np_rmf.get_data_unit_by_name('JMX%d-FBDS-MOD'%jemx_num)
+            if r is None:
+                r = np_arf.get_data_unit_by_name('EBOUNDS')
+            else:
+                r.name='EBOUNDS'            
 
             rmf = cls(name=name, data=np_rmf, file_name=out_rmf_file, file_dir=out_dir, prod_prefix=prod_prefix,
                       meta_data=meta_data)
@@ -149,7 +162,12 @@ class JemxSpectrumProduct(SpectrumProduct):
             meta_data['src_name'] = source_name
             meta_data['product'] = 'jemx_spectrum'
 
-            np_spec = NumpyDataProduct.from_fits_file(spec_filename, meta_data=meta_data)
+            try:
+                np_spec = NumpyDataProduct.from_fits_file(spec_filename, meta_data=meta_data)
+            except OSError as e:
+                logger.error("unable to open %s : %s", spec_filename, e)
+                raise
+
             np_spec.data_unit[1].header['ANCRFILE'] = 'NONE'
             np_spec.data_unit[1].header['RESPFILE'] = 'NONE'
 

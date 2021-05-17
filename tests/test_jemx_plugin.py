@@ -5,6 +5,7 @@ import json
 import time
 import jwt
 import os
+import itertools
 
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
 
@@ -41,8 +42,8 @@ default_token_payload = dict(
 )
 
 
-def test_default(dispatcher_live_fixture):
-    server = dispatcher_live_fixture
+def test_default(dispatcher_long_living_fixture):
+    server = dispatcher_long_living_fixture
 
 
 
@@ -50,10 +51,10 @@ def test_default(dispatcher_live_fixture):
 @pytest.mark.jemx_plugin
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize('dummy_pack', ['default', 'empty'])
-def test_jemx_dummy(dispatcher_live_fixture, dummy_pack):
-    dispatcher_fetch_dummy_products(dummy_pack)
+def test_jemx_dummy(dispatcher_long_living_fixture, dummy_pack):
+    dispatcher_fetch_dummy_products(dummy_pack, reuse=True)
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     params = {
@@ -80,8 +81,8 @@ def test_jemx_dummy(dispatcher_live_fixture, dummy_pack):
 @pytest.mark.jemx_plugin
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
 @pytest.mark.dependency(depends=["test_default"])
-def test_jemx_products(dispatcher_live_fixture, product_type):
-    server = dispatcher_live_fixture
+def test_jemx_products(dispatcher_long_living_fixture, product_type):
+    server = dispatcher_long_living_fixture
 
     params = {
         **default_params,
@@ -108,10 +109,10 @@ def test_jemx_products(dispatcher_live_fixture, product_type):
 @pytest.mark.parametrize("scw_list_size", [10, 100])
 @pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
-def test_jemx_dummy_data_rights(dispatcher_live_fixture, product_type, max_pointings, integral_data_rights, scw_list_size):
-    dispatcher_fetch_dummy_products("default")
+def test_jemx_dummy_data_rights(dispatcher_long_living_fixture, product_type, max_pointings, integral_data_rights, scw_list_size):
+    dispatcher_fetch_dummy_products("default", reuse=True)
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     params = {
@@ -148,69 +149,76 @@ def test_jemx_dummy_data_rights(dispatcher_live_fixture, product_type, max_point
     assert jdata['exit_status']['message'] == exit_status_message
 
 
+def validate_product(product_type, product):
+    if product_type == "jemx_lc":
+        print(product.show())
+
 @pytest.mark.odaapi
 @pytest.mark.jemx_plugin
 @pytest.mark.jemx_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
-@pytest.mark.parametrize("max_pointings", [10, 100])
-@pytest.mark.parametrize("scw_list_size", [10, 100])
-@pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
-def test_jemx_dummy_data_rights_oda_api(dispatcher_live_fixture, product_type, max_pointings, integral_data_rights, scw_list_size):
-    dispatcher_fetch_dummy_products("default")
+def test_jemx_dummy_data_rights_oda_api(dispatcher_long_living_fixture, product_type):
+    dispatcher_fetch_dummy_products("default", reuse=True)
 
-    server = dispatcher_live_fixture
-    logger.info("constructed server: %s", server)
+    for max_pointings, scw_list_size, integral_data_rights in itertools.product(
+        [10, 100], [10, 100], [None, "public", "all-private"]):
 
-    import oda_api.api
+        server = dispatcher_long_living_fixture
+        logger.info("constructed server: %s", server)
 
-    disp = oda_api.api.DispatcherAPI(
-        url=dispatcher_live_fixture)
+        import oda_api.api
 
-    if (integral_data_rights == "public" or integral_data_rights is None) and (max_pointings < 50 and scw_list_size < 50):
-        product = disp.get_product(
-            product_type="Dummy",
-            instrument="jemx",
-            max_pointings=max_pointings,
-            integral_data_rights=integral_data_rights,
-            product=product_type,
-            osa_version="OSA10.2",
-            scw_list=[f"0665{i:04d}0010.001" for i in range(scw_list_size)]
-        )
-        logger.info("product: %s", product)
-        logger.info("product show %s", product.show())
+        disp = oda_api.api.DispatcherAPI(
+            url=dispatcher_long_living_fixture)
 
-        session_id = disp.session_id
-        job_id = disp.job_id
-
-        # check query output are generated
-        query_output_json_fn = f'scratch_sid_{session_id}_jid_{job_id}/query_output.json'
-        # the aliased version might have been created
-        query_output_json_fn_aliased = f'scratch_sid_{session_id}_jid_{job_id}_aliased/query_output.json'
-        assert os.path.exists(query_output_json_fn) or os.path.exists(query_output_json_fn_aliased)
-        # get the query output
-        if os.path.exists(query_output_json_fn):
-            f = open(query_output_json_fn)
-        else:
-            f = open(query_output_json_fn_aliased)
-
-        jdata = json.load(f)
-
-        assert jdata["status_dictionary"]["debug_message"] == ""
-        assert jdata["status_dictionary"]["error_message"] == ""
-        assert jdata["status_dictionary"]["job_status"] == "done"
-        assert jdata["status_dictionary"]["message"] == ""
-    else:
-        with pytest.raises(oda_api.api.RemoteException):
+        if (integral_data_rights == "public" or integral_data_rights is None) and (max_pointings < 50 and scw_list_size < 50):
             product = disp.get_product(
                 product_type="Dummy",
                 instrument="jemx",
+                jemx_num='2',
                 max_pointings=max_pointings,
                 integral_data_rights=integral_data_rights,
                 product=product_type,
                 osa_version="OSA10.2",
                 scw_list=[f"0665{i:04d}0010.001" for i in range(scw_list_size)]
             )
+            logger.info("product: %s", product)
+            logger.info("product show %s", product.show())
+
+            validate_product(product_type, product)
+
+            session_id = disp.session_id
+            job_id = disp.job_id
+
+            # check query output are generated
+            query_output_json_fn = f'scratch_sid_{session_id}_jid_{job_id}/query_output.json'
+            # the aliased version might have been created
+            query_output_json_fn_aliased = f'scratch_sid_{session_id}_jid_{job_id}_aliased/query_output.json'
+            assert os.path.exists(query_output_json_fn) or os.path.exists(query_output_json_fn_aliased)
+            # get the query output
+            if os.path.exists(query_output_json_fn):
+                f = open(query_output_json_fn)
+            else:
+                f = open(query_output_json_fn_aliased)
+
+            jdata = json.load(f)
+
+            assert jdata["status_dictionary"]["debug_message"] == ""
+            assert jdata["status_dictionary"]["error_message"] == ""
+            assert jdata["status_dictionary"]["job_status"] == "done"
+            assert jdata["status_dictionary"]["message"] == ""    
+        else:
+            with pytest.raises(oda_api.api.RemoteException):
+                product = disp.get_product(
+                    product_type="Dummy",
+                    instrument="jemx",
+                    max_pointings=max_pointings,
+                    integral_data_rights=integral_data_rights,
+                    product=product_type,
+                    osa_version="OSA10.2",
+                    scw_list=[f"0665{i:04d}0010.001" for i in range(scw_list_size)]
+                )
 
 
 @pytest.mark.jemx_plugin
@@ -218,10 +226,10 @@ def test_jemx_dummy_data_rights_oda_api(dispatcher_live_fixture, product_type, m
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
 @pytest.mark.parametrize("roles", [[], ["integral-private"]])
-def test_jemx_dummy_roles_private_data(dispatcher_live_fixture, product_type, roles):
-    dispatcher_fetch_dummy_products("default")
+def test_jemx_dummy_roles_private_data(dispatcher_long_living_fixture, product_type, roles):
+    dispatcher_fetch_dummy_products("default", reuse=True)
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     # let's generate a valid token without roles assigned
@@ -262,10 +270,10 @@ def test_jemx_dummy_roles_private_data(dispatcher_live_fixture, product_type, ro
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
 @pytest.mark.parametrize("roles", [[], ["unige-hpc-full"]])
-def test_jemx_dummy_roles_public_data(dispatcher_live_fixture, product_type, roles):
-    dispatcher_fetch_dummy_products("default")
+def test_jemx_dummy_roles_public_data(dispatcher_long_living_fixture, product_type, roles):
+    dispatcher_fetch_dummy_products("default", reuse=True)
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     # let's generate a valid token without roles assigned

@@ -26,6 +26,7 @@ import json
 import redis
 import socket
 import odakb
+import os
 
 from builtins import (bytes, str, open, super, range,
                       zip, round, input, int, pow, object, map, zip)
@@ -95,7 +96,7 @@ def osa_common_instr_query():
     radius = Angle(value=5.0, units='deg', name='radius')
 
     osa_version = Name(name_format='str', name='osa_version')
-    if 'cdciweb01' in socket.gethostname():
+    if  os.environ.get('DISPATCHER_MOCK_KB', 'no') == 'yes' or 'cdciweb01' in socket.gethostname():
         osa_version._allowed_values = [
             'OSA10.2', 'OSA11.0', 'OSA11.0-dev']  # TODO-VS: add kb request
     else:
