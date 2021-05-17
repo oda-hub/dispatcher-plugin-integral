@@ -7,6 +7,9 @@ import random
 import jwt
 import os
 
+from astropy.io import fits
+import oda_api.api
+
 from _pytest.debugging import pytestPDB
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
 
@@ -172,6 +175,26 @@ def test_isgri_dummy_data_rights(dispatcher_live_fixture, product_type, max_poin
     assert jdata['exit_status']['message'] == exit_status_message
 
 
+def validate_product(product_type, product: oda_api.api.DataCollection):
+    if product_type == "isgri_lc":
+        print(product.show())
+        print(dir(product))
+
+        lc = product.isgri_lc_0_OAO1657m415
+
+        print(lc)
+        print(dir(lc))
+
+        lc.write_fits_file("lc.fits")
+
+        f = fits.open("lc.fits")
+
+        assert len(f[1].data) == 2
+        assert any(['TIMEDEL' == c.name for c in f[1].data.columns])
+
+        # TODO: validate OGIP here  with python ogip module
+    #TODO: other validations
+
 @pytest.mark.odaapi
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
@@ -203,6 +226,8 @@ def test_isgri_dummy_data_rights_oda_api(dispatcher_live_fixture, product_type, 
         )
         logger.info("product: %s", product)
         logger.info("product show %s", product.show())
+
+        validate_product(product_type, product)
 
         session_id = disp.session_id
         job_id = disp.job_id

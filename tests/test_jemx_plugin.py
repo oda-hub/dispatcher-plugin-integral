@@ -146,6 +146,12 @@ def test_jemx_dummy_data_rights(dispatcher_live_fixture, product_type, max_point
     assert jdata['exit_status']['message'] == exit_status_message
 
 
+def validate_product(product_type, product):
+    if product_type == "isgri_lc":
+        print(product.show())
+        raise product
+    raise RuntimeError
+
 @pytest.mark.odaapi
 @pytest.mark.jemx_plugin
 @pytest.mark.jemx_plugin_dummy
@@ -178,6 +184,8 @@ def test_jemx_dummy_data_rights_oda_api(dispatcher_live_fixture, product_type, m
         logger.info("product: %s", product)
         logger.info("product show %s", product.show())
 
+        validate_product(product_type, product)
+
         session_id = disp.session_id
         job_id = disp.job_id
 
@@ -197,7 +205,7 @@ def test_jemx_dummy_data_rights_oda_api(dispatcher_live_fixture, product_type, m
         assert jdata["status_dictionary"]["debug_message"] == ""
         assert jdata["status_dictionary"]["error_message"] == ""
         assert jdata["status_dictionary"]["job_status"] == "done"
-        assert jdata["status_dictionary"]["message"] == ""
+        assert jdata["status_dictionary"]["message"] == ""    
     else:
         with pytest.raises(oda_api.api.RemoteException):
             product = disp.get_product(
