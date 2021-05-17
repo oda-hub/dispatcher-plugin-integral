@@ -123,7 +123,7 @@ class JemxSpectrumProduct(SpectrumProduct):
             meta_data['src_name'] = source_name
             meta_data['product'] = 'jemx_arf'
             np_arf = NumpyDataProduct.from_fits_file(arf_filename, meta_data=meta_data)
-
+            
             np_arf.get_data_unit_by_name('JMX%d-AXIS-ARF'%jemx_num).name='SPECRESP'
 
             arf = cls(name=name, data=np_arf, file_name=out_arf_file, file_dir=out_dir, prod_prefix=prod_prefix,
