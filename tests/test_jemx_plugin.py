@@ -45,8 +45,6 @@ def test_default(dispatcher_live_fixture):
     server = dispatcher_live_fixture
 
 
-
-
 @pytest.mark.jemx_plugin
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize('dummy_pack', ['default', 'empty'])
