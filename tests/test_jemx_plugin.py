@@ -42,17 +42,17 @@ default_token_payload = dict(
 )
 
 
-def test_default(dispatcher_live_fixture):
-    server = dispatcher_live_fixture
+def test_default(dispatcher_long_living_fixture):
+    server = dispatcher_long_living_fixture
 
 
 @pytest.mark.jemx_plugin
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize('dummy_pack', ['default', 'empty'])
-def test_jemx_dummy(dispatcher_live_fixture, dummy_pack):
+def test_jemx_dummy(dispatcher_long_living_fixture, dummy_pack):
     dispatcher_fetch_dummy_products(dummy_pack, reuse=True)
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     params = {
@@ -79,8 +79,8 @@ def test_jemx_dummy(dispatcher_live_fixture, dummy_pack):
 @pytest.mark.jemx_plugin
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
 @pytest.mark.dependency(depends=["test_default"])
-def test_jemx_products(dispatcher_live_fixture, product_type):
-    server = dispatcher_live_fixture
+def test_jemx_products(dispatcher_long_living_fixture, product_type):
+    server = dispatcher_long_living_fixture
 
     params = {
         **default_params,
@@ -156,19 +156,19 @@ def validate_product(product_type, product):
 @pytest.mark.jemx_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
-def test_jemx_dummy_data_rights_oda_api(dispatcher_live_fixture, product_type):
+def test_jemx_dummy_data_rights_oda_api(dispatcher_long_living_fixture, product_type):
     dispatcher_fetch_dummy_products("default", reuse=True)
 
     for max_pointings, scw_list_size, integral_data_rights in itertools.product(
         [10, 100], [10, 100], [None, "public", "all-private"]):
 
-        server = dispatcher_live_fixture
+        server = dispatcher_long_living_fixture
         logger.info("constructed server: %s", server)
 
         import oda_api.api
 
         disp = oda_api.api.DispatcherAPI(
-            url=dispatcher_live_fixture)
+            url=dispatcher_long_living_fixture)
 
         if (integral_data_rights == "public" or integral_data_rights is None) and (max_pointings < 50 and scw_list_size < 50):
             product = disp.get_product(
@@ -224,10 +224,10 @@ def test_jemx_dummy_data_rights_oda_api(dispatcher_live_fixture, product_type):
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
 @pytest.mark.parametrize("roles", [[], ["integral-private"]])
-def test_jemx_dummy_roles_private_data(dispatcher_live_fixture, product_type, roles):
+def test_jemx_dummy_roles_private_data(dispatcher_long_living_fixture, product_type, roles):
     dispatcher_fetch_dummy_products("default", reuse=True)
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     # let's generate a valid token without roles assigned
@@ -268,10 +268,10 @@ def test_jemx_dummy_roles_private_data(dispatcher_live_fixture, product_type, ro
 @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
 @pytest.mark.parametrize("roles", [[], ["unige-hpc-full"]])
-def test_jemx_dummy_roles_public_data(dispatcher_live_fixture, product_type, roles):
+def test_jemx_dummy_roles_public_data(dispatcher_long_living_fixture, product_type, roles):
     dispatcher_fetch_dummy_products("default", reuse=True)
 
-    server = dispatcher_live_fixture
+    server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
     # let's generate a valid token without roles assigned

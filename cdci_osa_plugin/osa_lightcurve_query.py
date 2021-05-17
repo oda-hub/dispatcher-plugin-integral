@@ -203,7 +203,7 @@ class OsaLightCurve(LightCurveProduct):
 
                 out_file_name = Path(input_lc_paht).resolve().stem
 
-                # OsaLigthtCurve.make_ogip_compliant(du)
+                OsaLightCurve.ensure_timedel(du)
 
                 lc = cls(name='jemx_lc', data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
                          src_name=src_name, meta_data=meta_data)
