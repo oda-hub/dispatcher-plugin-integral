@@ -23,8 +23,6 @@ from __future__ import absolute_import, division, print_function
 from builtins import (bytes, str, open, super, range,
                       zip, round, input, int, pow, object, map, zip)
 
-from django.db.backends.base.schema import logger
-
 __author__ = "Andrea Tramacere"
 
 
