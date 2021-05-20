@@ -76,30 +76,38 @@ def test_jemx_dummy(dispatcher_long_living_fixture, dummy_pack):
         #assert len(jdata["products"]["catalog"]["cat_column_list"][0]) > 0
         pass
 
+def get_crab_scw():
+    #https://www.astro.unige.ch/cdci/astrooda/dispatch-data/gw/timesystem/api/v1.0/scwlist/cons/2008-03-10T08:00:00/2008-03-30T08:00:00?&ra=83&dec=22&radius=2.0&min_good_isgri=1000
+    return ["066500140010","066500640010","066500890010","066600140010","066600390010","066600420010","066600420020","066600420030","066600650010","066600900010"]
+
 
 @pytest.mark.dda
 @pytest.mark.jemx_plugin
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
-@pytest.mark.dependency(depends=["test_default"])
+#@pytest.mark.dependency(depends=["test_default"])
 def test_jemx_products(dispatcher_long_living_fixture, product_type):
     server = dispatcher_long_living_fixture
 
     params = {
         **default_params,
         "product_type": product_type,
-        "swc_list": [f"0665{i:04d}0010.001" for i in range(10)]
+        "scw_list": [f"{s}.001" for s in get_crab_scw()]
     }
 
     logger.info("constructed server: %s", server)
     c = requests.get(server + "/run_analysis",
                       params=params)
 
-    logger.info("content: %s", c.text)
+    logger.info("content: %s...", c.text[:300])
     jdata = c.json()
     logger.info(list(jdata.keys()))
-    logger.info(jdata)
+
+    json.dump(jdata, open("data.json", "w"))
+    
     assert c.status_code == 200
     assert jdata['job_status'] == 'done'
+
+
 
 
 @pytest.mark.jemx_plugin
