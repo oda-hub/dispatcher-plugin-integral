@@ -379,8 +379,8 @@ class OsaLightCurveQuery(OsaQuery):
         scwlist_assumption, cat, extramodules, inject = OsaDispatcher.get_osa_query_base(
             instrument)
 
-        E1 = instrument.get_par_by_name('E1_keV', validate=True).value
-        E2 = instrument.get_par_by_name('E2_keV', validate=True).value
+        E1 = instrument.get_par_by_name('E1_keV').value
+        E2 = instrument.get_par_by_name('E2_keV').value
 
         src_name = instrument.get_par_by_name('src_name').value
         delta_t = instrument.get_par_by_name(
