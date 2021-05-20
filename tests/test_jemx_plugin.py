@@ -46,6 +46,28 @@ def test_default(dispatcher_long_living_fixture):
     server = dispatcher_long_living_fixture
 
 
+@pytest.mark.jemx_plugin
+def test_jemx_deny_wrong_energy_range(dispatcher_long_living_fixture):
+    server = dispatcher_long_living_fixture
+    logger.info("constructed server: %s", server)
+
+    for is_ok, E1_keV, E2_keV in [
+            (False, 1,30),
+            (False, 3,40),
+        ]:
+
+        params = {
+            **dummy_params,
+            'E1_keV': 1,
+            "product_type": "jemx_image"
+        }
+
+        logger.info("constructed server: %s", server)
+        jdata = ask(server, params, expected_query_status='failed', expected_job_status='failed', max_time_s=5)
+        logger.info(list(jdata.keys()))
+        logger.info(jdata)
+
+        logger.info(jdata["products"]["catalog"])
 
 
 @pytest.mark.jemx_plugin

@@ -45,6 +45,18 @@ from .osa_common_pars import  osa_common_instr_query
 from .osa_spectrum_query import JemxSpectrumQuery
 from .osa_lightcurve_query import JemxLightCurveQuery
 
+class JEMXSpectralBoundary(SpectralBoundary):    
+    @staticmethod
+    def check_energy_value(value, units, name):
+        SpectralBoundary.check_energy_value(value, units, name)
+
+        value = float(value) # safe since SpectralBoundary.check_energy_value passed
+        
+        if units != 'keV':
+            raise RequestNotUnderstood(f'JEM-X energy range should be in keV') 
+
+        if value < 3 or value > 35:
+            raise RequestNotUnderstood(f'JEM-X energy range is restricted to 3 - 35 keV')
 
 def osa_jemx_factory():
 
@@ -54,8 +66,8 @@ def osa_jemx_factory():
     instr_num = Integer(value=2,name='jemx_num')
     instr_query_pars.append(instr_num)
 
-    E1_keV = SpectralBoundary(value=3., E_units='keV', name='E1_keV')
-    E2_keV = SpectralBoundary(value=35., E_units='keV', name='E2_keV')
+    E1_keV = JEMXSpectralBoundary(value=3., E_units='keV', name='E1_keV')
+    E2_keV = JEMXSpectralBoundary(value=35., E_units='keV', name='E2_keV')
 
     spec_window = ParameterRange(E1_keV, E2_keV, 'spec_window')
     instr_query_pars.append(spec_window)
