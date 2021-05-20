@@ -48,10 +48,14 @@ from .osa_common_pars import osa_common_instr_query
 from .osa_fake import FakeQuery
 
 
+# duplicated with jemx, but this staticmethod makes it complex. 
+# this all should be done commonly, for all parameters - limits are common thing
 class ISGRISpectralBoundary(SpectralBoundary):    
     @staticmethod
     def check_energy_value(value, units, name):
         SpectralBoundary.check_energy_value(value, units, name)
+
+        value = float(value) # safe since SpectralBoundary.check_energy_value passed
         
         if units != 'keV':
             raise RequestNotUnderstood(f'ISGRI energy range should be in keV') 

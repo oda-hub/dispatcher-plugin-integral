@@ -54,6 +54,9 @@ def test_jemx_deny_wrong_energy_range(dispatcher_long_living_fixture):
     for is_ok, E1_keV, E2_keV in [
             (False, 1,30),
             (False, 3,40),
+            (False, 2,40),
+            (False, 3,30),
+            (False, 4,20),
         ]:
 
         params = {
@@ -62,12 +65,22 @@ def test_jemx_deny_wrong_energy_range(dispatcher_long_living_fixture):
             "product_type": "jemx_image"
         }
 
+        if is_ok:
+            expected_query_status='done'
+            expected_job_status='done'
+        else:
+            expected_query_status='failed'
+            expected_job_status='unknown'
+
         logger.info("constructed server: %s", server)
-        jdata = ask(server, params, expected_query_status='failed', expected_job_status='failed', max_time_s=5)
+        jdata = ask(server, params, expected_query_status=expected_query_status, expected_job_status=expected_job_status, max_time_s=5)
         logger.info(list(jdata.keys()))
         logger.info(jdata)
 
-        logger.info(jdata["products"]["catalog"])
+        if is_ok:
+            pass
+        else:
+            assert jdata['exit_status']['message'] == 'failed: please adjust request parameters: JEM-X energy range is restricted to 3 - 35 keV'
 
 
 @pytest.mark.jemx_plugin
