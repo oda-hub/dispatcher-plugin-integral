@@ -53,6 +53,7 @@ from cdci_data_analysis.analysis.products import LightCurveProduct, QueryProduct
 from cdci_data_analysis.analysis.io_helper import FilePath
 from cdci_data_analysis.analysis.parameters import TimeDelta
 from cdci_data_analysis.analysis.plot_tools import ScatterPlot
+from cdci_data_analysis.analysis.exceptions import RequestNotUnderstood
 from oda_api.data_products import NumpyDataProduct
 from .osa_dataserve_dispatcher import OsaDispatcher, OsaQuery
 from .osa_common_pars import DummyOsaRes
@@ -377,8 +378,10 @@ class OsaLightCurveQuery(OsaQuery):
 
         scwlist_assumption, cat, extramodules, inject = OsaDispatcher.get_osa_query_base(
             instrument)
+
         E1 = instrument.get_par_by_name('E1_keV').value
         E2 = instrument.get_par_by_name('E2_keV').value
+
         src_name = instrument.get_par_by_name('src_name').value
         delta_t = instrument.get_par_by_name(
             'time_bin')._astropy_time_delta.sec
