@@ -84,7 +84,7 @@ def get_crab_scw():
 @pytest.mark.dda
 @pytest.mark.jemx_plugin
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
-#@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.dependency(depends=["test_default"])
 def test_jemx_products(dispatcher_long_living_fixture, product_type):
     server = dispatcher_long_living_fixture
 
