@@ -707,6 +707,6 @@ class OsaQuery(ProductQuery):
         if all([ needed_role in provided_roles for needed_role in needed_roles ]):                                
             return dict(authorization=True, needed_roles=[])        
         else:
-            return dict(authorization=False, needed_roles=needed_roles)
+            return dict(authorization=False, needed_roles=needed_roles, needed_roles_with_comments=needed_roles_with_comments)
             
 
