@@ -697,21 +697,25 @@ class OsaQuery(ProductQuery):
         # integral_data_rights = self.get_par_by_name('integral_data_rights').value
 
         needed_roles = []
+        needed_roles_with_comments = {}
 
         if max_pointings > 50 or len(scw_list) > 50:
-            needed_roles.append('unige-hpc-full')            
+            needed_roles.append('unige-hpc-full')
+            needed_roles_with_comments['unige-hpc-full'] = "unige-hpc-full is needed to request > 50 ScW"
 
         if max_pointings > 500 or len(scw_list) > 500:
             needed_roles.append('unige-hpc-extreme') 
+            needed_roles_with_comments['unige-hpc-extreme'] = "unige-hpc-extreme is needed to request > 500 ScW"
 
         if integral_data_rights == "all-private": 
             needed_roles.append('integral-private-qla')            
+            needed_roles_with_comments['integral-private-qla'] = "integral-private is needed to access private INTEGRAL data"
         elif integral_data_rights != "public": 
             raise RuntimeError(f"unknown data rights role {integral_data_rights}") # duplication for safety
 
         if all([ needed_role in provided_roles for needed_role in needed_roles ]):                                
             return dict(authorization=True, needed_roles=[])        
         else:
-            return dict(authorization=False, needed_roles=needed_roles)
+            return dict(authorization=False, needed_roles=needed_roles, needed_roles_with_comments=needed_roles_with_comments)
             
 
