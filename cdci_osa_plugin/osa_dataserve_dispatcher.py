@@ -625,6 +625,11 @@ class OsaDispatcher(object):
 
         if integral_data_rights == "all-private":
             extramodules.append("git://integral_all_private")
+            logger.info("adding request to private parameters")
+        elif integral_data_rights == "public":
+            logger.info("NOT adding request to private parameters")
+        else:
+            raise NotImplementedError
 
         return scwlist_assumption,cat,extramodules,inject
 
