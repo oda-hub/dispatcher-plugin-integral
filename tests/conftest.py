@@ -4,5 +4,6 @@ from cdci_data_analysis.pytest_fixtures import (
             dispatcher_test_conf,
             dispatcher_test_conf_fn,
             dispatcher_long_living_fixture,
+            dispatcher_debug,
             cleanup
         )
