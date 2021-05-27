@@ -603,6 +603,7 @@ class OsaDispatcher(object):
         scw_list = instrument.get_par_by_name('scw_list').value
         user_catalog = instrument.get_par_by_name('user_catalog').value
         use_max_pointings = instrument.get_par_by_name('max_pointings').value
+        integral_data_rights = instrument.get_par_by_name('integral_data_rights').value
 
         extramodules = []
         if scw_list is None or scw_list == []:
@@ -621,6 +622,9 @@ class OsaDispatcher(object):
         if cat is not None:
             extramodules.append("git://gencat")
             inject.append(cat)
+
+        if integral_data_rights == "all-private":
+            extramodules.append("git://integral_all_private")
 
         return scwlist_assumption,cat,extramodules,inject
 
