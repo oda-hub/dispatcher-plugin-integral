@@ -705,7 +705,7 @@ class OsaQuery(ProductQuery):
             needed_roles.append('unige-hpc-extreme') 
 
         if integral_data_rights == "all-private": 
-            needed_roles.append('integral-private')            
+            needed_roles.append('integral-private-qla')            
         elif integral_data_rights != "public": 
             raise RuntimeError(f"unknown data rights role {integral_data_rights}") # duplication for safety
 
