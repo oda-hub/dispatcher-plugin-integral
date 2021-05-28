@@ -423,3 +423,40 @@ def test_invalid_token_oda_api(dispatcher_long_living_fixture):
             scw_list=[f"0665{i:04d}0010.001" for i in range(5)],
             token=encoded_token
         )
+
+
+@pytest.mark.isgri_plugin
+def test_isgri_deny_wrong_energy_range(dispatcher_long_living_fixture):
+    server = dispatcher_long_living_fixture
+    logger.info("constructed server: %s", server)
+
+    for is_ok, E1_keV, E2_keV in [
+            (False, 10,50),
+            (False, 20,1000),
+            (False, 10,1000),
+            (False, 15,800),
+            (False, 20,40),
+        ]:
+
+        params = {
+            **dummy_params,
+            'E1_keV': 1,
+            "product_type": "isgri_image"
+        }
+
+        if is_ok:
+            expected_query_status='done'
+            expected_job_status='done'
+        else:
+            expected_query_status='failed'
+            expected_job_status='unknown'
+
+        logger.info("constructed server: %s", server)
+        jdata = ask(server, params, expected_query_status=expected_query_status, expected_job_status=expected_job_status, max_time_s=50)
+        logger.info(list(jdata.keys()))
+        logger.info(jdata)
+
+        if is_ok:
+            pass
+        else:
+            assert jdata['exit_status']['message'] == 'failed: please adjust request parameters: ISGRI energy range is restricted to 15 - 800 keV'

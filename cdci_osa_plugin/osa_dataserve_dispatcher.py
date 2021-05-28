@@ -677,7 +677,6 @@ class OsaDispatcher(object):
 
         return cat
 
-
 class OsaQuery(ProductQuery): 
     """
     base class for all osa
