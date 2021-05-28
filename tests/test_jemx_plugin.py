@@ -78,6 +78,7 @@ def test_jemx_deny_wrong_energy_range(dispatcher_long_living_fixture):
             assert jdata['exit_status']['message'] == 'failed: please adjust request parameters: JEM-X energy range is restricted to 3 - 35 keV'
 
 
+@pytest.mark.xfail
 @pytest.mark.jemx_plugin
 @pytest.mark.parametrize('dummy_pack', ['default', 'empty'])
 def test_jemx_dummy(dispatcher_long_living_fixture, dummy_pack):
