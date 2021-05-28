@@ -42,10 +42,6 @@ default_token_payload = dict(
 )
 
 
-def test_default(dispatcher_long_living_fixture):
-    server = dispatcher_long_living_fixture
-
-
 @pytest.mark.jemx_plugin
 def test_jemx_deny_wrong_energy_range(dispatcher_long_living_fixture):
     server = dispatcher_long_living_fixture
@@ -74,8 +70,7 @@ def test_jemx_deny_wrong_energy_range(dispatcher_long_living_fixture):
 
         logger.info("constructed server: %s", server)
         jdata = ask(server, params, expected_query_status=expected_query_status, expected_job_status=expected_job_status, max_time_s=5)
-        logger.info(list(jdata.keys()))
-        logger.info(jdata)
+        logger.info(list(jdata.keys()))        
 
         if is_ok:
             pass
@@ -84,7 +79,6 @@ def test_jemx_deny_wrong_energy_range(dispatcher_long_living_fixture):
 
 
 @pytest.mark.jemx_plugin
-@pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize('dummy_pack', ['default', 'empty'])
 def test_jemx_dummy(dispatcher_long_living_fixture, dummy_pack):
     dispatcher_fetch_dummy_products(dummy_pack, reuse=True)
@@ -100,15 +94,16 @@ def test_jemx_dummy(dispatcher_long_living_fixture, dummy_pack):
     logger.info("constructed server: %s", server)
     jdata = ask(server, params, expected_query_status='done', expected_job_status='done', max_time_s=5)
     logger.info(list(jdata.keys()))
-    logger.info(jdata)
+    logger.info("data: %s", str(jdata)[:1000] + "...")
 
-    logger.info(jdata["products"]["catalog"])
+    logger.info('jdata["products"]["catalog"]: %s', str(jdata["products"]["catalog"])[:1000] + "...")
+    
 
+    assert len(jdata["products"]["catalog"]["cat_column_list"][0]) == 2
+    
     if dummy_pack == "empty":
-        assert len(jdata["products"]["catalog"]["cat_column_list"][0]) == 0
-    else:
         #TODO:
-        #assert len(jdata["products"]["catalog"]["cat_column_list"][0]) > 0
+        #assert len(jdata["products"]["catalog"]["cat_column_list"][0]) == 0
         pass
 
 def get_crab_scw():
@@ -119,7 +114,6 @@ def get_crab_scw():
 @pytest.mark.dda
 @pytest.mark.jemx_plugin
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc'])
-@pytest.mark.dependency(depends=["test_default"])
 def test_jemx_products(dispatcher_long_living_fixture, product_type):
     server = dispatcher_long_living_fixture
 
