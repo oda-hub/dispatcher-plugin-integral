@@ -603,6 +603,7 @@ class OsaDispatcher(object):
         scw_list = instrument.get_par_by_name('scw_list').value
         user_catalog = instrument.get_par_by_name('user_catalog').value
         use_max_pointings = instrument.get_par_by_name('max_pointings').value
+        integral_data_rights = instrument.get_par_by_name('integral_data_rights').value
 
         extramodules = []
         if scw_list is None or scw_list == []:
@@ -621,6 +622,14 @@ class OsaDispatcher(object):
         if cat is not None:
             extramodules.append("git://gencat")
             inject.append(cat)
+
+        if integral_data_rights == "all-private":
+            extramodules.append("git://integral_all_private")
+            logger.info("adding request to private parameters")
+        elif integral_data_rights == "public":
+            logger.info("NOT adding request to private parameters")
+        else:
+            raise NotImplementedError
 
         return scwlist_assumption,cat,extramodules,inject
 
@@ -687,21 +696,30 @@ class OsaQuery(ProductQuery):
         # integral_data_rights = self.get_par_by_name('integral_data_rights').value
 
         needed_roles = []
+        needed_roles_with_comments = {}
 
-        if max_pointings > 50 or len(scw_list) > 50:
-            needed_roles.append('unige-hpc-full')            
+        if max_pointings > 50:
+            needed_roles.append('unige-hpc-full')
+            needed_roles_with_comments['unige-hpc-full'] = f"it is needed to request > 50 ScW, you requested max_pointings={max_pointings}"
+
+        if len(scw_list) > 50:
+            needed_roles.append('unige-hpc-full')
+            needed_roles_with_comments['unige-hpc-full'] = f"it is needed to request > 50 ScW, you requested scw_list) = [ .. {len(scw_list)} items .. ]"
 
         if max_pointings > 500 or len(scw_list) > 500:
             needed_roles.append('unige-hpc-extreme') 
+            needed_roles_with_comments['unige-hpc-extreme'] = "it is needed to request > 500 ScW"
 
         if integral_data_rights == "all-private": 
-            needed_roles.append('integral-private')            
+            needed_roles.append('integral-private-qla')            
+            needed_roles_with_comments['integral-private-qla'] = "this role is needed to access private INTEGRAL data "\
+                                                                 "requested with integral_data_rights == \"all-private\""
         elif integral_data_rights != "public": 
             raise RuntimeError(f"unknown data rights role {integral_data_rights}") # duplication for safety
 
         if all([ needed_role in provided_roles for needed_role in needed_roles ]):                                
             return dict(authorization=True, needed_roles=[])        
         else:
-            return dict(authorization=False, needed_roles=needed_roles)
+            return dict(authorization=False, needed_roles=needed_roles, needed_roles_with_comments=needed_roles_with_comments)
             
 
