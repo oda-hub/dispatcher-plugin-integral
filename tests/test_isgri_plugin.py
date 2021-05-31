@@ -57,13 +57,13 @@ default_token_payload = dict(
 )
 
 
-#def test_default(dispatcher_long_living_fixture):
-#    server = dispatcher_long_living_fixture
+def test_default(dispatcher_long_living_fixture):
+    server = dispatcher_long_living_fixture
 
 
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
-#@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image'])
 def test_isgri_dummy(dispatcher_long_living_fixture, product_type):
     dispatcher_fetch_dummy_products("default")
@@ -86,7 +86,7 @@ def test_isgri_dummy(dispatcher_long_living_fixture, product_type):
 @pytest.mark.odaapi
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
-#@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image'])
 def test_isgri_dummy_oda_api(dispatcher_long_living_fixture, product_type):
     dispatcher_fetch_dummy_products("default")
@@ -154,7 +154,7 @@ def validate_product(product_type, product: oda_api.api.DataCollection):
 @pytest.mark.xfail
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
-#@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("selection", ["range", "280200470010.001"])
 def test_isgri_image_no_pointings(dispatcher_long_living_fixture, selection):
     """
@@ -189,7 +189,7 @@ def test_isgri_image_no_pointings(dispatcher_long_living_fixture, selection):
 
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
-#@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.dependency(depends=["test_default"])
 def test_isgri_image_find_pointings(dispatcher_long_living_fixture):
     """
     this will reproduce the entire flow of frontend-dispatcher, apart from receiving callback
@@ -219,7 +219,7 @@ def test_isgri_image_find_pointings(dispatcher_long_living_fixture):
 
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
-#@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("method", ['get', 'post'])
 def test_isgri_image_fixed_done(dispatcher_long_living_fixture, method):
     """
