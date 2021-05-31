@@ -18,6 +18,11 @@ Module API
 ----------
 """
 
+if pytest.__version__ < "3.0.0":
+    pytest.skip()
+else:
+    pytestmark = pytest.mark.skip
+
 from __future__ import absolute_import, division, print_function
 
 from builtins import (bytes, str, open, super, range,
