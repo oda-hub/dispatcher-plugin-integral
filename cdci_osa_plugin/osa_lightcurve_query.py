@@ -192,14 +192,16 @@ class OsaLightCurve(LightCurveProduct):
             if du is None:
                 du = npd.get_data_unit_by_name('JMX1-SRC.-LCR')
 
+
             if du is None:
                 # warning, this one is empty (add to warning list)
                 continue
  #               raise RuntimeError('Missing data unit with light curve in the fits file')
 
             if du is not None:
+                src_name = du.header['NAME']
 
-                meta_data['src_name'] = source_name
+                meta_data['src_name'] = src_name
                 meta_data['time_bin'] = du.header['TIMEDEL']
 
                 out_file_name = Path(input_lc_paht).resolve().stem
