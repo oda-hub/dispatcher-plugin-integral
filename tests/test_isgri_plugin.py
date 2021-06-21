@@ -462,8 +462,8 @@ def test_isgri_deny_wrong_energy_range(dispatcher_long_living_fixture):
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
-@pytest.mark.parametrize("list_lenght", [5, 55])
-def test_scw_list_file(dispatcher_long_living_fixture, list_lenght):
+@pytest.mark.parametrize("list_length", [5, 55, 550])
+def test_scw_list_file(dispatcher_long_living_fixture, list_length):
     server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
 
@@ -473,31 +473,34 @@ def test_scw_list_file(dispatcher_long_living_fixture, list_lenght):
         "use_scws": "user_file"
     }
     # TODO a fixture is ideal for this
-    scw_list = [f"0665{i:04d}0010.001" for i in range(list_lenght)]
+    scw_list = [f"0665{i:04d}0010.001" for i in range(list_length)]
     # generate ScWs list file
     if not os.path.exists('scws_list_files_examples'):
         os.makedirs('scws_list_files_examples')
 
-    file_name = f'{list_lenght}_list_example'
+    file_name = f'{list_length}_list_example'
     with open('scws_list_files_examples/' + file_name, 'w+') as outlist_file:
         outlist_file.write("\n".join(scw_list))
 
     list_file = open('scws_list_files_examples/' + file_name)
 
-    if list_lenght > 50:
+    if list_length > 50:
         expected_query_status = 'failed'
         expected_job_status = 'failed'
         expected_status_code = 403
+        expected_message =  \
+               "Unfortunately, your priviledges are not sufficient to make the request for this particular product and parameter combination.\n"\
+                "- Your priviledge roles include []\n"\
+                "- You are lacking all of the following roles:\n"\
+                + (" - unige-hpc-extreme: it is needed to request > 500 ScW\n"  if list_length > 500 else "") + \
+                f" - unige-hpc-full: it is needed to request > 50 ScW, you requested scw_list) = [ .. {list_length} items .. ]\n" \
+               "You can request support if you think you should be able to make this request."
+
     else:
         expected_query_status = 'done'
         expected_job_status = 'done'
         expected_status_code = 200
-
-    # jdata = ask(server, params,
-    #             expected_query_status=expected_query_status,
-    #             expected_job_status=expected_job_status,
-    #             max_time_s=50,
-    #             method='post')
+        expected_message = ''
 
     c = requests.post(server + "/run_analysis",
                       data={
@@ -512,6 +515,7 @@ def test_scw_list_file(dispatcher_long_living_fixture, list_lenght):
     jdata = c.json()
     assert jdata["exit_status"]["job_status"] in expected_job_status
     assert jdata["query_status"] in expected_query_status
+    assert jdata["exit_status"]["message"] == expected_message
 
     outlist_file.close()
     logger.info(list(jdata.keys()))
