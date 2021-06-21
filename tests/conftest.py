@@ -5,6 +5,7 @@ from cdci_data_analysis.pytest_fixtures import (
             dispatcher_test_conf,
             dispatcher_test_conf_fn,
             dispatcher_long_living_fixture,
+            dispatcher_local_mail_server,
             dispatcher_debug,
             dispatcher_nodebug,
             cleanup

@@ -309,9 +309,6 @@ def test_isgri_lc(dispatcher_long_living_fixture):
     jdata, tspent = loop_ask(server, params, max_time_s=100, async_dispatcher=False)
 
 
-
-
-
 @pytest.mark.odaapi
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
@@ -460,3 +457,62 @@ def test_isgri_deny_wrong_energy_range(dispatcher_long_living_fixture):
             pass
         else:
             assert jdata['exit_status']['message'] == 'failed: please adjust request parameters: ISGRI energy range is restricted to 15 - 800 keV'
+
+
+@pytest.mark.isgri_plugin
+@pytest.mark.isgri_plugin_dummy
+@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.parametrize("list_lenght", [5, 55])
+def test_scw_list_file(dispatcher_long_living_fixture, list_lenght):
+    server = dispatcher_long_living_fixture
+    logger.info("constructed server: %s", server)
+
+    params = {
+        **default_params,
+        "query_type":"Dummy",
+        "use_scws": "user_file"
+    }
+    # TODO a fixture is ideal for this
+    scw_list = [f"0665{i:04d}0010.001" for i in range(list_lenght)]
+    # generate ScWs list file
+    if not os.path.exists('scws_list_files_examples'):
+        os.makedirs('scws_list_files_examples')
+
+    file_name = f'{list_lenght}_list_example'
+    with open('scws_list_files_examples/' + file_name, 'w+') as outlist_file:
+        outlist_file.write("\n".join(scw_list))
+
+    list_file = open('scws_list_files_examples/' + file_name)
+
+    if list_lenght > 50:
+        expected_query_status = 'failed'
+        expected_job_status = 'failed'
+        expected_status_code = 403
+    else:
+        expected_query_status = 'done'
+        expected_job_status = 'done'
+        expected_status_code = 200
+
+    # jdata = ask(server, params,
+    #             expected_query_status=expected_query_status,
+    #             expected_job_status=expected_job_status,
+    #             max_time_s=50,
+    #             method='post')
+
+    c = requests.post(server + "/run_analysis",
+                      data={
+                          **params
+                            },
+                      files={
+                          "user_scw_list_file": list_file.read()
+                      }
+                      )
+
+    assert c.status_code == expected_status_code
+    jdata = c.json()
+    assert jdata["exit_status"]["job_status"] in expected_job_status
+    assert jdata["query_status"] in expected_query_status
+
+    outlist_file.close()
+    logger.info(list(jdata.keys()))
+    logger.info(jdata)
