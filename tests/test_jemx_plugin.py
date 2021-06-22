@@ -143,3 +143,4 @@ def test_jemx_products(dispatcher_long_living_fixture, product_type):
 # def validate_product(product_type, product):
 #     if product_type == "jemx_lc":
 #         print(product.show())
+
