@@ -1,3 +1,5 @@
+import subprocess
+
 from cdci_data_analysis.pytest_fixtures import (
             app,
             dispatcher_live_fixture,
@@ -104,4 +106,7 @@ def start_mock_dda_server(instrument, config_path):
             app.run(host=parse_result.hostname, port=parse_result.port)
 
         thread = Thread(target=mock_flask_thread, args=())
+        thread.setDaemon(daemonic=True)
         thread.start()
+
+        return thread
