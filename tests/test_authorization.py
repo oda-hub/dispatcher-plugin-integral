@@ -244,6 +244,7 @@ def test_scw_list_file(dispatcher_long_living_fixture, dispatcher_test_conf, lis
         assert jdata['products']['analysis_parameters']['scw_list'] == scw_list
         # test job_id
         job_id = jdata['products']['job_id']
+        params.pop('use_scws', None)
         # adapting some values to string
         for k, v in params.items():
             params[k] = str(v)
