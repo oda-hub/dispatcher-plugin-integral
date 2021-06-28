@@ -62,20 +62,22 @@ def test_jemx_deny_wrong_energy_range(dispatcher_long_living_fixture):
         }
 
         if is_ok:
-            expected_query_status='done'
-            expected_job_status='done'
+            expected_query_status = 'done'
+            expected_job_status = 'done'
+            expected_status_code = 200
         else:
-            expected_query_status='failed'
-            expected_job_status='unknown'
+            expected_query_status = None
+            expected_job_status = None
+            expected_status_code = 400
 
         logger.info("constructed server: %s", server)
-        jdata = ask(server, params, expected_query_status=expected_query_status, expected_job_status=expected_job_status, max_time_s=5)
+        jdata = ask(server, params, expected_query_status=expected_query_status, expected_job_status=expected_job_status, max_time_s=50, expected_status_code=expected_status_code)
         logger.info(list(jdata.keys()))        
 
         if is_ok:
             pass
         else:
-            assert jdata['exit_status']['message'] == 'failed: please adjust request parameters: JEM-X energy range is restricted to 3 - 35 keV'
+            assert jdata['error_message'] == 'JEM-X energy range is restricted to 3 - 35 keV'
 
 
 @pytest.mark.xfail
