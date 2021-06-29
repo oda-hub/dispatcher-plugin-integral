@@ -95,13 +95,9 @@ def start_mock_dda_server(instrument, config_path):
 
         app = Flask(__name__)
 
-        @app.route("/api/v2.0/poke", methods=['POST', 'GET'])
-        def pokev2():
-            return "Works! api v2.0"
-
-        @app.route("/api/v1.0/poke", methods=['POST', 'GET'])
-        def pokev1():
-            return "Works! api v1.0"
+        @app.route("/api/<api_version>/poke", methods=['POST', 'GET'])
+        def poke(api_version):
+            return f"Works! api {api_version}"
 
         def mock_flask_thread():
             app.run(host=parse_result.hostname, port=parse_result.port)
