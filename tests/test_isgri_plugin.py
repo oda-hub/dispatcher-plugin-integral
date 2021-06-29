@@ -225,7 +225,7 @@ def test_isgri_image_scws_len(mock_isgri_dda_server, dispatcher_long_living_fixt
     r = requests.get(dispatcher_long_living_fixture + "/run_analysis").json()
 
     assert r['config']['plugins']['cdci_osa_plugin']['config_file'] == './tests/temp_conf/test_data_server_conf.yaml'
-    print(json.dumps(r, sort_keys=True, indent=4))
+    logger.debug(json.dumps(r, sort_keys=True, indent=4))
 
     # let's generate a valid token
     token_payload = {
