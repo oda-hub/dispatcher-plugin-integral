@@ -217,7 +217,7 @@ def test_isgri_image_find_pointings(dispatcher_long_living_fixture):
 
 @pytest.mark.isgri_plugin
 @pytest.mark.plugin_test_conf
-@pytest.mark.parametrize("max_pointings,scw_list_size", [(10, 100)])
+@pytest.mark.parametrize("max_pointings,scw_list_size", [(10, 100), (100, 10)])
 def test_isgri_image_scws_len(mock_isgri_dda_server, dispatcher_long_living_fixture, max_pointings, scw_list_size):
     server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)

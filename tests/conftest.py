@@ -32,17 +32,17 @@ def pytest_collection_modifyitems(config, items):
         if "dda" in item.keywords:
             item.add_marker(skip_slow)
 
+
 @pytest.fixture
 def test_data_server_conf_fn(monkeypatch):
     env_conf_file_path = "./tests/temp_conf/test_data_server_conf.yaml"
     monkeypatch.setenv('CDCI_OSA_PLUGIN_CONF_FILE', env_conf_file_path)
     
-    if env_conf_file_path is not None:
-        folder_path = os.path.dirname(env_conf_file_path)
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-        with open(env_conf_file_path, "w") as f:
-            f.write("""
+    folder_path = os.path.dirname(env_conf_file_path)
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    with open(env_conf_file_path, "w") as f:
+        f.write("""
     instruments:
       isgri:
           dispatcher_mnt_point: .

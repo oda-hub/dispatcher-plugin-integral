@@ -46,9 +46,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        DISPATCHER_MOCK_KB=yes  python -m coverage run --source=cdci_osa_plugin -m pytest tests -sv --full-trace --log-cli-level=DEBUG -m "not plugin_test_conf"
-    - run: |
-        DISPATCHER_MOCK_KB=yes CDCI_OSA_PLUGIN_CONF_FILE=./tests/temp_conf/test_data_server_conf.yaml python -m coverage run --source=cdci_osa_plugin -m pytest tests -sv --full-trace --log-cli-level=DEBUG -m "plugin_test_conf"
+        DISPATCHER_MOCK_KB=yes  python -m coverage run --source=cdci_osa_plugin -m pytest tests -sv --full-trace --log-cli-level=DEBUG
 
     # I wonder how this interacts with the Github App. But this is not only for PR. Also this does not always work
     - name: Codecov
