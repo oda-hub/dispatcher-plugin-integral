@@ -588,8 +588,6 @@ class OsaDispatcher(object):
                                                   )\
                                               ''']
 
-
-
         return scwlist_assumption
 
 

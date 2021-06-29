@@ -247,21 +247,25 @@ def test_isgri_image_scws_len(mock_isgri_dda_server, dispatcher_long_living_fixt
     }
 
     if max_pointings > scw_list_size:
-        expected_query_status = "done"
+        expected_query_status = 'failed'
         expected_status_code = 200
-        expected_job_status = 'failed'
+        expected_job_status = 'unknown'
         expected_error_message = None
+        expected_job_status_message = 'failed: isgri_image'
     else:
         expected_query_status = None
         expected_status_code = 400
         expected_job_status = None
         expected_error_message = f'scws are limited to {max_pointings}'
+        expected_job_status_message = None
 
     jdata = ask(server, params, expected_query_status=expected_query_status,
-                expected_job_status=expected_job_status, expected_status_code=expected_status_code, max_time_s=50)
+                expected_job_status=expected_job_status, expected_status_code=expected_status_code, max_time_s=500)
 
     if expected_error_message is not None:
         assert jdata['error_message'] == expected_error_message
+    if expected_job_status_message is not None:
+        assert jdata['exit_status']['message'] == expected_job_status_message
 
 
 @pytest.mark.dda
