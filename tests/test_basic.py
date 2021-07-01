@@ -3,7 +3,6 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-
 def test_empty_request(dispatcher_live_fixture):
     server = dispatcher_live_fixture
     print("constructed server:", server)

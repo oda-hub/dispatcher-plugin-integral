@@ -1,18 +1,16 @@
 import pytest
 import logging
-import requests
 import json
 import time
 import random
 import jwt
 import os
-import itertools
 
 from astropy.io import fits
 import oda_api.api
 
-from _pytest.debugging import pytestPDB
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -409,7 +407,7 @@ def test_invalid_token_oda_api(dispatcher_long_living_fixture):
     disp = oda_api.api.DispatcherAPI(
         url=dispatcher_long_living_fixture)
     with pytest.raises(oda_api.api.RemoteException):
-        product = disp.get_product(
+        disp.get_product(
             query_status="new",
             product_type="Real",
             instrument="isgri",
@@ -442,110 +440,21 @@ def test_isgri_deny_wrong_energy_range(dispatcher_long_living_fixture):
         }
 
         if is_ok:
-            expected_query_status='done'
-            expected_job_status='done'
+            expected_query_status = 'done'
+            expected_job_status = 'done'
+            expected_status_code = 200
         else:
-            expected_query_status='failed'
-            expected_job_status='unknown'
+            expected_query_status = None
+            expected_job_status = None
+            expected_status_code = 400
 
         logger.info("constructed server: %s", server)
-        jdata = ask(server, params, expected_query_status=expected_query_status, expected_job_status=expected_job_status, max_time_s=50)
+        jdata = ask(server, params, expected_query_status=expected_query_status, expected_job_status=expected_job_status, max_time_s=50, expected_status_code=expected_status_code)
         logger.info(list(jdata.keys()))
         logger.info(jdata)
 
         if is_ok:
             pass
         else:
-            assert jdata['exit_status']['message'] == 'failed: please adjust request parameters: ISGRI energy range is restricted to 15 - 800 keV'
+            assert jdata['error_message'] == 'ISGRI energy range is restricted to 15 - 800 keV'
 
-
-@pytest.mark.isgri_plugin
-@pytest.mark.isgri_plugin_dummy
-@pytest.mark.dependency(depends=["test_default"])
-@pytest.mark.parametrize("list_length", [5, 55, 550])
-@pytest.mark.parametrize("roles", ["", "unige-hpc-full", "unige-hpc-full, unige-hpc-extreme"])
-def test_scw_list_file(dispatcher_long_living_fixture, list_length, roles):
-    server = dispatcher_long_living_fixture
-    logger.info("constructed server: %s", server)
-
-    token_none = (roles == '')
-    if token_none:
-        encoded_token = None
-    else:
-        # let's generate a valid token with high threshold
-        token_payload = {
-            **default_token_payload,
-            "roles": roles
-        }
-
-        encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
-
-    params = {
-        **default_params,
-        "query_type": "Dummy",
-        "use_scws": "user_file",
-        "token": encoded_token
-    }
-
-    # TODO a fixture is ideal for this
-    scw_list = [f"0665{i:04d}0010.001" for i in range(list_length)]
-    # generate ScWs list file
-    if not os.path.exists('scws_list_files_examples'):
-        os.makedirs('scws_list_files_examples')
-
-    file_name = f'{list_length}_list_example'
-    with open('scws_list_files_examples/' + file_name, 'w+') as outlist_file:
-        outlist_file.write("\n".join(scw_list))
-
-    list_file = open('scws_list_files_examples/' + file_name)
-    files = {
-        "user_scw_list_file": list_file.read()
-    }
-
-    # just for having the roles in a list
-    roles = roles.split(',')
-    roles[:] = [r.strip() for r in roles]
-
-    expected_query_status = 'done'
-    expected_job_status = 'done'
-    expected_status_code = 200
-    expected_message = ''
-
-    if token_none:
-        if list_length > 50:
-            expected_query_status = 'failed'
-            expected_job_status = 'failed'
-            expected_status_code = 403
-            expected_message =  \
-                   "Unfortunately, your priviledges are not sufficient to make the request for this particular product and parameter combination.\n"\
-                    "- Your priviledge roles include []\n"\
-                    "- You are lacking all of the following roles:\n"\
-                    + (" - unige-hpc-extreme: it is needed to request > 500 ScW\n" if list_length > 500 else "") + \
-                    f" - unige-hpc-full: it is needed to request > 50 ScW, you requested scw_list) = [ .. {list_length} items .. ]\n" \
-                   "You can request support if you think you should be able to make this request."
-    else:
-        if 'unige-hpc-extreme' not in roles:
-            if list_length > 500:
-                expected_query_status = 'failed'
-                expected_job_status = 'failed'
-                expected_status_code = 403
-                expected_message =  \
-                       "Unfortunately, your priviledges are not sufficient to make the request for this particular product and parameter combination.\n" \
-                        f"- Your priviledge roles include {roles}\n" \
-                        "- You are lacking all of the following roles:\n" \
-                        + " - unige-hpc-extreme: it is needed to request > 500 ScW\n" + \
-                       "You can request support if you think you should be able to make this request."
-
-    jdata = ask(server,
-                params=params,
-                expected_query_status=expected_query_status,
-                expected_job_status=expected_job_status,
-                expected_status_code=expected_status_code,
-                method='post',
-                files=files)
-
-    assert jdata["exit_status"]["job_status"] in expected_job_status
-    assert jdata["query_status"] in expected_query_status
-    assert jdata["exit_status"]["message"] == expected_message
-
-    outlist_file.close()

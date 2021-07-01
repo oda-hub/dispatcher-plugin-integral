@@ -1,11 +1,11 @@
-import io
 import time
-import yaml
 import jwt
 import pytest
 import logging
 
-from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
+from cdci_data_analysis.analysis.hash import make_hash
+from cdci_data_analysis.flask_app.dispatcher_query import InstrumentQueryBackEnd
+from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products, DispatcherJobState
 
 logger = logging.getLogger(__name__)
 
@@ -143,7 +143,7 @@ def test_invalid_token_oda_api(dispatcher_long_living_fixture, dispatcher_test_c
     disp = oda_api.api.DispatcherAPI(
         url=dispatcher_long_living_fixture)
     with pytest.raises(oda_api.api.RemoteException):
-        product = disp.get_product(
+        disp.get_product(
             query_status="new",
             product_type="Real",
             instrument="isgri",
@@ -154,3 +154,103 @@ def test_invalid_token_oda_api(dispatcher_long_living_fixture, dispatcher_test_c
             scw_list=[f"0665{i:04d}0010.001" for i in range(5)],
             token=construct_token([], dispatcher_test_conf, expires_in=-100)
         )
+
+
+@pytest.mark.isgri_plugin
+@pytest.mark.isgri_plugin_dummy
+@pytest.mark.dependency(depends=["test_default"])
+@pytest.mark.parametrize("list_length", [5, 55, 550])
+@pytest.mark.parametrize("roles", ["", "unige-hpc-full", "unige-hpc-full, unige-hpc-extreme"])
+def test_scw_list_file(dispatcher_long_living_fixture, dispatcher_test_conf, list_length, roles):
+    server = dispatcher_long_living_fixture
+    logger.info("constructed server: %s", server)
+
+    params = {
+        **dummy_params_by_instrument['isgri'],
+        "product_type": "isgri_image",
+        "query_type": "Dummy",
+        "use_scws": "user_file"
+    }
+
+    params.pop('scw_list')
+
+    token_none = (roles == '')
+    if not token_none:
+        params['token'] = construct_token(roles, dispatcher_test_conf)
+
+    scw_list = [f"0665{i:04d}0010.001" for i in range(list_length)]
+    scw_list_formatted = "\n".join(scw_list)
+
+    file_path = DispatcherJobState.create_p_value_file(p_value=scw_list_formatted)
+    list_file = open(file_path)
+
+    files = {
+        "user_scw_list_file": list_file.read()
+    }
+
+    # just for having the roles in a list
+    roles = roles.split(',')
+    roles[:] = [r.strip() for r in roles]
+
+    expected_query_status = 'done'
+    expected_job_status = 'done'
+    expected_status_code = 200
+    expected_message = ''
+    # in case the request is successfull, then the products con be inspected
+    check_product = True
+    if token_none:
+        if list_length > 50:
+            expected_query_status = 'failed'
+            expected_job_status = 'failed'
+            expected_status_code = 403
+            expected_message =  \
+                   "Unfortunately, your priviledges are not sufficient to make the request for this particular product and parameter combination.\n"\
+                    "- Your priviledge roles include []\n"\
+                    "- You are lacking all of the following roles:\n"\
+                    + (" - unige-hpc-extreme: it is needed to request > 500 ScW\n" if list_length > 500 else "") + \
+                    f" - unige-hpc-full: it is needed to request > 50 ScW, you requested scw_list) = [ .. {list_length} items .. ]\n" \
+                   "You can request support if you think you should be able to make this request."
+            check_product = False
+    else:
+        if 'unige-hpc-extreme' not in roles:
+            if list_length > 500:
+                expected_query_status = 'failed'
+                expected_job_status = 'failed'
+                expected_status_code = 403
+                expected_message =  \
+                       "Unfortunately, your priviledges are not sufficient to make the request for this particular product and parameter combination.\n" \
+                        f"- Your priviledge roles include {roles}\n" \
+                        "- You are lacking all of the following roles:\n" \
+                        + " - unige-hpc-extreme: it is needed to request > 500 ScW\n" + \
+                       "You can request support if you think you should be able to make this request."
+                check_product = False
+
+    jdata = ask(server,
+                params=params,
+                expected_query_status=expected_query_status,
+                expected_job_status=expected_job_status,
+                expected_status_code=expected_status_code,
+                method='post',
+                files=files)
+
+    list_file.close()
+
+    assert jdata["exit_status"]["job_status"] in expected_job_status
+    assert jdata["query_status"] in expected_query_status
+    assert jdata["exit_status"]["message"] == expected_message
+
+    if check_product:
+        assert 'scw_list' in jdata['products']['analysis_parameters']
+        assert jdata['products']['analysis_parameters']['scw_list'] == scw_list
+        # test job_id
+        job_id = jdata['products']['job_id']
+        params.pop('use_scws', None)
+        # adapting some values to string
+        for k, v in params.items():
+            params[k] = str(v)
+
+        restricted_par_dic = InstrumentQueryBackEnd.restricted_par_dic({**params, "scw_list": scw_list, "sub": "mtm@mtmco.net" if not token_none else None })
+        calculated_job_id = make_hash(restricted_par_dic)
+
+        assert job_id == calculated_job_id
+
