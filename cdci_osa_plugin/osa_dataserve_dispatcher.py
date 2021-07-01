@@ -576,8 +576,6 @@ class OsaDispatcher(object):
 
 
             scwlist_assumption = ['ddosa.IDScWList','ddosa.IDScWList(use_scwid_list=[%s])' % (", ".join(["\""+str(scw)+"\"" for scw in scw_list])) ]
-            if len(scw_list) > use_max_pointings:
-                raise RequestNotUnderstood(message='scws are limited to %d' % use_max_pointings)
         else:
             scwlist_assumption = ['rangequery.TimeDirectionScWList',
                                   f'''rangequery.TimeDirectionScWList(
