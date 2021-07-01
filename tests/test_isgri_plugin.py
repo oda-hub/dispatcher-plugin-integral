@@ -215,59 +215,6 @@ def test_isgri_image_find_pointings(dispatcher_long_living_fixture):
     assert jdata["exit_status"]["message"] == "failed: get dataserver products "
 
 
-@pytest.mark.isgri_plugin
-@pytest.mark.plugin_test_conf
-@pytest.mark.parametrize("max_pointings,scw_list_size", [(10, 100), (100, 10)])
-def test_isgri_image_scws_len(mock_isgri_dda_server, dispatcher_long_living_fixture, max_pointings, scw_list_size):
-    server = dispatcher_long_living_fixture
-    logger.info("constructed server: %s", server)
-
-    r = requests.get(dispatcher_long_living_fixture + "/run_analysis").json()
-
-    assert r['config']['plugins']['cdci_osa_plugin']['config_file'] == './tests/temp_conf/test_data_server_conf.yaml'
-    logger.debug(json.dumps(r, sort_keys=True, indent=4))
-
-    # let's generate a valid token
-    token_payload = {
-        **default_token_payload,
-        "roles": ['unige-hpc-full', 'integral-private']
-    }
-    encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
-
-    params = {
-        **default_params,
-        'T1': "2008-01-01T11:11:11.0",
-        'T2': "2019-01-01T11:11:11.0",
-        'RA': 83,
-        'DEC': 22,
-        'radius': 6,
-        'max_pointings': max_pointings,
-        'scw_list': [f"0665{i:04d}0010.001" for i in range(scw_list_size)],
-        'token': encoded_token
-    }
-
-    if max_pointings > scw_list_size:
-        expected_query_status = 'failed'
-        expected_status_code = 200
-        expected_job_status = 'unknown'
-        expected_error_message = None
-        expected_job_status_message = 'failed: isgri_image'
-    else:
-        expected_query_status = None
-        expected_status_code = 400
-        expected_job_status = None
-        expected_error_message = f'scws are limited to {max_pointings}'
-        expected_job_status_message = None
-
-    jdata = ask(server, params, expected_query_status=expected_query_status,
-                expected_job_status=expected_job_status, expected_status_code=expected_status_code, max_time_s=500)
-
-    if expected_error_message is not None:
-        assert jdata['error_message'] == expected_error_message
-    if expected_job_status_message is not None:
-        assert jdata['exit_status']['message'] == expected_job_status_message
-
-
 @pytest.mark.dda
 @pytest.mark.isgri_plugin
 @pytest.mark.dependency(depends=["test_default"])

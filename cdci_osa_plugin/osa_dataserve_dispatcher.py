@@ -555,10 +555,7 @@ class OsaDispatcher(object):
 
             raise DDAUnknownException(message=run_query_message)
 
-
-
-
-        return res,query_out
+        return res, query_out
 
 
     @classmethod
@@ -573,7 +570,6 @@ class OsaDispatcher(object):
             if len(acceptList) != len(scw_list):
                 wrong_list = [item for item in scw_list if item not in acceptList]
                 raise DDAException(message='the following scws have a wrong format %s' % wrong_list)
-
 
             scwlist_assumption = ['ddosa.IDScWList','ddosa.IDScWList(use_scwid_list=[%s])' % (", ".join(["\""+str(scw)+"\"" for scw in scw_list])) ]
         else:
