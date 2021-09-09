@@ -596,6 +596,7 @@ class OsaDispatcher(object):
         user_catalog = instrument.get_par_by_name('user_catalog').value
         use_max_pointings = instrument.get_par_by_name('max_pointings').value
         integral_data_rights = instrument.get_par_by_name('integral_data_rights').value
+        osa_version = instrument.get_par_by_name('osa_version').value
 
         extramodules = []
         if scw_list is None or scw_list == []:
@@ -673,12 +674,15 @@ class OsaQuery(ProductQuery):
     """
     base class for all osa
     """
-    
+
     def check_query_roles(self, provided_roles: List[str], par_dic: dict):
         # TODO: there is this get_par_by_name there, to check if it can be made work
         # the _parameters_list for the query should be set
         max_pointings = int(par_dic.get('max_pointings', 50))
         # max_pointings = self.get_par_by_name('max_pointings').value
+
+        osa_version = par_dic.get('osa_version', 'OSA10.2')
+
         scw_list = par_dic.get('scw_list', '')
         # scw_list = self.get_par_by_name('scw_list').value
         if isinstance(scw_list, str):
@@ -708,6 +712,18 @@ class OsaQuery(ProductQuery):
                                                                  "requested with integral_data_rights == \"all-private\""
         elif integral_data_rights != "public": 
             raise RuntimeError(f"unknown data rights role {integral_data_rights}") # duplication for safety
+
+        allowed_osa_versions = ["OSA10.2", "OSA11.1"]
+        if osa_version not in allowed_osa_versions:
+            needed_roles.append('integral-private-qla')  # may be replaced!         
+            needed_roles_with_comments['integral-private-qla'] = f"the request OSA ({osa_version}) version is restricted, " \
+                                                                 f"public osa versions: are {', '.join(allowed_osa_versions)}. " \
+                                                                  "Most likely you do not need to request it."
+
+        # hm
+        if osa_version == "OSA11.0":
+            raise RequestNotUnderstood("Please note OSA11.0 is being phased out. "
+                                       "We consider that for all or almost all likely user requests OSA11.1 shoud be used instead of OSA11.0.")
 
         if all([ needed_role in provided_roles for needed_role in needed_roles ]):                                
             return dict(authorization=True, needed_roles=[])        

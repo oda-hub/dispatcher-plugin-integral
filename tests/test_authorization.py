@@ -254,3 +254,90 @@ def test_scw_list_file(dispatcher_long_living_fixture, dispatcher_test_conf, lis
 
         assert job_id == calculated_job_id
 
+
+
+@pytest.mark.isgri_plugin
+@pytest.mark.isgri_plugin_dummy
+# some combinations of data rights and IC might be disfavored, but let's not enforce it now
+@pytest.mark.parametrize("roles", ["", "integral-private-qla"])
+@pytest.mark.parametrize("integral_data_rights", ["public"])
+#@pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
+#@pytest.mark.parametrize("osa_version", ["public-OSA10.2", "obsolete-OSA11.0", "private-OSA11.0-dev210628.1813-17265", "public-OSA11.1", "invalid-OSA11.2"]) 
+@pytest.mark.parametrize("osa_version", ["obsolete-OSA11.0"]) 
+def test_osa_versions(dispatcher_long_living_fixture, dispatcher_test_conf, roles, integral_data_rights, osa_version):
+    server = dispatcher_long_living_fixture
+    logger.info("constructed server: %s", server)
+
+    osa_version_qualifier, osa_version = osa_version.split("-", 1)
+
+    params = {
+        **dummy_params_by_instrument['isgri'],
+        "product_type": "isgri_image",
+        "query_type": "Dummy",
+        "scw_list": [f"0665{i:04d}0010.001" for i in range(5)],
+        "osa_version": osa_version,
+        "integral_data_rights": integral_data_rights
+    }
+
+
+    token_none = (roles == '')
+    if not token_none:
+        params['token'] = construct_token(roles, dispatcher_test_conf)
+
+    # just for having the roles in a list
+    roles_list = [r.strip() for r in roles.split(',')]
+
+    # ok by default
+    # invalid request takes priority over unauthorized
+    expected_query_status = 'done'
+    expected_job_status = 'done'
+    expected_status_code = 200
+    expected_message = ''
+    expected_error = None
+    
+    if integral_data_rights == "all-private":
+        if "integral-private-qla" not in roles_list:
+            expected_query_status = None
+            expected_job_status = None
+            expected_status_code = 403
+            expected_message = None
+
+    if osa_version_qualifier == "public":  
+        # ok and public version restricted version  
+        pass
+    elif osa_version_qualifier == "private":    
+        # restricted version
+        if "integral-private-qla" not in roles_list:
+            expected_query_status = None
+            expected_job_status = None
+            expected_status_code = 403
+            expected_message = None
+    elif osa_version_qualifier == "invalid":
+        # invalid version
+        expected_query_status = None
+        expected_job_status = None
+        expected_status_code = 400
+        expected_message = None
+    elif osa_version_qualifier == "obsolete":
+        # invalid version
+        expected_query_status = None
+        expected_job_status = None
+        expected_status_code = 400
+        expected_error = 'RequestNotUnderstood():Please note OSA11.0 is being phased out. We consider that for all or almost all likely user requests OSA11.1 shoud be used instead of OSA11.0.'
+        expected_message = None
+    else:
+        RuntimeError("programming error")
+
+
+    jdata = ask(server,
+                params=params,
+                expected_query_status=expected_query_status,
+                expected_job_status=expected_job_status,
+                expected_status_code=expected_status_code,
+                )
+
+    if expected_message is not None:        
+        assert jdata["exit_status"]["message"] == expected_message
+
+    if expected_error is not None:        
+        assert jdata["error"] == expected_error
