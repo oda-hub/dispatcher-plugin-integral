@@ -716,8 +716,8 @@ class OsaQuery(ProductQuery):
         allowed_osa_versions = ["OSA10.2", "OSA11.1"]
         if osa_version not in allowed_osa_versions:
             needed_roles.append('integral-private-qla')  # may be replaced!         
-            needed_roles_with_comments['integral-private-qla'] = f"the request OSA ({osa_version}) version is restricted, " \
-                                                                 f"public osa versions: are {', '.join(allowed_osa_versions)}. " \
+            needed_roles_with_comments['integral-private-qla'] = f"the requested OSA ({osa_version}) version is restricted, " \
+                                                                 f"publicly available osa versions: are {', '.join(allowed_osa_versions)}. " \
                                                                   "Most likely you do not need to request it."
 
         # hm
