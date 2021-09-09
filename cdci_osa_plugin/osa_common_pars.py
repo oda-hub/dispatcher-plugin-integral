@@ -98,9 +98,10 @@ def osa_common_instr_query():
     osa_version = Name(name_format='str', name='osa_version')
     if  os.environ.get('DISPATCHER_MOCK_KB', 'no') == 'yes' or 'cdciweb01' in socket.gethostname():
         osa_version._allowed_values = [
-            'OSA10.2', 'OSA11.0', 'OSA11.0-dev']  # TODO-VS: add kb request
+            'OSA10.2', 'OSA11.0', 'OSA11.1']  # this really only for test
     else:
         osa_version._allowed_values = get_osa_versions()
+        # can not really naturally select here by token roles
 
     data_rights = Name(name_format='str', name='integral_data_rights', value="public")
     data_rights._allowed_values = ["public", "all-private"]
