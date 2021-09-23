@@ -249,7 +249,14 @@ def test_scw_list_file(dispatcher_long_living_fixture, dispatcher_test_conf, lis
         for k, v in params.items():
             params[k] = str(v)
 
-        restricted_par_dic = InstrumentQueryBackEnd.restricted_par_dic({**params, "scw_list": scw_list, "sub": "mtm@mtmco.net" if not token_none else None })
+        expected_par_dict = {
+                **params,
+                'detection_threshold': 0.0,
+                "scw_list": scw_list,
+                "sub": "mtm@mtmco.net" if not token_none else None
+        }
+
+        restricted_par_dic = InstrumentQueryBackEnd.restricted_par_dic(expected_par_dict)
         calculated_job_id = make_hash(restricted_par_dic)
 
         assert job_id == calculated_job_id
