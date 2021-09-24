@@ -58,19 +58,23 @@ class JEMXSpectralBoundary(SpectralBoundary):
         if value < 3 or value > 35:
             raise RequestNotUnderstood(f'JEM-X energy range is restricted to 3 - 35 keV')
 
+
 def osa_jemx_factory():
 
-    src_query=SourceQuery('src_query')
+    src_query = SourceQuery('src_query')
 
     instr_query_pars = osa_common_instr_query()
-    instr_num = Integer(value=2,name='jemx_num')
+
+    instr_num = Integer(value=2, name='jemx_num')
     instr_query_pars.append(instr_num)
 
     E1_keV = JEMXSpectralBoundary(value=3., E_units='keV', name='E1_keV')
-    E2_keV = JEMXSpectralBoundary(value=35., E_units='keV', name='E2_keV')
-
+    E2_keV = JEMXSpectralBoundary(value=20., E_units='keV', name='E2_keV')
     spec_window = ParameterRange(E1_keV, E2_keV, 'spec_window')
     instr_query_pars.append(spec_window)
+
+    # radius = Angle(value=4.0, units='deg', name='radius')
+    # instr_query_pars.append(radius)
 
     instr_query = InstrumentQuery(
         name='jemx_parameters',
@@ -79,6 +83,8 @@ def osa_jemx_factory():
         input_prod_value=None,
         catalog=None,
         catalog_name='user_catalog')
+
+    instr_query.get_par_by_name('radius').value = 4.0
 
     image=JemxMosaicQuery('jemx_image_query')
 
@@ -93,9 +99,6 @@ def osa_jemx_factory():
     query_dictionary['jemx_spectrum'] = 'jemx_spectrum_query'
     query_dictionary['jemx_lc'] = 'jemx_lc_query'
     query_dictionary['spectral_fit'] = 'spectral_fit_query'
-
-    #print('--> conf_file', conf_file)
-    #print('--> conf_dir', conf_dir)
 
     return Instrument('jemx',
                        data_serve_conf_file=conf_file,

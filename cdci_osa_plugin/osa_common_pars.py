@@ -95,8 +95,8 @@ def osa_common_instr_query():
 
     radius = Angle(value=5.0, units='deg', name='radius')
 
-    osa_version = Name(name_format='str', name='osa_version')
-    if  os.environ.get('DISPATCHER_MOCK_KB', 'no') == 'yes' or 'cdciweb01' in socket.gethostname():
+    osa_version = Name(name_format='str', name='osa_version', value='OSA11.1')
+    if os.environ.get('DISPATCHER_MOCK_KB', 'no') == 'yes' or 'cdciweb01' in socket.gethostname():
         osa_version._allowed_values = [
             'OSA10.2', 'OSA11.0', 'OSA11.1']  # this really only for test
     else:
