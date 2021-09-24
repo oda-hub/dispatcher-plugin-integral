@@ -56,7 +56,7 @@ from cdci_data_analysis.analysis.io_helper import FilePath
 from .osa_dataserve_dispatcher import  OsaDispatcher, OsaQuery
 from oda_api.data_products import NumpyDataProduct
 
-from .osa_common_pars import  DummyOsaRes
+from .osa_common_pars import  DummyOsaRes, split_osa_version
 
 
 class JemxSpectrumProduct(SpectrumProduct):
@@ -364,21 +364,10 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
         super(IsgriSpectrumQuery, self).__init__(name)
 
 
-
-
-
-
-
     def set_instr_dictionaries(self,extramodules,scwlist_assumption,E1,E2,osa_version="OSA10.2"):
         target = "ISGRISpectraSum"
 
-        versions = osa_version.split("-", 1)
-        if len(versions) == 1:
-            osa_version_base, osa_subversion = versions[0], 'default-isdc'
-        elif len(versions) == 2:
-            osa_version_base, osa_subversion = versions
-        else:
-            raise RuntimeError(f"this should not be possible, OSA version split did not split as it should")
+        osa_version_base, osa_subversion, osa_version_modifiers = split_osa_version(osa_version)
 
         #TODO: this really should be re-used
         if osa_version_base == "OSA10.2":
@@ -386,17 +375,16 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
         elif osa_version_base == "OSA11.0":
             modules = ["git://ddosa/staging-1-3","git://findic/staging-1-3-icversion","git://ddosa11/staging-1-3"] 
             modules += ["git://useresponse/staging-1-3-osa11", "git://process_isgri_spectra/staging-1-3-osa11"]
-            modules += ["git://iisglobal"]
         elif osa_version_base == "OSA11.1":
             modules = ["git://ddosa/staging-1-3","git://findic/staging-1-3-icversion","git://ddosa11/staging-1-3"] 
             modules += ["git://useresponse/staging-1-3-osa11", "git://process_isgri_spectra/staging-1-3-osa11", "git://osa11p1/master"]
-            modules += ["git://iisglobal"]
         else:
             raise RuntimeError(f"unknown OSA version {osa_version_base}, complete version {osa_version}")
 
         modules += [ "git://rangequery/staging-1-3"]+extramodules+['git://ddosa_delegate/staging-1-3']
 
-
+        if 'iisglobal' in osa_version_modifiers:
+            modules += ["git://iisglobal"]
 
         assume = ['process_isgri_spectra.ScWSpectraList(input_scwlist=%s)'% scwlist_assumption[0],
                    scwlist_assumption[1],
