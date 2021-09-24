@@ -84,6 +84,31 @@ def get_osa_versions():
     return r_j
 
 
+class OSAVersion(Name):
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self,v):
+        if v is not None:
+            osa_version_base, osa_subversion, version_modifiers = split_osa_version(v)
+            # if self.check_value is not None:
+            #     self.check_value(v, units=self.units,name=self.name)
+            # if self._allowed_values is not None:
+            #     if v not in self._allowed_values:
+            #         raise RuntimeError('value',v,'not allowed, allowed=',self._allowed_values)
+
+            if osa_version_base not in ["OSA10.2", "OSA11.0", "OSA11.1"]:
+                raise RuntimeError('value', v, 'not allowed, allowed=', self._allowed_values)
+
+            if isinstance(v, (str, six.string_types)):
+                self._value = v.strip()
+            else:
+                self._value = v
+        else:
+            self._value=None
+
 def osa_common_instr_query():
     # not exposed to frontend
     # TODO make a special class (VS:??)
@@ -95,7 +120,7 @@ def osa_common_instr_query():
 
     radius = Angle(value=5.0, units='deg', name='radius')
 
-    osa_version = Name(name_format='str', name='osa_version')
+    osa_version = OSAVersion(name_format='str', name='osa_version')
     if  os.environ.get('DISPATCHER_MOCK_KB', 'no') == 'yes' or 'cdciweb01' in socket.gethostname():
         osa_version._allowed_values = [
             'OSA10.2', 'OSA11.0', 'OSA11.1']  # this really only for test
@@ -114,3 +139,20 @@ def osa_common_instr_query():
     ]
 
     return instr_query_pars
+
+
+def split_osa_version(osa_version):
+    version_and_modifiers = osa_version.split("--")
+   
+    osa_version = version_and_modifiers[0]
+    version_modifiers = version_and_modifiers[1:]
+
+    versions = osa_version.split("-", 1)
+    if len(versions) == 1:
+        osa_version_base, osa_subversion = versions[0], 'default-isdc'
+    elif len(versions) == 2:
+        osa_version_base, osa_subversion = versions
+    else:
+        raise RuntimeError(f"this should not be possible, OSA version split did not split as it should")
+
+    return osa_version_base, osa_subversion, version_modifiers
