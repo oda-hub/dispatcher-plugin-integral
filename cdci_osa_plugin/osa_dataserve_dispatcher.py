@@ -681,7 +681,7 @@ class OsaQuery(ProductQuery):
         max_pointings = int(par_dic.get('max_pointings', 50))
         # max_pointings = self.get_par_by_name('max_pointings').value
 
-        osa_version = par_dic.get('osa_version', 'OSA10.2')
+        osa_version = par_dic.get('osa_version', 'OSA11.1')
 
         scw_list = par_dic.get('scw_list', '')
         # scw_list = self.get_par_by_name('scw_list').value
