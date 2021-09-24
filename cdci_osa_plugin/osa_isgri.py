@@ -63,19 +63,20 @@ class ISGRISpectralBoundary(SpectralBoundary):
         if value < 15 or value > 800:
             raise RequestNotUnderstood(f'ISGRI energy range is restricted to 15 - 800 keV')
 
+
 def osa_isgri_factory():
 
     src_query = SourceQuery('src_query')
 
     instr_query_pars = osa_common_instr_query()
 
-
-
-    E1_keV = ISGRISpectralBoundary(value=15., E_units='keV', name='E1_keV')
+    E1_keV = ISGRISpectralBoundary(value=20., E_units='keV', name='E1_keV')
     E2_keV = ISGRISpectralBoundary(value=40., E_units='keV', name='E2_keV')
     spec_window = ParameterRange(E1_keV, E2_keV, 'spec_window')
-
     instr_query_pars.append(spec_window)
+
+    # radius = Angle(value=15.0, units='deg', name='radius')
+    # instr_query_pars.append(radius)
 
     instr_query = InstrumentQuery(
         name='isgri_parameters',
@@ -84,6 +85,8 @@ def osa_isgri_factory():
         input_prod_value=None,
         catalog=None,
         catalog_name='user_catalog')
+
+    instr_query.get_par_by_name('radius').value = 15.0
 
     light_curve = IsgriLightCurveQuery('isgri_lc_query')
 
@@ -100,9 +103,6 @@ def osa_isgri_factory():
     query_dictionary['isgri_spectrum'] = 'isgri_spectrum_query'
     query_dictionary['isgri_lc'] = 'isgri_lc_query'
     query_dictionary['spectral_fit'] = 'spectral_fit_query'
-
-    #print('--> conf_file',conf_file)
-    #print('--> conf_dir', conf_dir)
 
     return Instrument('isgri',
                       data_serve_conf_file=conf_file,
