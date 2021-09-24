@@ -250,10 +250,21 @@ def test_scw_list_file(dispatcher_long_living_fixture, dispatcher_test_conf, lis
             params[k] = str(v)
 
         expected_par_dict = {
-                **params,
-                'detection_threshold': 0.0,
-                "scw_list": scw_list,
-                "sub": "mtm@mtmco.net" if not token_none else None
+            **params,
+            'detection_threshold': 7.0,
+            'scw_list': scw_list,
+            'sub': 'mtm@mtmco.net' if not token_none else None,
+            'src_name': '1E 1740.7-2942',
+            'RA': 265.97845833,
+            'DEC': -29.74516667,
+            'T1': '2017-03-06T13:26:48.000',
+            'T2': '2017-03-06T15:32:27.000',
+            'E1_keV': 20.0,
+            'E2_keV': 40.0,
+            'integral_data_rights': 'public',
+            'osa_version': 'OSA11.1',
+            'max_pointings': 50,
+            'radius': 15.0,
         }
 
         restricted_par_dic = InstrumentQueryBackEnd.restricted_par_dic(expected_par_dict)
