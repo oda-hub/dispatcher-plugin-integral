@@ -140,6 +140,8 @@ def osa_common_instr_query():
 
     return instr_query_pars
 
+def get_known_osa_modifiers():
+    return ['iisglobal', 'jemxnrt']
 
 def split_osa_version(osa_version):
     version_and_modifiers = osa_version.split("--")
@@ -153,6 +155,16 @@ def split_osa_version(osa_version):
     elif len(versions) == 2:
         osa_version_base, osa_subversion = versions
     else:
-        raise RuntimeError(f"this should not be possible, OSA version split did not split as it should")
+        raise RuntimeError()
+
+    normalized_version_modifiers = list(sorted(set(version_modifiers)))
+    if version_modifiers != normalized_version_modifiers:
+        raise RuntimeError(f"non-normative OSA version modifier(s): '{'--'.join(version_modifiers)}', expected '{'--'.join(normalized_version_modifiers)}'. "
+                            "Modifers should be sorted and non-duplicate.")
+
+    known_osa_modifiers = get_known_osa_modifiers()
+    unknown_version_modifiers = set(version_modifiers) - set(known_osa_modifiers)
+    if len(unknown_version_modifiers) > 0:
+        raise RuntimeError(f"provided unknown OSA version modifier(s): '{'--'.join(unknown_version_modifiers)}' in version '{osa_version}', known: '{'--'.join(known_osa_modifiers)}'")
 
     return osa_version_base, osa_subversion, version_modifiers

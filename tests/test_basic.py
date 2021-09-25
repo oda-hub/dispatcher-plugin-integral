@@ -1,3 +1,4 @@
+import pytest
 import logging
 import requests
 
@@ -69,3 +70,49 @@ def test_no_debug_mode_empty_request(dispatcher_live_fixture_no_debug_mode):
     assert 'products_url' in dispatcher_config['cfg_dict']['dispatcher']
 
     logger.info(jdata['config'])
+
+
+def test_osa_version_splitting():
+    from cdci_osa_plugin.osa_common_pars import split_osa_version
+
+    # default versions
+    assert split_osa_version("OSA10.2") == ("OSA10.2", "default-isdc", [])
+    assert split_osa_version("OSA11.0") == ("OSA11.0", "default-isdc", [])
+
+    # IC dev versions
+    assert split_osa_version("OSA11.1") == ("OSA11.1", "default-isdc", [])
+
+    assert split_osa_version("OSA11.1-devsmth") == ("OSA11.1", "devsmth", [])
+
+    # dev may contain dashes too
+    assert split_osa_version("OSA11.1-devsmth-smth-else") == ("OSA11.1", "devsmth-smth-else", [])
+
+    # modifiers
+    assert split_osa_version("OSA11.1-devsmth-smth-else--iisglobal") == ("OSA11.1", "devsmth-smth-else", ["iisglobal"])
+    assert split_osa_version("OSA11.1-devsmth-smth-else--iisglobal--jemxnrt") == ("OSA11.1", "devsmth-smth-else", ["iisglobal", "jemxnrt"])
+    assert split_osa_version("OSA11.1-devsmth-smth-else--jemxnrt") == ("OSA11.1", "devsmth-smth-else", ["jemxnrt"])
+
+    # non-normative modiers
+
+    with pytest.raises(RuntimeError) as e:
+        split_osa_version("OSA11.1-devsmth-smth-else--jemxnrt--iisglobal")
+
+    assert str(e.value) == ("non-normative OSA version modifier(s): 'jemxnrt--iisglobal', "
+                            "expected 'iisglobal--jemxnrt'. "
+                            "Modifers should be sorted and non-duplicate.")
+
+                        
+    with pytest.raises(RuntimeError) as e:
+        split_osa_version("OSA11.1-devsmth-smth-else--jemxnrt--jemxnrt")
+
+    assert str(e.value) == ("non-normative OSA version modifier(s): 'jemxnrt--jemxnrt', "
+                            "expected 'jemxnrt'. "
+                            "Modifers should be sorted and non-duplicate.")
+
+
+    with pytest.raises(RuntimeError) as e:
+        split_osa_version("OSA11.1-devsmth-smth-else--jemxnrt--unknown")
+
+    assert str(e.value) == ("provided unknown OSA version modifier(s): 'unknown' "
+                            "in version 'OSA11.1-devsmth-smth-else', "
+                            "known: 'iisglobal--jemxnrt'")
