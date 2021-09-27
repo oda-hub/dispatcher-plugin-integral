@@ -91,13 +91,13 @@ class OSAVersion(Name):
                  value: Optional[str]=None,
                  name: Optional[str]=None, 
                  allowed_base_osa_version_values: Optional[list]=None,
-                 obsolete_base_osa_version_values: Optional[list]=None):        
+                 obsolete_base_osa_version_values: Optional[dict]=None):        
 
         if not (name is None or type(name) in [str]):
             raise RuntimeError(f"can not initialize parameter with name {name} and type {type(name)}")
 
         if obsolete_base_osa_version_values is None:
-            self._obsolete_base_osa_version_values = []
+            self._obsolete_base_osa_version_values = {}
         else:
             self._obsolete_base_osa_version_values = obsolete_base_osa_version_values
 
@@ -127,8 +127,9 @@ class OSAVersion(Name):
             osa_version_base, osa_subversion, version_modifiers = split_osa_version(v)
 
             if osa_version_base in self._obsolete_base_osa_version_values:
-                raise RequestNotUnderstood("Please note OSA11.0 is being phased out. "
-                                   "We consider that for all or almost all likely user requests OSA11.1 shoud be used instead of OSA11.0.")                                    
+                raise RequestNotUnderstood(f"Please note {osa_version_base} is being phased out. "
+                                           f"We consider that for all or almost all likely user requests " 
+                                           f"{self._obsolete_base_osa_version_values[osa_version_base]} shoud be used instead of {osa_version_base}.")                                    
 
             if osa_version_base not in self._allowed_base_osa_version_values:
                 # these should not be RuntimeError, but bad request errors. TODO to check if they propagate properly
@@ -162,7 +163,7 @@ def osa_common_instr_query():
     osa_version = OSAVersion(name='osa_version', 
                              value='OSA11.1', 
                              allowed_base_osa_version_values=["OSA10.2", "OSA11.1"],
-                             obsolete_base_osa_version_values=["OSA11.0"])
+                             obsolete_base_osa_version_values={"OSA11.0": "OSA11.1"})
     
     data_rights = Name(name_format='str', name='integral_data_rights', value="public")
     data_rights._allowed_values = ["public", "all-private"]
