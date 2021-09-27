@@ -713,17 +713,13 @@ class OsaQuery(ProductQuery):
         elif integral_data_rights != "public": 
             raise RuntimeError(f"unknown data rights role {integral_data_rights}") # duplication for safety
 
-        allowed_osa_versions = ["OSA10.2", "OSA11.1"]
-        if osa_version not in allowed_osa_versions:
+        # this is publicly accessible subset which might or might not be the same as allowed set
+        publicly_allowed_osa_versions = ["OSA10.2", "OSA11.1"]
+        if osa_version not in publicly_allowed_osa_versions:
             needed_roles.append('integral-private-qla')  # may be replaced!         
             needed_roles_with_comments['integral-private-qla'] = f"the requested OSA ({osa_version}) version is restricted, " \
-                                                                 f"publicly available osa versions: are {', '.join(allowed_osa_versions)}. " \
-                                                                  "Most likely you do not need to request it."
-
-        # hm
-        if osa_version == "OSA11.0":
-            raise RequestNotUnderstood("Please note OSA11.0 is being phased out. "
-                                       "We consider that for all or almost all likely user requests OSA11.1 shoud be used instead of OSA11.0.")
+                                                                 f"publicly available osa versions: are {', '.join(publicly_allowed_osa_versions)}. " \
+                                                                  "Most likely you do not need to request it."    
 
         if all([ needed_role in provided_roles for needed_role in needed_roles ]):                                
             return dict(authorization=True, needed_roles=[])        

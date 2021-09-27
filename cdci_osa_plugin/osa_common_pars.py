@@ -19,14 +19,16 @@ Module API
 """
 
 from __future__ import absolute_import, division, print_function
+from typing import Optional
 from cdci_data_analysis.analysis.parameters import *
 from datetime import timedelta
 import logging
 import json
 import redis
-import socket
 import odakb
 import os
+
+from cdci_data_analysis.analysis.exceptions import RequestNotUnderstood
 
 from builtins import (bytes, str, open, super, range,
                       zip, round, input, int, pow, object, map, zip)
@@ -84,6 +86,69 @@ def get_osa_versions():
     return r_j
 
 
+class OSAVersion(Name):
+    def __init__(self,
+                 value: Optional[str]=None,
+                 name: Optional[str]=None, 
+                 allowed_base_osa_version_values: Optional[list]=None,
+                 obsolete_base_osa_version_values: Optional[dict]=None):        
+
+        if not (name is None or type(name) in [str]):
+            raise RuntimeError(f"can not initialize parameter with name {name} and type {type(name)}")
+
+        if obsolete_base_osa_version_values is None:
+            self._obsolete_base_osa_version_values = {}
+        else:
+            self._obsolete_base_osa_version_values = obsolete_base_osa_version_values
+
+        if allowed_base_osa_version_values is None:
+            raise RuntimeError(f"can not initialize without allowed base OSA versions")
+        else:
+            self._allowed_base_osa_version_values = allowed_base_osa_version_values
+
+        self.name = name
+        self.value = value
+
+        self.units_name = "string"
+
+        if os.environ.get('DISPATCHER_MOCK_KB', 'no') != 'yes':
+            # this is in addition to base OSA versions
+            self._allowed_values = get_osa_versions()
+
+        
+    @property
+    def value(self):
+        return self._value
+
+
+    @value.setter
+    def value(self, v):
+        if v is not None:
+            osa_version_base, osa_subversion, version_modifiers = split_osa_version(v)
+
+            if osa_version_base in self._obsolete_base_osa_version_values:
+                raise RequestNotUnderstood(f"Please note {osa_version_base} is being phased out. "
+                                           f"We consider that for all or almost all likely user requests " 
+                                           f"{self._obsolete_base_osa_version_values[osa_version_base]} shoud be used instead of {osa_version_base}.")                                    
+
+            if osa_version_base not in self._allowed_base_osa_version_values:
+                # these should not be RuntimeError, but bad request errors. TODO to check if they propagate properly
+                raise RuntimeError(f'value {v} is not allowed. '
+                                   f'The OSA version should start with one of {self._allowed_base_osa_version_values}, '
+                                    'and may contain additional components.')
+
+            if osa_subversion != 'default-isdc':
+                # suggestions should be only given to users with special roles. Let's just give none
+                if f"{osa_version_base}-{osa_subversion}" not in self._allowed_values:
+                    raise RuntimeError("unknown dev OSA version!")
+
+            if isinstance(v, (str, six.string_types)):
+                self._value = v.strip()
+            else:
+                raise RuntimeError("OSA version should be a string")
+        else:
+            self._value = None
+
 def osa_common_instr_query():
     # not exposed to frontend
     # TODO make a special class (VS:??)
@@ -95,14 +160,11 @@ def osa_common_instr_query():
 
     radius = Angle(value=5.0, units='deg', name='radius')
 
-    osa_version = Name(name_format='str', name='osa_version', value='OSA11.1')
-    if os.environ.get('DISPATCHER_MOCK_KB', 'no') == 'yes' or 'cdciweb01' in socket.gethostname():
-        osa_version._allowed_values = [
-            'OSA10.2', 'OSA11.0', 'OSA11.1']  # this really only for test
-    else:
-        osa_version._allowed_values = get_osa_versions()
-        # can not really naturally select here by token roles
-
+    osa_version = OSAVersion(name='osa_version', 
+                             value='OSA11.1', 
+                             allowed_base_osa_version_values=["OSA10.2", "OSA11.1"],
+                             obsolete_base_osa_version_values={"OSA11.0": "OSA11.1"})
+    
     data_rights = Name(name_format='str', name='integral_data_rights', value="public")
     data_rights._allowed_values = ["public", "all-private"]
 
@@ -114,3 +176,32 @@ def osa_common_instr_query():
     ]
 
     return instr_query_pars
+
+def get_known_osa_modifiers():
+    return ['iisglobal', 'jemxnrt']
+
+def split_osa_version(osa_version):
+    version_and_modifiers = osa_version.split("--")
+   
+    osa_version = version_and_modifiers[0]
+    version_modifiers = version_and_modifiers[1:]
+
+    versions = osa_version.split("-", 1)
+    if len(versions) == 1:
+        osa_version_base, osa_subversion = versions[0], 'default-isdc'
+    elif len(versions) == 2:
+        osa_version_base, osa_subversion = versions
+    else:
+        raise RuntimeError()
+
+    normalized_version_modifiers = list(sorted(set(version_modifiers)))
+    if version_modifiers != normalized_version_modifiers:
+        raise RuntimeError(f"non-normative OSA version modifier(s): '{'--'.join(version_modifiers)}', expected '{'--'.join(normalized_version_modifiers)}'. "
+                            "Modifers should be sorted and non-duplicate.")
+
+    known_osa_modifiers = get_known_osa_modifiers()
+    unknown_version_modifiers = set(version_modifiers) - set(known_osa_modifiers)
+    if len(unknown_version_modifiers) > 0:
+        raise RuntimeError(f"provided unknown OSA version modifier(s): '{'--'.join(unknown_version_modifiers)}' in version '{osa_version}', known: '{'--'.join(known_osa_modifiers)}'")
+
+    return osa_version_base, osa_subversion, version_modifiers
