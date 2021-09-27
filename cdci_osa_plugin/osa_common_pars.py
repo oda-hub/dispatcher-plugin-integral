@@ -19,6 +19,7 @@ Module API
 """
 
 from __future__ import absolute_import, division, print_function
+from typing import Optional
 from cdci_data_analysis.analysis.parameters import *
 from datetime import timedelta
 import logging
@@ -85,29 +86,55 @@ def get_osa_versions():
 
 
 class OSAVersion(Name):
+    def __init__(self,
+                 value: Optional[str]=None,
+                 name: Optional[str]=None, 
+                 allowed_base_osa_version_values: Optional[list]=None):        
+
+        if not (name is None or type(name) in [str]):
+            raise RuntimeError(f"can not initialize parameter with name {name} and type {type(name)}")
+
+        if allowed_base_osa_version_values is None:
+            raise RuntimeError(f"can not initialize without allowed base OSA versions")
+        else:
+            self._allowed_base_osa_version_values = allowed_base_osa_version_values
+
+        self.name = name
+        self.value = value
+
+        self.units_name = "string"
+
+        if os.environ.get('DISPATCHER_MOCK_KB', 'no') != 'yes':
+            # this is in addition to base OSA versions
+            self._allowed_values = get_osa_versions()
+
+        
     @property
     def value(self):
         return self._value
 
     @value.setter
-    def value(self,v):
+    def value(self, v):
         if v is not None:
             osa_version_base, osa_subversion, version_modifiers = split_osa_version(v)
-            # if self.check_value is not None:
-            #     self.check_value(v, units=self.units,name=self.name)
-            # if self._allowed_values is not None:
-            #     if v not in self._allowed_values:
-            #         raise RuntimeError('value',v,'not allowed, allowed=',self._allowed_values)
 
-            if osa_version_base not in ["OSA10.2", "OSA11.0", "OSA11.1"]:
-                raise RuntimeError('value', v, 'not allowed, allowed=', self._allowed_values)
+            if osa_version_base not in self._allowed_base_osa_version_values:
+                # these should not be RuntimeError, but bad request errors. TODO to check if they propagate properly
+                raise RuntimeError(f'value {v} is not allowed. '
+                                   f'The OSA version should start with one of {self._allowed_base_osa_version_values}, '
+                                    'and may contain additional components.')
+
+            if osa_subversion != 'default-isdc':
+                # suggestions should be only given to users with special roles. Let's just give none
+                if f"{osa_version_base}-{osa_subversion}" not in self._allowed_values:
+                    raise RuntimeError("unknown dev OSA version!")
 
             if isinstance(v, (str, six.string_types)):
                 self._value = v.strip()
             else:
-                self._value = v
+                raise RuntimeError("OSA version should be a string")
         else:
-            self._value=None
+            self._value = None
 
 def osa_common_instr_query():
     # not exposed to frontend
@@ -120,14 +147,8 @@ def osa_common_instr_query():
 
     radius = Angle(value=5.0, units='deg', name='radius')
 
-    osa_version = OSAVersion(name_format='str', name='osa_version', value='OSA11.1')
-    if  os.environ.get('DISPATCHER_MOCK_KB', 'no') == 'yes' or 'cdciweb01' in socket.gethostname():
-        osa_version._allowed_values = [
-            'OSA10.2', 'OSA11.0', 'OSA11.1']  # this really only for test
-    else:
-        osa_version._allowed_values = get_osa_versions()
-        # can not really naturally select here by token roles
-
+    osa_version = OSAVersion(name='osa_version', value='OSA11.1', allowed_base_osa_version_values=["OSA10.2", "OSA11.1"])
+    
     data_rights = Name(name_format='str', name='integral_data_rights', value="public")
     data_rights._allowed_values = ["public", "all-private"]
 
