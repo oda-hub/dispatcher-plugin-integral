@@ -185,6 +185,8 @@ def get_known_osa_modifiers():
 
 def split_osa_version(osa_version):
     version_and_modifiers = osa_version.split("--")
+
+    logger.info("split_osa_version osa_version=%s", osa_version)
    
     osa_version = version_and_modifiers[0]
     version_modifiers = version_and_modifiers[1:]
@@ -206,5 +208,7 @@ def split_osa_version(osa_version):
     unknown_version_modifiers = set(version_modifiers) - set(known_osa_modifiers)
     if len(unknown_version_modifiers) > 0:
         raise RuntimeError(f"provided unknown OSA version modifier(s): '{'--'.join(unknown_version_modifiers)}' in version '{osa_version}', known: '{'--'.join(known_osa_modifiers)}'")
+
+    logger.info("split_osa_version to %s , %s , %s", osa_version, osa_version_base, osa_subversion)
 
     return osa_version_base, osa_subversion, version_modifiers
