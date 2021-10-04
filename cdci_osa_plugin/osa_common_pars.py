@@ -94,8 +94,8 @@ class OSAVersion(Name):
                  obsolete_base_osa_version_values: Optional[dict]=None):
 
         # TODO is this needed ? since the same check is performed within the Parameter constructor
-        if not (name is None or type(name) in [str]):
-            raise RuntimeError(f"can not initialize parameter with name {name} and type {type(name)}")
+        # if not (name is None or type(name) in [str]):
+        #     raise RuntimeError(f"can not initialize parameter with name {name} and type {type(name)}")
 
         if obsolete_base_osa_version_values is None:
             self._obsolete_base_osa_version_values = {}
@@ -107,8 +107,8 @@ class OSAVersion(Name):
         else:
             self._allowed_base_osa_version_values = allowed_base_osa_version_values
 
-        self.name = name
-        self.value = value
+        # self.name = name
+        # self.value = value
         # TODO was this supposed to be just units ?
         self.units_name = "string"
 
