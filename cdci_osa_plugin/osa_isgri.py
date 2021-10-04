@@ -75,9 +75,6 @@ def osa_isgri_factory():
     spec_window = ParameterRange(E1_keV, E2_keV, 'spec_window')
     instr_query_pars.append(spec_window)
 
-    # radius = Angle(value=15.0, units='deg', name='radius')
-    # instr_query_pars.append(radius)
-
     instr_query = InstrumentQuery(
         name='isgri_parameters',
         extra_parameters_list=instr_query_pars,

@@ -91,8 +91,9 @@ class OSAVersion(Name):
                  value: Optional[str]=None,
                  name: Optional[str]=None, 
                  allowed_base_osa_version_values: Optional[list]=None,
-                 obsolete_base_osa_version_values: Optional[dict]=None):        
+                 obsolete_base_osa_version_values: Optional[dict]=None):
 
+        # TODO is this needed ? since the same check is performed within the Parameter constructor
         if not (name is None or type(name) in [str]):
             raise RuntimeError(f"can not initialize parameter with name {name} and type {type(name)}")
 
@@ -108,16 +109,18 @@ class OSAVersion(Name):
 
         self.name = name
         self.value = value
-
+        # TODO was this supposed to be just units ?
         self.units_name = "string"
 
+        allowed_values = []
         if os.environ.get('DISPATCHER_MOCK_KB', 'no') != 'yes':
             # this is in addition to base OSA versions
-            self._allowed_values = get_osa_versions()
+            allowed_values = get_osa_versions()
         else:
-            self._allowed_values = ["OSA11.0-dev210827.0528-37487"]
+            allowed_values = ["OSA11.0-dev210827.0528-37487"]
 
-        
+        super(OSAVersion, self).__init__(value=value, name=name, allowed_values=allowed_values)
+
     @property
     def value(self):
         return self._value
@@ -164,7 +167,7 @@ def osa_common_instr_query():
     radius = Angle(value=5.0, units='deg', name='radius')
 
     osa_version = OSAVersion(name='osa_version', 
-                             value='OSA11.1', 
+                             value='OSA11.1',
                              allowed_base_osa_version_values=["OSA10.2", "OSA11.1"],
                              obsolete_base_osa_version_values={"OSA11.0": "OSA11.1"})
     
