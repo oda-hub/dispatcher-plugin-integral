@@ -5,9 +5,6 @@ import logging
 import requests
 import json
 import time
-import jwt
-import os
-import itertools
 
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
 
@@ -162,6 +159,42 @@ def test_description(dispatcher_live_fixture):
 
     assert len(expected_query_list) == len(returned_query_list)
     assert all(elem in returned_query_list for elem in expected_query_list)
+
+
+@pytest.mark.isgri_plugin
+@pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc', 'spectral_fit'])
+def test_instrument_description(dispatcher_live_fixture, product_type):
+    import oda_api.api
+
+    disp = oda_api.api.DispatcherAPI(url=dispatcher_live_fixture)
+    jdata = disp.get_product_description('jemx', product_type)
+
+    print(jdata)
+
+    assert jdata[0][0] == {'instrumet': 'jemx'}
+    assert jdata[0][1] == {'prod_dict': {'jemx_image': 'jemx_image_query',
+                                         'jemx_lc': 'jemx_lc_query',
+                                         'jemx_spectrum': 'jemx_spectrum_query',
+                                         'spectral_fit': 'spectral_fit_query'}}
+
+    # extract the list of expected queries
+    if product_type == 'jemx_spectrum':
+        expected_query_list = ['src_query', 'jemx_parameters', 'jemx_spectrum_query', ]
+    elif product_type == 'jemx_image':
+        expected_query_list = ['src_query', 'jemx_parameters', 'jemx_image_query', ]
+    elif product_type == 'jemx_lc':
+        expected_query_list = ['src_query', 'jemx_parameters', 'jemx_lc_query', ]
+    elif product_type == 'spectral_fit':
+        expected_query_list = ['src_query', 'jemx_parameters', 'spectral_fit_query', ]
+
+    returned_query_list = []
+    for q in jdata[0][2:]:
+        q_obj = ast.literal_eval(q)
+        returned_query_list.append(q_obj[0]['query_name'])
+
+    assert len(expected_query_list) == len(returned_query_list)
+    assert all(elem in returned_query_list for elem in expected_query_list)
+
 
 #TODO: to dispatcher
 # def validate_product(product_type, product):
