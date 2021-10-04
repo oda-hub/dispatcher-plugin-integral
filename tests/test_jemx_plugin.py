@@ -140,7 +140,7 @@ def test_jemx_products(dispatcher_long_living_fixture, product_type):
 
 
 @pytest.mark.jemx_plugin
-def test_description(dispatcher_live_fixture):
+def test_instrument_description(dispatcher_live_fixture):
     import oda_api.api
 
     disp = oda_api.api.DispatcherAPI(url=dispatcher_live_fixture)
@@ -163,7 +163,7 @@ def test_description(dispatcher_live_fixture):
 
 @pytest.mark.isgri_plugin
 @pytest.mark.parametrize("product_type", ['jemx_spectrum', 'jemx_image', 'jemx_lc', 'spectral_fit'])
-def test_instrument_description(dispatcher_live_fixture, product_type):
+def test_product_description(dispatcher_live_fixture, product_type):
     import oda_api.api
 
     disp = oda_api.api.DispatcherAPI(url=dispatcher_live_fixture)

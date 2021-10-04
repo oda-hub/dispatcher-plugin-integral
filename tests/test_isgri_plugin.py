@@ -460,7 +460,7 @@ def test_isgri_deny_wrong_energy_range(dispatcher_long_living_fixture):
 
 
 @pytest.mark.isgri_plugin
-def test_description(dispatcher_live_fixture):
+def test_instrument_description(dispatcher_live_fixture):
     import oda_api.api
 
     disp = oda_api.api.DispatcherAPI(url=dispatcher_live_fixture)
@@ -486,7 +486,7 @@ def test_description(dispatcher_live_fixture):
 
 @pytest.mark.isgri_plugin
 @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc', 'spectral_fit'])
-def test_instrument_description(dispatcher_live_fixture, product_type):
+def test_product_description(dispatcher_live_fixture, product_type):
     import oda_api.api
 
     disp = oda_api.api.DispatcherAPI(url=dispatcher_live_fixture)
