@@ -103,13 +103,13 @@ class OSAVersion(Name):
         else:
             self._allowed_base_osa_version_values = allowed_base_osa_version_values
 
+        super().__init__(value=value, name=name,)
+
         if os.environ.get('DISPATCHER_MOCK_KB', 'no') != 'yes':
             # this is in addition to base OSA versions
-            allowed_values = get_osa_versions()
+            self._allowed_values = get_osa_versions()
         else:
-            allowed_values = ["OSA11.0-dev210827.0528-37487"]
-
-        super().__init__(value=value, name=name, allowed_values=allowed_values)
+            self._allowed_values = ["OSA11.0-dev210827.0528-37487"]
 
     @property
     def value(self):
