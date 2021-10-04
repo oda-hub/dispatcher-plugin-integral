@@ -458,3 +458,24 @@ def test_isgri_deny_wrong_energy_range(dispatcher_long_living_fixture):
         else:
             assert jdata['error_message'] == 'ISGRI energy range is restricted to 15 - 800 keV'
 
+
+@pytest.mark.isgri_plugin
+def test_description(dispatcher_live_fixture):
+    import oda_api.api
+
+    disp = oda_api.api.DispatcherAPI(url=dispatcher_live_fixture)
+    jdata = disp.get_instrument_description('isgri')
+
+    assert jdata[0][0] == {'instrumet': 'isgri'}
+    assert jdata[0][1] == {'prod_dict': {'isgri_image': 'isgri_image_query', 'isgri_lc': 'isgri_lc_query', 'isgri_spectrum': 'isgri_spectrum_query', 'spectral_fit': 'spectral_fit_query'}}
+
+    # extract the list of queries
+    expected_query_list = ['src_query', 'isgri_parameters', 'isgri_image_query', 'isgri_spectrum_query', 'isgri_lc_query', 'spectral_fit_query',]
+
+    returned_query_list = []
+    for q in jdata[0][2:]:
+        q_obj = ast.literal_eval(q)
+        returned_query_list.append(q_obj[0]['query_name'])
+
+    assert len(expected_query_list) == len(returned_query_list)
+    assert all(elem in returned_query_list for elem in expected_query_list)
