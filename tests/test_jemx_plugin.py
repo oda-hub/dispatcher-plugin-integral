@@ -147,10 +147,18 @@ def test_instrument_description(dispatcher_live_fixture):
     jdata = disp.get_instrument_description('jemx')
 
     assert jdata[0][0] == {'instrumet': 'jemx'}
-    assert jdata[0][1] == {'prod_dict': {'jemx_image': 'jemx_image_query', 'jemx_lc': 'jemx_lc_query', 'jemx_spectrum': 'jemx_spectrum_query', 'spectral_fit': 'spectral_fit_query'}}
+    assert jdata[0][1] == {'prod_dict': {'jemx_image': 'jemx_image_query',
+                                         'jemx_lc': 'jemx_lc_query',
+                                         'jemx_spectrum': 'jemx_spectrum_query',
+                                         'spectral_fit': 'spectral_fit_query'}}
 
     # extract the list of queries
-    expected_query_list = ['src_query', 'jemx_parameters', 'jemx_image_query', 'jemx_spectrum_query', 'jemx_lc_query', 'spectral_fit_query',]
+    expected_query_list = ['src_query',
+                           'jemx_parameters',
+                           'jemx_image_query',
+                           'jemx_spectrum_query',
+                           'jemx_lc_query',
+                           'spectral_fit_query']
 
     returned_query_list = []
     for q in jdata[0][2:]:

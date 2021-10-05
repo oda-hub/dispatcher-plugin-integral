@@ -88,10 +88,10 @@ def get_osa_versions():
 
 class OSAVersion(Name):
     def __init__(self,
-                 value: Optional[str]=None,
-                 name: Optional[str]=None, 
-                 allowed_base_osa_version_values: Optional[list]=None,
-                 obsolete_base_osa_version_values: Optional[dict]=None):
+                 value: Optional[str] = None,
+                 name: Optional[str] = None,
+                 allowed_base_osa_version_values: Optional[list] = None,
+                 obsolete_base_osa_version_values: Optional[dict] = None):
 
         if obsolete_base_osa_version_values is None:
             self._obsolete_base_osa_version_values = {}
@@ -103,7 +103,7 @@ class OSAVersion(Name):
         else:
             self._allowed_base_osa_version_values = allowed_base_osa_version_values
 
-        super().__init__(value=value, name=name,)
+        super().__init__(value=value, name=name)
 
         if os.environ.get('DISPATCHER_MOCK_KB', 'no') != 'yes':
             # this is in addition to base OSA versions
@@ -114,7 +114,6 @@ class OSAVersion(Name):
     @property
     def value(self):
         return self._value
-
 
     @value.setter
     def value(self, v):
@@ -145,6 +144,7 @@ class OSAVersion(Name):
         else:
             self._value = None
 
+
 def osa_common_instr_query():
     # not exposed to frontend
     # TODO make a special class (VS:??)
@@ -173,8 +173,10 @@ def osa_common_instr_query():
 
     return instr_query_pars
 
+
 def get_known_osa_modifiers():
     return ['iisglobal', 'jemxnrt']
+
 
 def split_osa_version(osa_version):
     version_and_modifiers = osa_version.split("--")

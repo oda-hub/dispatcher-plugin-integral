@@ -473,7 +473,12 @@ def test_instrument_description(dispatcher_live_fixture):
                                          'spectral_fit': 'spectral_fit_query'}}
 
     # extract the list of queries
-    expected_query_list = ['src_query', 'isgri_parameters', 'isgri_image_query', 'isgri_spectrum_query', 'isgri_lc_query', 'spectral_fit_query',]
+    expected_query_list = ['src_query',
+                           'isgri_parameters',
+                           'isgri_image_query',
+                           'isgri_spectrum_query',
+                           'isgri_lc_query',
+                           'spectral_fit_query']
 
     returned_query_list = []
     for q in jdata[0][2:]:
