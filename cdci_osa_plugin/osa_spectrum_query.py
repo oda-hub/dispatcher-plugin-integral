@@ -383,7 +383,7 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
 
         modules += [ "git://rangequery/staging-1-3"]+extramodules+['git://ddosa_delegate/staging-1-3']
 
-        if 'iisfullbspec' in osa_version_modifiers:
+        if 'fullbkg' in osa_version_modifiers:
             modules += ["git://iisglobal"]
 
         assume = ['process_isgri_spectra.ScWSpectraList(input_scwlist=%s)'% scwlist_assumption[0],
