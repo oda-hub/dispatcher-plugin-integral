@@ -88,13 +88,10 @@ def get_osa_versions():
 
 class OSAVersion(Name):
     def __init__(self,
-                 value: Optional[str]=None,
-                 name: Optional[str]=None, 
-                 allowed_base_osa_version_values: Optional[list]=None,
-                 obsolete_base_osa_version_values: Optional[dict]=None):        
-
-        if not (name is None or type(name) in [str]):
-            raise RuntimeError(f"can not initialize parameter with name {name} and type {type(name)}")
+                 value: Optional[str] = None,
+                 name: Optional[str] = None,
+                 allowed_base_osa_version_values: Optional[list] = None,
+                 obsolete_base_osa_version_values: Optional[dict] = None):
 
         if obsolete_base_osa_version_values is None:
             self._obsolete_base_osa_version_values = {}
@@ -106,10 +103,7 @@ class OSAVersion(Name):
         else:
             self._allowed_base_osa_version_values = allowed_base_osa_version_values
 
-        self.name = name
-        self.value = value
-
-        self.units_name = "string"
+        super().__init__(value=value, name=name)
 
         if os.environ.get('DISPATCHER_MOCK_KB', 'no') != 'yes':
             # this is in addition to base OSA versions
@@ -117,11 +111,9 @@ class OSAVersion(Name):
         else:
             self._allowed_values = ["OSA11.0-dev210827.0528-37487"]
 
-        
     @property
     def value(self):
         return self._value
-
 
     @value.setter
     def value(self, v):
@@ -152,6 +144,7 @@ class OSAVersion(Name):
         else:
             self._value = None
 
+
 def osa_common_instr_query():
     # not exposed to frontend
     # TODO make a special class (VS:??)
@@ -164,7 +157,7 @@ def osa_common_instr_query():
     radius = Angle(value=5.0, units='deg', name='radius')
 
     osa_version = OSAVersion(name='osa_version', 
-                             value='OSA11.1', 
+                             value='OSA11.1',
                              allowed_base_osa_version_values=["OSA10.2", "OSA11.1"],
                              obsolete_base_osa_version_values={"OSA11.0": "OSA11.1"})
     
@@ -180,8 +173,10 @@ def osa_common_instr_query():
 
     return instr_query_pars
 
+
 def get_known_osa_modifiers():
     return ['iisglobal', 'jemxnrt']
+
 
 def split_osa_version(osa_version):
     version_and_modifiers = osa_version.split("--")

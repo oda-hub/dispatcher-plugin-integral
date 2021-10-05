@@ -1,11 +1,10 @@
+import ast
+
 import pytest
 import logging
 import requests
 import json
 import time
-import jwt
-import os
-import itertools
 
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
 
@@ -138,7 +137,6 @@ def test_jemx_products(dispatcher_long_living_fixture, product_type):
     
     assert c.status_code == 200
     assert jdata['job_status'] == 'done'
-
 
 
 #TODO: to dispatcher

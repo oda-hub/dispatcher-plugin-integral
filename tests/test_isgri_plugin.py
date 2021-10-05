@@ -5,12 +5,12 @@ import time
 import random
 import jwt
 import os
+import ast
 
 from astropy.io import fits
 import oda_api.api
 
 from cdci_data_analysis.pytest_fixtures import loop_ask, ask, dispatcher_fetch_dummy_products
-import requests
 
 logger = logging.getLogger(__name__)
 
@@ -457,4 +457,3 @@ def test_isgri_deny_wrong_energy_range(dispatcher_long_living_fixture):
             pass
         else:
             assert jdata['error_message'] == 'ISGRI energy range is restricted to 15 - 800 keV'
-
