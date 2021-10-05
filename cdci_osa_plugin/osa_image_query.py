@@ -30,7 +30,7 @@ from oda_api.data_products import NumpyDataProduct, NumpyDataUnit
 import numpy as np
 from .osa_catalog import OsaIsgriCatalog, OsaJemxCatalog
 from .osa_dataserve_dispatcher import OsaDispatcher, OsaQuery
-from .osa_common_pars import DummyOsaRes
+from .osa_common_pars import DummyOsaRes, split_osa_version
 
 
 logger = logging.getLogger(__name__)
@@ -232,13 +232,7 @@ class IsgriMosaicQuery(OsaMosaicQuery):
         if osa_version is None:
             raise MissingParameter("osa_version is needed")
 
-        versions = osa_version.split("-", 1)
-        if len(versions) == 1:
-            osa_version_base, osa_subversion = versions[0], 'default-isdc'
-        elif len(versions) == 2:
-            osa_version_base, osa_subversion = versions
-        else:
-            raise RuntimeError(f"this should not happen")
+        osa_version_base, osa_subversion, osa_version_modifiers = split_osa_version(osa_version)
 
         if osa_version_base == "OSA10.2":
             modules = ["git://ddosa/staging-1-3"] + \

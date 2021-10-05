@@ -114,6 +114,8 @@ class OSAVersion(Name):
         if os.environ.get('DISPATCHER_MOCK_KB', 'no') != 'yes':
             # this is in addition to base OSA versions
             self._allowed_values = get_osa_versions()
+        else:
+            self._allowed_values = ["OSA11.0-dev210827.0528-37487"]
 
         
     @property
@@ -127,13 +129,14 @@ class OSAVersion(Name):
             osa_version_base, osa_subversion, version_modifiers = split_osa_version(v)
 
             if osa_version_base in self._obsolete_base_osa_version_values:
-                raise RequestNotUnderstood(f"Please note {osa_version_base} is being phased out. "
-                                           f"We consider that for all or almost all likely user requests " 
-                                           f"{self._obsolete_base_osa_version_values[osa_version_base]} shoud be used instead of {osa_version_base}.")                                    
+                if osa_subversion == 'default-isdc':
+                    raise RequestNotUnderstood(f"Please note {osa_version_base} is being phased out. "
+                                            f"We consider that for all or almost all likely user requests " 
+                                            f"{self._obsolete_base_osa_version_values[osa_version_base]} shoud be used instead of {osa_version_base}.")                                    
 
-            if osa_version_base not in self._allowed_base_osa_version_values:
+            if osa_version_base not in (self._allowed_base_osa_version_values + list(self._obsolete_base_osa_version_values.keys())):
                 # these should not be RuntimeError, but bad request errors. TODO to check if they propagate properly
-                raise RuntimeError(f'value {v} is not allowed. '
+                raise RequestNotUnderstood(f'value {v} is not allowed. '
                                    f'The OSA version should start with one of {self._allowed_base_osa_version_values}, '
                                     'and may contain additional components.')
 
@@ -141,12 +144,12 @@ class OSAVersion(Name):
                 # suggestions should be only given to users with special roles. Let's just give none
                 if f"{osa_version_base}-{osa_subversion}" not in self._allowed_values:
                     logger.warning("unknown dev OSA version %s, allowed %s", f"{osa_version_base}-{osa_subversion}", self._allowed_values)
-                    raise RuntimeError("unknown dev OSA version!")
+                    raise RequestNotUnderstood("unknown dev OSA version!")
 
             if isinstance(v, (str, six.string_types)):
                 self._value = v.strip()
             else:
-                raise RuntimeError("OSA version should be a string")
+                raise RequestNotUnderstood("OSA version should be a string")
         else:
             self._value = None
 
@@ -183,6 +186,8 @@ def get_known_osa_modifiers():
 
 def split_osa_version(osa_version):
     version_and_modifiers = osa_version.split("--")
+
+    logger.info("split_osa_version osa_version=%s", osa_version)
    
     osa_version = version_and_modifiers[0]
     version_modifiers = version_and_modifiers[1:]
@@ -204,5 +209,7 @@ def split_osa_version(osa_version):
     unknown_version_modifiers = set(version_modifiers) - set(known_osa_modifiers)
     if len(unknown_version_modifiers) > 0:
         raise RuntimeError(f"provided unknown OSA version modifier(s): '{'--'.join(unknown_version_modifiers)}' in version '{osa_version}', known: '{'--'.join(known_osa_modifiers)}'")
+
+    logger.info("split_osa_version to %s , %s , %s", osa_version, osa_version_base, osa_subversion)
 
     return osa_version_base, osa_subversion, version_modifiers
