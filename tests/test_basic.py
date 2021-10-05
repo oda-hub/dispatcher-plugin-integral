@@ -1,8 +1,10 @@
 import pytest
 import logging
 import requests
+import ast
 
 logger = logging.getLogger(__name__)
+
 
 def test_empty_request(dispatcher_live_fixture):
     server = dispatcher_live_fixture
@@ -116,3 +118,63 @@ def test_osa_version_splitting():
     assert str(e.value) == ("provided unknown OSA version modifier(s): 'unknown' "
                             "in version 'OSA11.1-devsmth-smth-else', "
                             "known: 'iisglobal--jemxnrt'")
+
+
+@pytest.mark.parametrize("instrument", ['isgri', 'jemx'])
+def test_instrument_description(dispatcher_live_fixture, instrument):
+    import oda_api.api
+
+    disp = oda_api.api.DispatcherAPI(url=dispatcher_live_fixture)
+    jdata = disp.get_instrument_description(instrument)
+
+    assert jdata[0][0] == {'instrumet': instrument}
+    assert jdata[0][1] == {'prod_dict': {instrument + '_image': instrument + '_image_query',
+                                         instrument + '_lc': instrument + '_lc_query',
+                                         instrument + '_spectrum': instrument + '_spectrum_query',
+                                         'spectral_fit': 'spectral_fit_query'}}
+
+    # extract the list of queries
+    expected_query_list = ['src_query',
+                           instrument + '_parameters',
+                           instrument + '_image_query',
+                           instrument + '_spectrum_query',
+                           instrument + '_lc_query',
+                           'spectral_fit_query']
+
+    returned_query_list = []
+    for q in jdata[0][2:]:
+        q_obj = ast.literal_eval(q)
+        returned_query_list.append(q_obj[0]['query_name'])
+
+    assert len(expected_query_list) == len(returned_query_list)
+    assert all(elem in returned_query_list for elem in expected_query_list)
+
+
+@pytest.mark.parametrize("instrument", ['isgri', 'jemx'])
+@pytest.mark.parametrize("product_type", ['_spectrum', '_image', '_lc', 'spectral_fit'])
+def test_product_description(dispatcher_live_fixture, instrument, product_type):
+    import oda_api.api
+
+    instrument_product_type = product_type
+    if product_type != 'spectral_fit':
+        instrument_product_type = instrument + product_type
+
+    disp = oda_api.api.DispatcherAPI(url=dispatcher_live_fixture)
+    jdata = disp.get_product_description(instrument, instrument_product_type)
+
+    assert jdata[0][0] == {'instrumet': instrument}
+    assert jdata[0][1] == {'prod_dict': {instrument + '_image': instrument + '_image_query',
+                                         instrument + '_lc': instrument + '_lc_query',
+                                         instrument + '_spectrum': instrument + '_spectrum_query',
+                                         'spectral_fit': 'spectral_fit_query'}}
+
+    # extract the list of expected queries
+    expected_query_list = ['src_query', instrument + '_parameters', instrument_product_type + '_query']
+
+    returned_query_list = []
+    for q in jdata[0][2:]:
+        q_obj = ast.literal_eval(q)
+        returned_query_list.append(q_obj[0]['query_name'])
+
+    assert len(expected_query_list) == len(returned_query_list)
+    assert all(elem in returned_query_list for elem in expected_query_list)
