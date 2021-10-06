@@ -176,7 +176,7 @@ def osa_common_instr_query():
 
 
 def get_known_osa_modifiers():
-    return ['fullbkg', 'jemxnrt']
+    return ['fullbkg', 'jemxnrt', 'rmfoffset']
 
 
 def split_osa_version(osa_version):

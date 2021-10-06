@@ -369,15 +369,20 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
 
         osa_version_base, osa_subversion, osa_version_modifiers = split_osa_version(osa_version)
 
+        if 'rmfoffset' in osa_version_modifiers:
+            process_isgri_spectra_version = "git://process_isgri_spectra/staging-1-3-osa11-icinfo"
+        else:
+            process_isgri_spectra_version = "git://process_isgri_spectra/staging-1-3-osa11"
+        
         #TODO: this really should be re-used
         if osa_version_base == "OSA10.2":
             modules = ["git://ddosa/staging-1-3","git://useresponse/staging-1-3", "git://process_isgri_spectra/osa10-staging-1-3"]
         elif osa_version_base == "OSA11.0":
             modules = ["git://ddosa/staging-1-3","git://findic/staging-1-3-icversion","git://ddosa11/staging-1-3"] 
-            modules += ["git://useresponse/staging-1-3-osa11", "git://process_isgri_spectra/staging-1-3-osa11"]
+            modules += ["git://useresponse/staging-1-3-osa11", process_isgri_spectra_version]
         elif osa_version_base == "OSA11.1":
             modules = ["git://ddosa/staging-1-3","git://findic/staging-1-3-icversion","git://ddosa11/staging-1-3"] 
-            modules += ["git://useresponse/staging-1-3-osa11", "git://process_isgri_spectra/staging-1-3-osa11", "git://osa11p1/master"]
+            modules += ["git://useresponse/staging-1-3-osa11", process_isgri_spectra_version, "git://osa11p1/master"]
         else:
             raise RuntimeError(f"unknown OSA version {osa_version_base}, complete version {osa_version}")
 
@@ -385,7 +390,7 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
 
         if 'fullbkg' in osa_version_modifiers:
             modules += ["git://iisglobal"]
-
+        
         assume = ['process_isgri_spectra.ScWSpectraList(input_scwlist=%s)'% scwlist_assumption[0],
                    scwlist_assumption[1],
                   'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,E2=E2),
