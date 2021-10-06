@@ -90,17 +90,17 @@ def test_osa_version_splitting():
     assert split_osa_version("OSA11.1-devsmth-smth-else") == ("OSA11.1", "devsmth-smth-else", [])
 
     # modifiers
-    assert split_osa_version("OSA11.1-devsmth-smth-else--iisglobal") == ("OSA11.1", "devsmth-smth-else", ["iisglobal"])
-    assert split_osa_version("OSA11.1-devsmth-smth-else--iisglobal--jemxnrt") == ("OSA11.1", "devsmth-smth-else", ["iisglobal", "jemxnrt"])
+    assert split_osa_version("OSA11.1-devsmth-smth-else--fullbkg") == ("OSA11.1", "devsmth-smth-else", ["fullbkg"])
+    assert split_osa_version("OSA11.1-devsmth-smth-else--fullbkg--jemxnrt--rmfoffset") == ("OSA11.1", "devsmth-smth-else", ["fullbkg", "jemxnrt", 'rmfoffset'])
     assert split_osa_version("OSA11.1-devsmth-smth-else--jemxnrt") == ("OSA11.1", "devsmth-smth-else", ["jemxnrt"])
 
     # non-normative modiers
 
     with pytest.raises(RuntimeError) as e:
-        split_osa_version("OSA11.1-devsmth-smth-else--jemxnrt--iisglobal")
+        split_osa_version("OSA11.1-devsmth-smth-else--jemxnrt--fullbkg")
 
-    assert str(e.value) == ("non-normative OSA version modifier(s): 'jemxnrt--iisglobal', "
-                            "expected 'iisglobal--jemxnrt'. "
+    assert str(e.value) == ("non-normative OSA version modifier(s): 'jemxnrt--fullbkg', "
+                            "expected 'fullbkg--jemxnrt'. "
                             "Modifers should be sorted and non-duplicate.")
 
                         
@@ -117,7 +117,7 @@ def test_osa_version_splitting():
 
     assert str(e.value) == ("provided unknown OSA version modifier(s): 'unknown' "
                             "in version 'OSA11.1-devsmth-smth-else', "
-                            "known: 'iisglobal--jemxnrt'")
+                            "known: 'fullbkg--jemxnrt--rmfoffset'")
 
 
 @pytest.mark.parametrize("instrument", ['isgri', 'jemx'])

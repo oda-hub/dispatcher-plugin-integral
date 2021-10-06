@@ -135,6 +135,7 @@ class OSAVersion(Name):
             if osa_subversion != 'default-isdc':
                 # suggestions should be only given to users with special roles. Let's just give none
                 if f"{osa_version_base}-{osa_subversion}" not in self._allowed_values:
+                    logger.warning("unknown dev OSA version %s, allowed %s", f"{osa_version_base}-{osa_subversion}", self._allowed_values)
                     raise RequestNotUnderstood("unknown dev OSA version!")
 
             if isinstance(v, (str, six.string_types)):
@@ -175,7 +176,7 @@ def osa_common_instr_query():
 
 
 def get_known_osa_modifiers():
-    return ['iisglobal', 'jemxnrt']
+    return ['fullbkg', 'jemxnrt', 'rmfoffset']
 
 
 def split_osa_version(osa_version):
