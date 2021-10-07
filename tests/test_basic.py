@@ -91,7 +91,7 @@ def test_osa_version_splitting():
 
     # modifiers
     assert split_osa_version("OSA11.1-devsmth-smth-else--fullbkg") == ("OSA11.1", "devsmth-smth-else", ["fullbkg"])
-    assert split_osa_version("OSA11.1-devsmth-smth-else--fullbkg--jemxnrt--rmfoffset") == ("OSA11.1", "devsmth-smth-else", ["fullbkg", "jemxnrt", 'rmfoffset'])
+    assert split_osa_version("OSA11.1-devsmth-smth-else--fullbkg--jemxnrt--rmfoffsetv1") == ("OSA11.1", "devsmth-smth-else", ["fullbkg", "jemxnrt", 'rmfoffsetv1'])
     assert split_osa_version("OSA11.1-devsmth-smth-else--jemxnrt") == ("OSA11.1", "devsmth-smth-else", ["jemxnrt"])
 
     # non-normative modiers
@@ -117,7 +117,7 @@ def test_osa_version_splitting():
 
     assert str(e.value) == ("provided unknown OSA version modifier(s): 'unknown' "
                             "in version 'OSA11.1-devsmth-smth-else', "
-                            "known: 'fullbkg--jemxnrt--rmfoffset'")
+                            "known: 'fullbkg--jemxnrt--rmfoffsetv1'")
 
 
 @pytest.mark.parametrize("instrument", ['isgri', 'jemx'])

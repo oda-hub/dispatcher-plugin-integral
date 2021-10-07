@@ -369,8 +369,8 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
 
         osa_version_base, osa_subversion, osa_version_modifiers = split_osa_version(osa_version)
 
-        if 'rmfoffset' in osa_version_modifiers:
-            process_isgri_spectra_version = "git://process_isgri_spectra/staging-1-3-osa11-icinfo"
+        if 'rmfoffsetv1' in osa_version_modifiers:
+            process_isgri_spectra_version = "git://process_isgri_spectra/staging-1-3-osa11-icinfov1"
         else:
             process_isgri_spectra_version = "git://process_isgri_spectra/staging-1-3-osa11"
         
