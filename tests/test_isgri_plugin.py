@@ -351,6 +351,9 @@ def test_valid_token_oda_api(dispatcher_long_living_fixture):
     }
     encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
 
+    if isinstance(encoded_token, bytes):
+        encoded_token = encoded_token.decode()
+
     disp = oda_api.api.DispatcherAPI(
         url=dispatcher_long_living_fixture)
     product = disp.get_product(
@@ -403,6 +406,9 @@ def test_invalid_token_oda_api(dispatcher_long_living_fixture):
         "exp": exp_time
     }
     encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
+
+    if isinstance(encoded_token, bytes):
+        encoded_token = encoded_token.decode()
 
     disp = oda_api.api.DispatcherAPI(
         url=dispatcher_long_living_fixture)
