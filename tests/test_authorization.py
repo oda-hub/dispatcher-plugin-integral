@@ -50,7 +50,13 @@ def construct_token(roles, dispatcher_test_conf, expires_in=5000):
         "roles": roles
     }
 
-    return jwt.encode(token_payload, secret_key, algorithm='HS256')
+    encoded_token = jwt.encode(token_payload, secret_key, algorithm='HS256')
+
+    if isinstance(encoded_token, bytes):
+        encoded_token = encoded_token.decode()
+
+    return encoded_token
+
 
 
 @pytest.mark.isgri_plugin
