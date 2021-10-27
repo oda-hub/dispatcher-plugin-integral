@@ -334,7 +334,29 @@ class OsaDispatcher(object):
             elif self._test_products_method == "timesystem":
                 # cons is expected
                 timesystem_api_base = "https://www.astro.unige.ch/cdci/astrooda/dispatch-data/gw/timesystem/api"
-                prod_list_raw = requests.get(f"{timesystem_api_base}/v1.0/scwlist/cons/{T1_iso}/{T2_iso}?&ra={RA}&dec={DEC}&radius={radius}").json()
+
+                prod_list_raw = None
+
+                for i_attempt in range(10):                
+                    url = f"{timesystem_api_base}/v1.0/scwlist/cons/{T1_iso}/{T2_iso}?&ra={RA}&dec={DEC}&radius={radius}"
+
+                    logger.debug('timesystem request url: %s', url)
+
+                    try:
+                        response = requests.get(url)
+
+                        logger.debug('timesystem response: %s', response.text)
+
+                        prod_list_raw = response.json()
+                    except Exception as e:
+                        logger.error('timesystem error: %s', repr(e))
+                        raise
+                    else:
+                        break
+
+                if prod_list_raw is None:
+                    raise Exception('unable to get scwlist from timesystem!')
+                    
 
                 prod_list = [ scw for scw in prod_list_raw if scw.endswith("0010.001") ] 
                 # ? &min_good_isgri=1000
