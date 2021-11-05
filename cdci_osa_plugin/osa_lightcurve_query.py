@@ -56,7 +56,7 @@ from cdci_data_analysis.analysis.plot_tools import ScatterPlot
 from cdci_data_analysis.analysis.exceptions import RequestNotUnderstood
 from oda_api.data_products import NumpyDataProduct
 from .osa_dataserve_dispatcher import OsaDispatcher, OsaQuery
-from .osa_common_pars import DummyOsaRes
+from .osa_common_pars import DummyOsaRes, split_osa_version
 
 
 class OsaLightCurve(LightCurveProduct):
@@ -488,23 +488,25 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
         #print('-->src_name', src_name)
         target = "ISGRILCSum"
 
+        osa_version_base, osa_subversion, osa_version_modifiers = split_osa_version(osa_version)
+
         if extramodules is None:
             extramodules = []
 
-        if osa_version == "OSA10.2":
+        if osa_version_base == "OSA10.2":
             modules = ["git://ddosa/staging-1-3", 'git://process_isgri_lc/staging'] + \
                 extramodules + ['git://ddosa_delegate/staging-1-3']
-        elif osa_version == "OSA11.0":
+        elif osa_version_base == "OSA11.0":
             modules = ["git://ddosa/staging-1-3", "git://findic/staging-1-3-icversion", "git://ddosa11/icversion",
                        'git://process_isgri_lc/staging'] + extramodules + ['git://ddosa_delegate/staging-1-3']
-        elif osa_version == "OSA11.1":
+        elif osa_version_base == "OSA11.1":
             modules = ["git://ddosa/staging-1-3", "git://findic/staging-1-3-icversion", "git://ddosa11/icversion",
                        'git://process_isgri_lc/staging'] + extramodules + ['git://ddosa_delegate/staging-1-3', "git://osa11p1/master"]        
-        elif osa_version == "OSA11.2":
+        elif osa_version_base == "OSA11.2":
             modules = ["git://ddosa/staging-1-3", "git://findic/staging-1-3-icversion", "git://ddosa11/icversion",
                        'git://process_isgri_lc/staging'] + extramodules + ['git://ddosa_delegate/staging-1-3', "git://osa11p1/master"]        
         else:
-            raise Exception("unknown osa version: "+osa_version)
+            raise RuntimeError(f"unknown OSA version {osa_version_base}, complete version {osa_version}")
 
         assume = ['process_isgri_lc.ScWLCList(input_scwlist=%s)' % scwlist_assumption[0],
                   scwlist_assumption[1],
@@ -515,6 +517,9 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
                   'ddosa.ImagingConfig(use_SouFit=0,use_version="soufit0_p2",use_DoPart2=1)',
                   'ddosa.CatForLC(use_minsig=3)',
                   'ddosa.LCTimeBin(use_time_bin_seconds=%f)' % delta_t]
+
+        if osa_subversion != "default-isdc":
+            assume.append(f'ddosa.ICRoot(use_ic_root_version="{osa_subversion}")')                  
 
         return target, modules, assume
 
