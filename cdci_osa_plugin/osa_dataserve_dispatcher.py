@@ -697,7 +697,7 @@ class OsaQuery(ProductQuery):
         if max_pointings > 50:
             needed_roles.append('unige-hpc-full')
             needed_roles_with_comments['unige-hpc-full'] = f"it is needed to request > 50 ScW, you requested max_pointings={max_pointings}"
-
+    
         if len(scw_list) > 50:
             needed_roles.append('unige-hpc-full')
             needed_roles_with_comments['unige-hpc-full'] = f"it is needed to request > 50 ScW, you requested scw_list) = [ .. {len(scw_list)} items .. ]"
@@ -705,6 +705,18 @@ class OsaQuery(ProductQuery):
         if max_pointings > 500 or len(scw_list) > 500:
             needed_roles.append('unige-hpc-extreme') 
             needed_roles_with_comments['unige-hpc-extreme'] = "it is needed to request > 500 ScW"
+
+
+        # HOTFIX #81
+        try:
+            if any([scw.endswith('.000') for scw in scw_list]) and integral_data_rights == "public":
+                # TODO/HOTFIX: this role does not exist. It's better to have another high-level method which checks this. To define which.
+                needed_roles.append('integral-public-nrt')
+                needed_roles_with_comments['integral-public-nrt'] = (f"some of the pointings you requested are NRT, but you requested public data. "
+                                                                    f"This was likely a mistake, since almost none of of NRT data is public.")
+        except Exception as e:
+            # hotfix failed!
+            pass
 
         if integral_data_rights == "all-private": 
             needed_roles.append('integral-private-qla')            
