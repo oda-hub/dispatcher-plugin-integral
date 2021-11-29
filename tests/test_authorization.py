@@ -265,6 +265,7 @@ def test_scw_list_file(dispatcher_long_living_fixture, dispatcher_test_conf, lis
             'DEC': -29.74516667,
             'T1': '2017-03-06T13:26:48.000',
             'T2': '2017-03-06T15:32:27.000',
+            'T_format': 'isot',
             'E1_keV': 20.0,
             'E2_keV': 40.0,
             'integral_data_rights': 'public',
