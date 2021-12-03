@@ -367,8 +367,9 @@ def test_osa_versions(dispatcher_long_living_fixture, dispatcher_test_conf, role
 
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
-# some combinations of data rights and IC might be disfavored, but let's not enforce it now
-@pytest.mark.parametrize("roles", ["", "integral-private-qla"])
+# TODO: role integral-public-nrt should not be assigned. But we need a generic check in the dispatcher at a similar level to check_roles
+# TODO: is there such a thing? need to investigate a bit
+@pytest.mark.parametrize("roles", ["", "integral-private-qla", "integral-public-nrt"])
 @pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
 @pytest.mark.parametrize("scw_version", ["000", "001"])
 def test_nrt_access(dispatcher_long_living_fixture, dispatcher_test_conf, roles, integral_data_rights, scw_version):
@@ -397,24 +398,24 @@ def test_nrt_access(dispatcher_long_living_fixture, dispatcher_test_conf, roles,
     expected_message = ''
     expected_error = None
 
-    if scw_version == "000" and integral_data_rights != "all-private":
-        expected_query_status = None
-        expected_job_status = None
-        expected_status_code = 403
-        expected_message = ("Unfortunately, your priviledges are not sufficient to make the "
-                            "request for this particular product and parameter combination.\n"
-                           f"- Your priviledge roles include {roles_list}\n"
-                            "- You are lacking all of the following roles:\n"
-                            " - integral-public-nrt: some of the pointings you requested are NRT,"
-                            " but you requested public data. This was likely a mistake, "
-                            "since almost none of of NRT data is public.\n"
-                            "You can request support if you think you should be able to make this request.")
-    
     if integral_data_rights == "all-private" and "integral-private-qla" not in roles:
         expected_query_status = None
         expected_job_status = None
         expected_status_code = 403
         expected_message = None
+
+    if scw_version == "000" and integral_data_rights in ["public", None] and "integral-public-nrt" not in roles:
+        expected_query_status = None
+        expected_job_status = None
+        expected_status_code = 403
+        expected_message = ("Unfortunately, your priviledges are not sufficient to make the "
+                            "request for this particular product and parameter combination.\n"
+                        f"- Your priviledge roles include {roles_list}\n"
+                            "- You are lacking all of the following roles:\n"
+                            " - integral-public-nrt: some of the pointings you requested are NRT,"
+                            " but you requested public data. This was likely a mistake, "
+                            "since almost none of of NRT data is public.\n"
+                            "You can request support if you think you should be able to make this request.")                                    
 
     jdata = ask(server,
                 params=params,
