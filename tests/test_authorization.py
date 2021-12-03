@@ -396,7 +396,7 @@ def test_nrt_access(dispatcher_long_living_fixture, dispatcher_test_conf, roles,
     expected_status_code = 200
     expected_message = ''
     expected_error = None
-        
+
     if scw_version == "000" and integral_data_rights != "all-private":
         expected_query_status = None
         expected_job_status = None
@@ -415,7 +415,6 @@ def test_nrt_access(dispatcher_long_living_fixture, dispatcher_test_conf, roles,
         expected_job_status = None
         expected_status_code = 403
         expected_message = None
-
 
     jdata = ask(server,
                 params=params,
