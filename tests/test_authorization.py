@@ -363,3 +363,69 @@ def test_osa_versions(dispatcher_long_living_fixture, dispatcher_test_conf, role
 
     if expected_error is not None:        
         assert jdata["error"] == expected_error
+
+
+@pytest.mark.isgri_plugin
+@pytest.mark.isgri_plugin_dummy
+# some combinations of data rights and IC might be disfavored, but let's not enforce it now
+@pytest.mark.parametrize("roles", ["", "integral-private-qla"])
+@pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
+@pytest.mark.parametrize("scw_version", ["000", "001"])
+def test_nrt_access(dispatcher_long_living_fixture, dispatcher_test_conf, roles, integral_data_rights, scw_version):
+    server = dispatcher_long_living_fixture
+    logger.info("constructed server: %s", server)
+    
+    params = {
+        **dummy_params_by_instrument['isgri'],
+        "product_type": "isgri_image",
+        "query_type": "Dummy",
+        "scw_list": [f"0665{i:04d}0010.{scw_version}" for i in range(5)],
+        "osa_version": "OSA10.2",
+        "integral_data_rights": integral_data_rights
+    }
+
+    params['token'] = construct_token(roles, dispatcher_test_conf)
+
+    # just for having the roles in a list
+    roles_list = [r.strip() for r in roles.split(',')]
+
+    # ok by default
+    # invalid request takes priority over unauthorized
+    expected_query_status = 'done'
+    expected_job_status = 'done'
+    expected_status_code = 200
+    expected_message = ''
+    expected_error = None
+        
+    if scw_version == "000" and integral_data_rights != "all-private":
+        expected_query_status = None
+        expected_job_status = None
+        expected_status_code = 403
+        expected_message = ("Unfortunately, your priviledges are not sufficient to make the "
+                            "request for this particular product and parameter combination.\n"
+                           f"- Your priviledge roles include {roles_list}\n"
+                            "- You are lacking all of the following roles:\n"
+                            " - integral-public-nrt: some of the pointings you requested are NRT,"
+                            " but you requested public data. This was likely a mistake, "
+                            "since almost none of of NRT data is public.\n"
+                            "You can request support if you think you should be able to make this request.")
+    
+    if integral_data_rights == "all-private" and "integral-private-qla" not in roles:
+        expected_query_status = None
+        expected_job_status = None
+        expected_status_code = 403
+        expected_message = None
+
+
+    jdata = ask(server,
+                params=params,
+                expected_query_status=expected_query_status,
+                expected_job_status=expected_job_status,
+                expected_status_code=expected_status_code,
+                )
+
+    if expected_message is not None:        
+        assert jdata["exit_status"]["message"] == expected_message
+
+    if expected_error is not None:        
+        assert jdata["error"] == expected_error
