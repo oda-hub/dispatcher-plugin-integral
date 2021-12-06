@@ -706,6 +706,11 @@ class OsaQuery(ProductQuery):
             needed_roles.append('unige-hpc-extreme') 
             needed_roles_with_comments['unige-hpc-extreme'] = "it is needed to request > 500 ScW"
 
+        if any([scw.endswith('.000') for scw in scw_list]) and integral_data_rights == "public":
+            needed_roles.append('integral-public-nrt')
+            needed_roles_with_comments['integral-public-nrt'] = (f"some of the pointings you requested are NRT, but you requested public data. "
+                                                                f"This was likely a mistake, since almost none of of NRT data is public.")
+    
         if integral_data_rights == "all-private": 
             needed_roles.append('integral-private-qla')            
             needed_roles_with_comments['integral-private-qla'] = "this role is needed to access private INTEGRAL data "\
