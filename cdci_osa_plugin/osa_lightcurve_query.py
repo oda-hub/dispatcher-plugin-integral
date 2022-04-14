@@ -498,7 +498,7 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
                 extramodules + ['git://ddosa_delegate/staging-1-3']
         elif osa_version_base == "OSA11.2":
             modules = ["git://ddosa/staging-1-3", "git://findic/staging-1-3-icversion", "git://ddosa11/icversion",
-                       'git://process_isgri_lc/staging'] + extramodules + ['git://ddosa_delegate/staging-1-3', "git://osa11p1/master"]        
+                       'git://process_isgri_lc/staging'] + extramodules + ['git://ddosa_delegate/staging-1-3']        
         else:
             raise RuntimeError(f"unknown OSA version {osa_version_base}, complete version {osa_version}")
 
@@ -570,7 +570,7 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
                 extramodules + ['git://ddosa_delegate/staging-1-3']
         elif osa_version == "OSA11.2":
             modules = ["git://ddosa/staging-1-3", "git://ddjemx", "git://findic/icversionpy37", "git://ddosa11/icversion"] \
-                + extramodules + ['git://ddosa_delegate/staging-1-3', "git://osa11p1/master"]
+                + extramodules + ['git://ddosa_delegate/staging-1-3']
         else:
             raise Exception("unknown osa version: " + osa_version)
 
