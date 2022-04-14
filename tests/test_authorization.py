@@ -269,7 +269,7 @@ def test_scw_list_file(dispatcher_long_living_fixture, dispatcher_test_conf, lis
             'E1_keV': 20.0,
             'E2_keV': 40.0,
             'integral_data_rights': 'public',
-            'osa_version': 'OSA11.1',
+            'osa_version': 'OSA11.2',
             'max_pointings': 50,
             'radius': 15.0,
         }
@@ -286,7 +286,7 @@ def test_scw_list_file(dispatcher_long_living_fixture, dispatcher_test_conf, lis
 # some combinations of data rights and IC might be disfavored, but let's not enforce it now
 @pytest.mark.parametrize("roles", ["", "integral-private-qla"])
 @pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
-@pytest.mark.parametrize("osa_version", ["public-OSA10.2", "obsolete-OSA11.0", "private-OSA11.0-dev210827.0528-37487", "public-OSA11.1", "invalid-OSA01.2"]) 
+@pytest.mark.parametrize("osa_version", ["public-OSA10.2", "obsolete-OSA11.0", "private-OSA11.0-dev210827.0528-37487", "public-OSA11.2", "invalid-OSA01.2"]) 
 def test_osa_versions(dispatcher_long_living_fixture, dispatcher_test_conf, roles, integral_data_rights, osa_version):
     server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
@@ -346,7 +346,7 @@ def test_osa_versions(dispatcher_long_living_fixture, dispatcher_test_conf, role
         expected_query_status = None
         expected_job_status = None
         expected_status_code = 400
-        expected_error = 'RequestNotUnderstood():Please note OSA11.0 is being phased out. We consider that for all or almost all likely user requests OSA11.1 shoud be used instead of OSA11.0.'
+        expected_error = 'RequestNotUnderstood():Please note OSA11.0 is being phased out. We consider that for all or almost all likely user requests OSA11.2 shoud be used instead of OSA11.0.'
         expected_message = None
     else:
         RuntimeError("programming error")

@@ -83,22 +83,22 @@ def test_osa_version_splitting():
     assert split_osa_version("OSA11.2-beta") == ("OSA11.2", "beta", [])
 
     # IC dev versions
-    assert split_osa_version("OSA11.1") == ("OSA11.1", "default-isdc", [])
+    assert split_osa_version("OSA11.2") == ("OSA11.2", "default-isdc", [])
 
-    assert split_osa_version("OSA11.1-devsmth") == ("OSA11.1", "devsmth", [])
+    assert split_osa_version("OSA11.2-devsmth") == ("OSA11.2", "devsmth", [])
 
     # dev may contain dashes too
-    assert split_osa_version("OSA11.1-devsmth-smth-else") == ("OSA11.1", "devsmth-smth-else", [])
+    assert split_osa_version("OSA11.2-devsmth-smth-else") == ("OSA11.2", "devsmth-smth-else", [])
 
     # modifiers
-    assert split_osa_version("OSA11.1-devsmth-smth-else--fullbkg") == ("OSA11.1", "devsmth-smth-else", ["fullbkg"])
-    assert split_osa_version("OSA11.1-devsmth-smth-else--fullbkg--jemxnrt--rmfoffsetv1") == ("OSA11.1", "devsmth-smth-else", ["fullbkg", "jemxnrt", 'rmfoffsetv1'])
-    assert split_osa_version("OSA11.1-devsmth-smth-else--jemxnrt") == ("OSA11.1", "devsmth-smth-else", ["jemxnrt"])
+    assert split_osa_version("OSA11.2-devsmth-smth-else--fullbkg") == ("OSA11.2", "devsmth-smth-else", ["fullbkg"])
+    assert split_osa_version("OSA11.2-devsmth-smth-else--fullbkg--jemxnrt--rmfoffsetv1") == ("OSA11.2", "devsmth-smth-else", ["fullbkg", "jemxnrt", 'rmfoffsetv1'])
+    assert split_osa_version("OSA11.2-devsmth-smth-else--jemxnrt") == ("OSA11.2", "devsmth-smth-else", ["jemxnrt"])
 
     # non-normative modiers
 
     with pytest.raises(RuntimeError) as e:
-        split_osa_version("OSA11.1-devsmth-smth-else--jemxnrt--fullbkg")
+        split_osa_version("OSA11.2-devsmth-smth-else--jemxnrt--fullbkg")
 
     assert str(e.value) == ("non-normative OSA version modifier(s): 'jemxnrt--fullbkg', "
                             "expected 'fullbkg--jemxnrt'. "
@@ -106,7 +106,7 @@ def test_osa_version_splitting():
 
                         
     with pytest.raises(RuntimeError) as e:
-        split_osa_version("OSA11.1-devsmth-smth-else--jemxnrt--jemxnrt")
+        split_osa_version("OSA11.2-devsmth-smth-else--jemxnrt--jemxnrt")
 
     assert str(e.value) == ("non-normative OSA version modifier(s): 'jemxnrt--jemxnrt', "
                             "expected 'jemxnrt'. "
@@ -114,10 +114,10 @@ def test_osa_version_splitting():
 
 
     with pytest.raises(RuntimeError) as e:
-        split_osa_version("OSA11.1-devsmth-smth-else--jemxnrt--unknown")
+        split_osa_version("OSA11.2-devsmth-smth-else--jemxnrt--unknown")
 
     assert str(e.value) == ("provided unknown OSA version modifier(s): 'unknown' "
-                            "in version 'OSA11.1-devsmth-smth-else', "
+                            "in version 'OSA11.2-devsmth-smth-else', "
                             "known: 'fullbkg--jemxnrt--rmfoffsetv1'")
 
 

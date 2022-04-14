@@ -158,9 +158,9 @@ def osa_common_instr_query():
     radius = Angle(value=5.0, units='deg', name='radius')
 
     osa_version = OSAVersion(name='osa_version', 
-                             value='OSA11.1',
-                             allowed_base_osa_version_values=["OSA10.2", "OSA11.1", "OSA11.2"],
-                             obsolete_base_osa_version_values={"OSA11.0": "OSA11.1"})
+                             value='OSA11.2',
+                             allowed_base_osa_version_values=["OSA10.2", "OSA11.2"],
+                             obsolete_base_osa_version_values={"OSA11.0": "OSA11.2", "OSA11.1": "OSA11.2"})
     
     data_rights = Name(name_format='str', name='integral_data_rights', value="public")
     data_rights._allowed_values = ["public", "all-private"]

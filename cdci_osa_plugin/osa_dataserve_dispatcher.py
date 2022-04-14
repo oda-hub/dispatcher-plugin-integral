@@ -483,7 +483,7 @@ class OsaDispatcher(object):
                                                     prompt_delegate = run_asynch,
                                                     callback = call_back_url)
 
-            backend_comment,backend_warning=self.get_comments(res)
+            backend_comment,backend_warning=self.get_comments(1)
 
 
 
@@ -719,7 +719,7 @@ class OsaQuery(ProductQuery):
             raise RuntimeError(f"unknown data rights role {integral_data_rights}") # duplication for safety
 
         # this is publicly accessible subset which might or might not be the same as allowed set
-        publicly_allowed_osa_versions = ["OSA10.2", "OSA11.1"]
+        publicly_allowed_osa_versions = ["OSA10.2", "OSA11.2"]
         if osa_version not in publicly_allowed_osa_versions:
             needed_roles.append('integral-private-qla')  # may be replaced!         
             needed_roles_with_comments['integral-private-qla'] = f"the requested OSA ({osa_version}) version is restricted, " \
