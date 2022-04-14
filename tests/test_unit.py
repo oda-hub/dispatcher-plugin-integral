@@ -24,7 +24,7 @@ def test_osa_versions():
                     scwlist_assumption=["sa", "sb"],
                     E1=25.,
                     E2=80.,
-                    osa_version="OSA11.0",
+                    osa_version="OSA11.2",
                 ) == (
                         'mosaic_ii_skyimage', 
                         ['git://ddosa/staging-1-3', 
@@ -42,14 +42,14 @@ def test_osa_versions():
                     scwlist_assumption=["sa", "sb"],
                     E1=25.,
                     E2=80.,
-                    osa_version="OSA11.0-dev",
+                    osa_version="OSA11.2-dev",
                 ))
     assert IsgriSpectrumQuery("name").set_instr_dictionaries(
                     extramodules=[],
                     scwlist_assumption=["sa", "sb"],
                     E1=25.,
                     E2=80.,
-                    osa_version="OSA11.0-dev",
+                    osa_version="OSA11.2-dev",
                 ) == (
                         'ISGRISpectraSum', 
                         [
@@ -77,7 +77,7 @@ def test_osa_versions():
                     scwlist_assumption=["sa", "sb"],
                     E1=25.,
                     E2=80.,
-                    osa_version="OSA11.0-dev",
+                    osa_version="OSA11.2-dev",
                 ) == (
                         'mosaic_ii_skyimage', 
                         ['git://ddosa/staging-1-3', 
