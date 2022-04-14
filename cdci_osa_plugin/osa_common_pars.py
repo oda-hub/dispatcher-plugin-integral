@@ -109,7 +109,7 @@ class OSAVersion(Name):
             # this is in addition to base OSA versions
             self._allowed_values = get_osa_versions()
         else:
-            self._allowed_values = ["OSA11.0-dev210827.0528-37487"]
+            self._allowed_values = ["OSA11.2-dev210827.0528-37487"]
 
     @property
     def value(self):

@@ -286,7 +286,7 @@ def test_scw_list_file(dispatcher_long_living_fixture, dispatcher_test_conf, lis
 # some combinations of data rights and IC might be disfavored, but let's not enforce it now
 @pytest.mark.parametrize("roles", ["", "integral-private-qla"])
 @pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
-@pytest.mark.parametrize("osa_version", ["public-OSA10.2", "obsolete-OSA11.0", "private-OSA11.0-dev210827.0528-37487", "public-OSA11.2", "invalid-OSA01.2"]) 
+@pytest.mark.parametrize("osa_version", ["public-OSA10.2", "obsolete-OSA11.2", "private-OSA11.2-dev210827.0528-37487", "public-OSA11.2", "invalid-OSA01.2"]) 
 def test_osa_versions(dispatcher_long_living_fixture, dispatcher_test_conf, roles, integral_data_rights, osa_version):
     server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)

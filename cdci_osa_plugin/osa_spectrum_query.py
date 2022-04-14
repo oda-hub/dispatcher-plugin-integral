@@ -377,9 +377,6 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
         #TODO: this really should be re-used
         if osa_version_base == "OSA10.2":
             modules = ["git://ddosa/staging-1-3","git://useresponse/staging-1-3", "git://process_isgri_spectra/osa10-staging-1-3"]
-        elif osa_version_base == "OSA11.0":
-            modules = ["git://ddosa/staging-1-3","git://findic/staging-1-3-icversion","git://ddosa11/staging-1-3"] 
-            modules += ["git://useresponse/staging-1-3-osa11", process_isgri_spectra_version]
         elif osa_version_base == "OSA11.2":
             #TODO: change!
             modules = ["git://ddosa/staging-1-3","git://findic/staging-1-3-icversion","git://ddosa11/staging-1-3"] 

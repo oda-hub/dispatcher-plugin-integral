@@ -79,7 +79,7 @@ def test_osa_version_splitting():
 
     # default versions
     assert split_osa_version("OSA10.2") == ("OSA10.2", "default-isdc", [])
-    assert split_osa_version("OSA11.0") == ("OSA11.0", "default-isdc", [])
+    assert split_osa_version("OSA11.2") == ("OSA11.2", "default-isdc", [])
     assert split_osa_version("OSA11.2-beta") == ("OSA11.2", "beta", [])
 
     # IC dev versions
