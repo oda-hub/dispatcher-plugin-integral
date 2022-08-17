@@ -19,7 +19,8 @@ install_req = [
     'astropy',
     'simple_logger',
     'numpy',
-    'sentry-sdk'
+    'sentry-sdk',
+    'werkzeug==2.1.2'
 ]
 
 test_req = [
