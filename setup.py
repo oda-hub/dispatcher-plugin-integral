@@ -18,7 +18,9 @@ install_req = [
     'cdci_data_analysis',
     'astropy',
     'simple_logger',
-    'numpy'
+    'numpy',
+    'sentry-sdk',
+    'werkzeug==2.1.2'
 ]
 
 test_req = [
