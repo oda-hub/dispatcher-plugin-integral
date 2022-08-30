@@ -22,6 +22,7 @@ install_req = [
 ]
 
 test_req = [
+    'cdci_data_analysis[test]',
     'pytest',
     'pytest-depends',
 ]
