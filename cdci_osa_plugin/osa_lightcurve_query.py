@@ -147,12 +147,13 @@ class OsaLightCurve(LightCurveProduct):
 
                 out_file_name = Path(input_lc_path).resolve().stem
 
-                OsaLightCurve.ensure_timedel(du)
+                if du.data is not None:
+                    OsaLightCurve.ensure_timedel(du)
 
-                lc = cls(name='isgri_lc', data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
+                    lc = cls(name='isgri_lc', data=npd, file_name=out_file_name, file_dir=file_dir, prod_prefix=prod_prefix,
                          src_name=src_name, meta_data=meta_data)
 
-                lc_list.append(lc)
+                    lc_list.append(lc)
 
         return lc_list
 
