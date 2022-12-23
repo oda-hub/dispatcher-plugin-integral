@@ -243,11 +243,11 @@ class OsaLightCurve(LightCurveProduct):
         y = data['RATE']
         dy = data['ERROR']
         try:
-            mjdref = header['mjdref'] + np.int(x.min())
+            mjdref = header['mjdref'] + int(x.min())
         except:
-            mjdref = header['MJDREF'] + np.int(x.min())
+            mjdref = header['MJDREF'] + int(x.min())
 
-        x = x - np.int(x.min())
+        x = x - int(x.min())
 
         sp = ScatterPlot(w=600, h=600, x_label='MJD-%d  (days)' %
                          mjdref, y_label='Rate  (cts/s)')
