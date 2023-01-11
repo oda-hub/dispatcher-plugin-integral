@@ -21,7 +21,7 @@ def test_empty_request(dispatcher_live_fixture):
     assert c.status_code == 400
 
      # parameterize this
-    assert sorted(jdata['installed_instruments']) == sorted(['empty', 'empty-async', 'empty-semi-async', 'empty-development', 'isgri', 'jemx', 'osa_fake'])
+    assert sorted(jdata['installed_instruments']) == sorted(['empty', 'empty-async', 'empty-semi-async', 'isgri', 'jemx', 'osa_fake'])
 
     assert jdata['debug_mode'] == "yes"
     assert 'dispatcher-config' in jdata['config']
