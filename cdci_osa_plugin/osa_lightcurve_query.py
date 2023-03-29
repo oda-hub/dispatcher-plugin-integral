@@ -91,9 +91,13 @@ class OsaLightCurve(LightCurveProduct):
     @staticmethod
     def ensure_timedel(du):
         # TODO: move to https://github.com/integral-observatory/ogip/
+<<<<<<< HEAD
         if 'TIMEDEL' in list(du.data):
+=======
+        if 'TIMEDEL' in du.data or "XAX_E" in du.data:
+>>>>>>> LC_issue_solving
             print(
-                f"\033[31m TIMEDEL column already available in du: {du} \033[0m")
+                f"\033[31m TIMEDEL or XAX_E column already available in du: {du} \033[0m")
         else:
             timedel = du.header['TIMEDEL']
             timepix = du.header['TIMEPIXR']
@@ -102,6 +106,8 @@ class OsaLightCurve(LightCurveProduct):
         
             for i in range(len(t_lc) - 1):
                 dt_lc[i + 1] = min(timedel / 2, t_lc[i + 1] - t_lc[i] - dt_lc[i])
+                if dt_lc[i + 1] <= 0:
+                    dt_lc[i + 1] = timedel / 2
         
             _d = np.array(du.data)
             _o = append_fields(_d, 'TIMEDEL', dt_lc*2)
