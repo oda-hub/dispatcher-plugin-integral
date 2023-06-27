@@ -46,6 +46,8 @@ __author__ = "Andrea Tramacere"
 from astropy.io import  fits as pf
 import glob
 
+import logging
+
 from pathlib import Path
 
 from cdci_data_analysis.analysis.io_helper import FitsFile
@@ -57,6 +59,9 @@ from .osa_dataserve_dispatcher import  OsaDispatcher, OsaQuery
 from oda_api.data_products import NumpyDataProduct
 
 from .osa_common_pars import  DummyOsaRes, split_osa_version
+
+
+logger = logging.getLogger(__name__)
 
 
 class JemxSpectrumProduct(SpectrumProduct):
