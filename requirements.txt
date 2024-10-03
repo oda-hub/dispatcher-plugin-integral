@@ -4,7 +4,7 @@
 
 ddaclient
 oda-knowledge-base[rdf,cwl]
-astroquery-integral==0.1.0 # not needed apart from test
+astroquery-integral # not needed apart from test
 astropy
 simple_logger
 numpy
