@@ -146,7 +146,10 @@ def test_instrument_description(dispatcher_live_fixture, instrument):
 
     returned_query_list = []
     for q in jdata[0][2:]:
-        q_obj = ast.literal_eval(q)
+        if isinstance(q, str):
+            q_obj = ast.literal_eval(q)
+        else:
+            q_obj = q
         returned_query_list.append(q_obj[0]['query_name'])
 
     assert len(expected_query_list) == len(returned_query_list)
