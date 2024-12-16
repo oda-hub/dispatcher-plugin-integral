@@ -64,6 +64,7 @@ def construct_token(roles, dispatcher_test_conf, expires_in=5000):
 # @pytest.mark.dependency(depends=["test_default"])
 @pytest.mark.parametrize("max_pointings,scw_list_size", [(10, 10), (10, 100), (100, 10)])
 @pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
+# when integral_data_rights == None it means "parameter not set" regardless of the call_mode
 @pytest.mark.parametrize("product_type", ['isgri_spectrum'])
 # too much repetetion, maybe run timetimes
 # @pytest.mark.parametrize("product_type", ['isgri_spectrum', 'isgri_image', 'isgri_lc', 'jemx_image'])
