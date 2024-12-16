@@ -131,12 +131,15 @@ def test_unauthorized(dispatcher_long_living_fixture, dispatcher_test_conf, prod
                 **{ k:v for k,v in params.items() if k not in ['product_type', 'query_type'] },
             )
 
-        if exit_status_message_parts == []:
+        if exit_status_message_parts == [] and integral_data_rights is not None:
             product = request()
             logger.info("product: %s", product)
             logger.info("product show %s", product.show())
+        elif integral_data_rights is None: 
+            with pytest.raises(oda_api.api.RequestNotUnderstood):
+                request()
         else:
-            with pytest.raises((oda_api.api.RemoteException, oda_api.api.RequestNotUnderstood)):
+            with pytest.raises(oda_api.api.RemoteException):
                 request()
 
 
