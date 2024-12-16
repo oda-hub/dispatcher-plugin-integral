@@ -138,7 +138,7 @@ class OSAVersion(String):
                     logger.warning("unknown dev OSA version %s, allowed %s", f"{osa_version_base}-{osa_subversion}", self._allowed_values)
                     raise RequestNotUnderstood("unknown dev OSA version!")
 
-            if isinstance(v, (str, six.string_types)):
+            if isinstance(v, str):
                 self._value = v.strip()
             else:
                 raise RequestNotUnderstood("OSA version should be a string")
