@@ -20,7 +20,7 @@ Module API
 
 from __future__ import absolute_import, division, print_function
 from typing import Optional
-from cdci_data_analysis.analysis.parameters import *
+from cdci_data_analysis.analysis.parameters import String, Integer, Angle
 from datetime import timedelta
 import logging
 import json
@@ -86,7 +86,7 @@ def get_osa_versions():
     return r_j
 
 
-class OSAVersion(Name):
+class OSAVersion(String):
     def __init__(self,
                  value: Optional[str] = None,
                  name: Optional[str] = None,
@@ -162,7 +162,7 @@ def osa_common_instr_query():
                              allowed_base_osa_version_values=["OSA10.2", "OSA11.2"],
                              obsolete_base_osa_version_values={"OSA11.0": "OSA11.2", "OSA11.1": "OSA11.2"})
     
-    data_rights = Name(name_format='str', name='integral_data_rights', value="public")
+    data_rights = String(name_format='str', name='integral_data_rights', value="public")
     data_rights._allowed_values = ["public", "all-private"]
 
     instr_query_pars = [
