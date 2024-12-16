@@ -136,7 +136,7 @@ def test_unauthorized(dispatcher_long_living_fixture, dispatcher_test_conf, prod
             logger.info("product: %s", product)
             logger.info("product show %s", product.show())
         else:
-            with pytest.raises(oda_api.api.RemoteException, oda_api.api.RequestNotUnderstood):
+            with pytest.raises((oda_api.api.RemoteException, oda_api.api.RequestNotUnderstood)):
                 request()
 
 
