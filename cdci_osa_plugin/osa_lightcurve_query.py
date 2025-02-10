@@ -52,9 +52,9 @@ from cdci_data_analysis.analysis.queries import LightCurveQuery
 from cdci_data_analysis.analysis.products import LightCurveProduct, QueryProductList, QueryOutput
 from cdci_data_analysis.analysis.io_helper import FilePath
 from cdci_data_analysis.analysis.parameters import TimeDelta
-from cdci_data_analysis.analysis.plot_tools import ScatterPlot
 from cdci_data_analysis.analysis.exceptions import RequestNotUnderstood
 from oda_api.data_products import NumpyDataProduct
+from oda_api.plot_tools_utils import ScatterPlot
 from .osa_dataserve_dispatcher import OsaDispatcher, OsaQuery
 from .osa_common_pars import DummyOsaRes, split_osa_version
 
