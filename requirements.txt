@@ -1,5 +1,5 @@
--e git+https://github.com/oda-hub/dispatcher-app.git@master#egg=cdci_data_analysis[test]
--e git+https://github.com/oda-hub/oda_api@master#egg=oda_api
+-e git+https://github.com/oda-hub/dispatcher-app.git@plot-tools-in-oda-api#egg=cdci_data_analysis[test]
+-e git+https://github.com/oda-hub/oda_api@no-dispatcher#egg=oda_api
 
 
 ddaclient
