@@ -252,8 +252,15 @@ class OsaLightCurve(LightCurveProduct):
 
         x = x - int(x.min())
 
-        sp = ScatterPlot(w=600, h=600, x_label='MJD-%d  (days)' %
-                         mjdref, y_label='Rate  (cts/s)')
+        x_range = [(x - dx).min(), (x + dx).max()]
+        y_range = [(y - dy).min(), (y + dy).max()]
+
+        sp = ScatterPlot(w=600, h=600,
+                         x_label='MJD-%d  (days)' % mjdref,
+                         y_label='Rate  (cts/s)',
+                         x_range=x_range,
+                         y_range=y_range)
+
         sp.add_errorbar(x, y, yerr=dy, xerr=dx)
 
         footer_str = None
