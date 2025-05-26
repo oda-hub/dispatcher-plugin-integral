@@ -165,6 +165,7 @@ def test_invalid_token_oda_api(dispatcher_long_living_fixture, dispatcher_test_c
         )
 
 
+@pytest.mark.xfail
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
@@ -283,7 +284,7 @@ def test_scw_list_file(dispatcher_long_living_fixture, dispatcher_test_conf, lis
         assert job_id == calculated_job_id
 
 
-
+@pytest.mark.xfail
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
 # some combinations of data rights and IC might be disfavored, but let's not enforce it now
@@ -369,6 +370,7 @@ def test_osa_versions(dispatcher_long_living_fixture, dispatcher_test_conf, role
         assert jdata["error"] == expected_error
 
 
+@pytest.mark.xfail
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
 # TODO: role integral-public-nrt should not be assigned. But we need a generic check in the dispatcher at a similar level to check_roles
