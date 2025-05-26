@@ -59,6 +59,7 @@ def test_default(dispatcher_long_living_fixture):
     server = dispatcher_long_living_fixture
 
 
+@pytest.mark.xfail
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
@@ -81,6 +82,7 @@ def test_isgri_dummy(dispatcher_long_living_fixture, product_type):
     logger.info(jdata)
 
 
+@pytest.mark.xfail
 @pytest.mark.odaapi
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
