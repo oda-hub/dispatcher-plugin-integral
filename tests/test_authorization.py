@@ -58,7 +58,6 @@ def construct_token(roles, dispatcher_test_conf, expires_in=5000):
     return encoded_token
 
 
-@pytest.mark.xfail
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
 # @pytest.mark.dependency(depends=["test_default"])
