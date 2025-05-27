@@ -70,7 +70,7 @@ def construct_token(roles, dispatcher_test_conf, expires_in=5000):
 @pytest.mark.parametrize("roles", [None, [], ["unige-hpc-full"]])
 @pytest.mark.parametrize("call_mode", ["ask", "odaapi"])
 def test_unauthorized(dispatcher_long_living_fixture, dispatcher_test_conf, product_type, max_pointings, integral_data_rights, scw_list_size, roles, call_mode):
-    dispatcher_fetch_dummy_products("default", reuse=True)
+    # dispatcher_fetch_dummy_products("default", reuse=True)
 
     server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
