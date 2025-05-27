@@ -164,7 +164,6 @@ def test_invalid_token_oda_api(dispatcher_long_living_fixture, dispatcher_test_c
         )
 
 
-@pytest.mark.xfail
 @pytest.mark.isgri_plugin
 @pytest.mark.isgri_plugin_dummy
 @pytest.mark.dependency(depends=["test_default"])
