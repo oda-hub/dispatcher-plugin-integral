@@ -200,6 +200,7 @@ class IsgriMosaicQuery(OsaMosaicQuery):
         dummy_cache = config.dummy_cache
 
         skyima = '%s/isgri_query_mosaic.fits' % dummy_cache
+        skyima = os.path.join(os.path.dirname(__file__), dummy_cache, 'isgri_query_mosaic.fits')
         res = DummyOsaRes()
         res.__setattr__('skyima', skyima)
 
