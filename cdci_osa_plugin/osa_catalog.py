@@ -66,7 +66,16 @@ class OsaIsgriCatalog(BasicCatalog):
 
 
 
-        self.add_column(data=NEW_SOURCE, name='NEW_SOURCE')
+        # Convert NEW_SOURCE to proper uint16 format (negative values to 0)
+        if NEW_SOURCE is not None:
+            if hasattr(NEW_SOURCE, '__iter__'):
+                # Handle array-like data
+                NEW_SOURCE = np.where(np.array(NEW_SOURCE) < 0, 0, NEW_SOURCE)
+            else:
+                # Handle scalar data
+                NEW_SOURCE = max(0, NEW_SOURCE)
+
+        self.add_column(data=NEW_SOURCE, name='NEW_SOURCE', dtype='uint16')
         self.add_column(data=ISGRI_FLAG, name='ISGRI_FLAG', dtype=int)
         self.add_column(data=FLAG, name='FLAG', dtype=int)
         self.add_column(data=ERR_RAD, name='ERR_RAD', dtype=float)
@@ -77,7 +86,9 @@ class OsaIsgriCatalog(BasicCatalog):
 
         get_key_column = lambda key, default=None: [de.get(key, default) for de in distlist]
 
-        #print(get_key_column('name'), cls)
+        # Convert NEW_SOURCE values to proper uint16 format (negative values to 0)
+        new_source_raw = get_key_column("NEW_SOURCE", 0)
+        new_source_converted = [max(0, val) if val is not None else 0 for val in new_source_raw]
 
         return cls(get_key_column('name'),
                    get_key_column('ra'),
@@ -85,7 +96,7 @@ class OsaIsgriCatalog(BasicCatalog):
                    significance=get_key_column('DETSIG', 0),
                    frame="fk5",
                    ISGRI_FLAG=get_key_column("ISGRI_FLAG", 1),
-                   NEW_SOURCE=get_key_column("NEW_SOURCE", 0),
+                   NEW_SOURCE=new_source_converted,
                    FLAG=get_key_column("FLAG", 1),
                    ERR_RAD=get_key_column('err_rad', 0.01))
 
@@ -105,12 +116,21 @@ class OsaIsgriCatalog(BasicCatalog):
         catalog['RA_FIN'][msk]=catalog['RA_OBJ'][msk]
         catalog['DEC_FIN'][msk] = catalog['DEC_OBJ'][msk]
 
+        # Convert NEW_SOURCE to proper uint16 format (negative values to 0)
+        new_source_data = catalog['NEW_SOURCE']
+        if hasattr(new_source_data, '__iter__'):
+            # Handle array-like data
+            new_source_converted = np.where(new_source_data < 0, 0, new_source_data)
+        else:
+            # Handle scalar data
+            new_source_converted = max(0, new_source_data)
+
         return cls( [n.strip() for n in catalog['NAME']],
                     catalog['RA_FIN'],
                     catalog['DEC_FIN'],
                     significance=catalog['DETSIG'],
                     frame=frame,
-                    NEW_SOURCE=catalog['NEW_SOURCE'],
+                    NEW_SOURCE=new_source_converted,
                     ISGRI_FLAG=catalog['ISGRI_FLAG'],
                     FLAG=catalog['FLAG'],
                     ERR_RAD=catalog['ERR_RAD'] )
