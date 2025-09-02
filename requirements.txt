@@ -25,6 +25,8 @@ astropy-iers-data==0.2025.9.1.0.42.11
 astroquery==0.4.10
     # via oda-api
 astroquery-integral==0.4.5
+async-timeout==5.0.1 ; python_full_version < '3.11.3'
+    # via redis
 attrs==25.3.0
     # via jsonschema
 backports-tarfile==1.2.0 ; python_full_version < '3.12'
@@ -351,6 +353,8 @@ rdflib==7.1.4
     #   schema-salad
 rdflib-jsonld==0.6.2
     # via oda-knowledge-base
+redis==6.4.0
+    # via cdci-osa-plugin
 requests==2.32.5
     # via
     #   astroquery
