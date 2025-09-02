@@ -23,6 +23,7 @@ dependencies = [
     "simple_logger",
     "numpy",
     "cdci-data-analysis",
+    "redis"
 ]
 
 [dependency-groups] 
