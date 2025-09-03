@@ -135,6 +135,31 @@ class OsaIsgriCatalog(BasicCatalog):
                     FLAG=catalog['FLAG'],
                     ERR_RAD=catalog['ERR_RAD'] )
 
+    @classmethod
+    def from_table(cls, table):
+        try:
+            src_names=table['src_names']
+            significance=table['significance']
+            frame = table.meta['FRAME']
+            lon=table[table.meta['LON_NAME']]
+            lat =table[table.meta['LAT_NAME']]
+            unit = table.meta['COORD_UNIT']
+            # cat= cls(src_names,lon,lat,significance,_table=table,unit=unit,frame=frame)
+            cat = cls(src_names,
+                      lon=lon,
+                      lat=lat,
+                      significance=significance,
+                      frame=frame,
+                      unit=unit,
+                      NEW_SOURCE=table['NEW_SOURCE'],
+                      ISGRI_FLAG=table['ISGRI_FLAG'],
+                      FLAG=table['FLAG'],
+                      ERR_RAD=table['ERR_RAD'])
+        except Exception as e:
+            raise RuntimeError('Table in fits file is not valid to build Catalog')
+
+        return  cat
+
 
 class OsaJemxCatalog(BasicCatalog):
 
