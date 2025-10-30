@@ -43,6 +43,7 @@ import json
 # relative import eg: from .mod import f
 import ddaclient as dc
 import logging
+import os
 import requests
 from cdci_osa_plugin import conf_file as plugin_conf_file
 
@@ -160,6 +161,7 @@ class OsaDispatcher(object):
         try:
             _data_server_url = config.data_server_url
             _data_server_cache = config.data_server_cache
+            _logdir = os.path.join(config.dispatcher_mnt_point, 'logs', 'ddaclient')
 
             if _data_server_url is None or _data_server_cache is None:
                 raise Exception(f"some config values are not set, loading from {config}")
@@ -168,10 +170,10 @@ class OsaDispatcher(object):
             logger.error("problem loading config with %s: %s", config, e)
             raise
 
-        self.config(_data_server_url,_data_server_cache)
+        self.config(_data_server_url,_data_server_cache,_logdir)
 
 
-    def config(self,_data_server_url,_data_server_cache):
+    def config(self,_data_server_url,_data_server_cache,_logdir):
         logger.info("\033[31msetting config with %s to %s, %s\033[0m", self.config, _data_server_url, _data_server_cache)
 
         if _data_server_cache is None or _data_server_cache is None:
@@ -179,6 +181,7 @@ class OsaDispatcher(object):
 
         self.data_server_url = _data_server_url
         self.data_server_cache = _data_server_cache
+        self.logdir = _logdir
 
     def get_exception_status_message(self,e):
         status=''
@@ -203,7 +206,7 @@ class OsaDispatcher(object):
 
     def test_communication(self, max_trial=120, sleep_s=1,logger=None):
         print('--> start test connection to',self.data_server_url)
-        remote = dc.RemoteDDA(self.data_server_url, self.data_server_cache)
+        remote = dc.RemoteDDA(self.data_server_url, self.data_server_cache, self.logdir)
 
         query_out = QueryOutput()
 
@@ -349,7 +352,7 @@ class OsaDispatcher(object):
                           scwlist_assumption[1]]
 
 
-                remote = dc.RemoteDDA(self.data_server_url, self.data_server_cache)
+                remote = dc.RemoteDDA(self.data_server_url, self.data_server_cache, self.logdir)
 
                 while True:
                     try:
@@ -476,7 +479,7 @@ class OsaDispatcher(object):
 
 
 
-            res= dc.RemoteDDA(self.data_server_url, self.data_server_cache).query(target=target,
+            res= dc.RemoteDDA(self.data_server_url, self.data_server_cache, self.logdir).query(target=target,
                                                     modules=modules,
                                                     assume=assume,
                                                     inject=self.inject,
