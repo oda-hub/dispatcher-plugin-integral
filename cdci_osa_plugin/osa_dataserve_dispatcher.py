@@ -161,7 +161,7 @@ class OsaDispatcher(object):
         try:
             _data_server_url = config.data_server_url
             _data_server_cache = config.data_server_cache
-            _logdir = os.path.join(config.dispatcher_mnt_point, 'logs', 'ddaclient')
+            _logdir = os.path.join('logs', 'ddaclient')
 
             if _data_server_url is None or _data_server_cache is None:
                 raise Exception(f"some config values are not set, loading from {config}")
