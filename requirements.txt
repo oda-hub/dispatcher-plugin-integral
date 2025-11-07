@@ -2,7 +2,7 @@
 -e git+https://github.com/oda-hub/oda_api@master#egg=oda_api
 
 
-ddaclient @ git+https://github.com/oda-hub/ddaclient@logdir
+ddaclient @ git+https://github.com/oda-hub/ddaclient
 oda-knowledge-base[rdf,cwl]
 astroquery-integral # not needed apart from test
 astropy
