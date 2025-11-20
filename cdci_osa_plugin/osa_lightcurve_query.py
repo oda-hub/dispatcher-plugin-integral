@@ -91,7 +91,8 @@ class OsaLightCurve(LightCurveProduct):
     @staticmethod
     def ensure_timedel(du):
         # TODO: move to https://github.com/integral-observatory/ogip/
-        if 'TIMEDEL' in du.data or "XAX_E" in du.data:
+        colnames = [x.name for x in du.data.columns]
+        if 'TIMEDEL' in colnames or "XAX_E" in colnames:
             print(
                 f"\033[31m TIMEDEL or XAX_E column already available in du: {du} \033[0m")
         else:
