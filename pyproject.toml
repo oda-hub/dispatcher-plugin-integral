@@ -1,0 +1,52 @@
+[project]
+name = "cdci_osa_plugin"
+version = "2.0"
+description = "MMODA plugin for Integral analysis'"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.rst"]
+authors = [
+    {name = "Andrea Tramacere", email = "contact@odahub.io"},
+    {name = "Volodymyr Savchenko", email = "contact@odahub.io"}
+]
+maintainers = [
+  {name = "Gabriele Barni", email = "contact@odahub.io"},
+  {name = "Denys Savchenko", email = "contact@odahub.io"}
+]
+
+requires-python = ">=3.10"
+
+dependencies = [
+    "ddaclient",
+    "oda-knowledge-base[rdf,cwl]",
+    "astropy",
+    "simple_logger",
+    "numpy",
+    "cdci-data-analysis",
+    "redis"
+]
+
+[dependency-groups] 
+dev = [
+    "astroquery-integral",
+    "pytest",
+    "pytest-depends",
+    "cdci-data-analysis"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = 'setuptools.build_meta'
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+cdci_osa_plugin = ["config_dir/*"]
+
+[tool.uv.sources]
+cdci-data-analysis = { git = "https://github.com/oda-hub/dispatcher-app.git", branch="numpy-gt-2", group="dev" }
+ddaclient = { git = "https://github.com/oda-hub/ddaclient.git", branch="migrate-python" }
