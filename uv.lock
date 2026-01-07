@@ -380,6 +380,7 @@ dependencies = [
 dev = [
     { name = "astroquery-integral" },
     { name = "cdci-data-analysis" },
+    { name = "ddaclient" },
     { name = "pytest" },
     { name = "pytest-depends" },
 ]
@@ -388,7 +389,7 @@ dev = [
 requires-dist = [
     { name = "astropy" },
     { name = "cdci-data-analysis" },
-    { name = "ddaclient", git = "https://github.com/oda-hub/ddaclient.git?branch=migrate-python" },
+    { name = "ddaclient" },
     { name = "numpy" },
     { name = "oda-knowledge-base", extras = ["rdf", "cwl"] },
     { name = "redis" },
@@ -399,6 +400,7 @@ requires-dist = [
 dev = [
     { name = "astroquery-integral" },
     { name = "cdci-data-analysis", git = "https://github.com/oda-hub/dispatcher-app.git?branch=numpy-gt-2" },
+    { name = "ddaclient", git = "https://github.com/oda-hub/ddaclient.git?branch=migrate-python" },
     { name = "pytest" },
     { name = "pytest-depends" },
 ]
