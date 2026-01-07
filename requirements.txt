@@ -115,7 +115,7 @@ flask==2.0.3
     #   flask-restx
 flask-restx==1.2.0
     # via cdci-data-analysis
-fonttools==4.59.2
+fonttools==4.60.2
     # via matplotlib
 future-fstrings==1.2.0
     # via pytest-depends
