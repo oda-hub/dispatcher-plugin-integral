@@ -107,7 +107,7 @@ dynaconf==3.2.11
     # via oda-knowledge-base
 exceptiongroup==1.3.0 ; python_full_version < '3.11'
     # via pytest
-filelock==3.19.1
+filelock==3.20.3
     # via cachecontrol
 flask==2.0.3
     # via
