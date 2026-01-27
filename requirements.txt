@@ -48,7 +48,7 @@ bs4==0.0.2
     # via cdci-data-analysis
 cachecontrol==0.14.3
     # via schema-salad
-cdci-data-analysis @ git+https://github.com/oda-hub/dispatcher-app.git@4e0e5bb23c8be685bff0b2fe72258549d36430af
+cdci-data-analysis @ git+https://github.com/oda-hub/dispatcher-app.git@965ed74c9f5687c321c8344736bab6fb7d999063
     # via cdci-osa-plugin
 certifi==2025.8.3
     # via
@@ -66,6 +66,7 @@ click==8.2.1
     #   black
     #   click-aliases
     #   flask
+    #   oda-api
     #   oda-knowledge-base
 click-aliases==1.0.5
     # via oda-knowledge-base
@@ -99,7 +100,7 @@ cwltool==3.1.20250715140722
     # via oda-knowledge-base
 cycler==0.12.1
     # via matplotlib
-ddaclient @ git+https://github.com/oda-hub/ddaclient.git@29f39569471db91617e663611d80321de8110e24
+ddaclient @ git+https://github.com/oda-hub/ddaclient.git@c61d56217609ac0f6e9634413617d9d7789525d8
     # via cdci-osa-plugin
 decorator==5.2.1
     # via cdci-data-analysis
@@ -189,7 +190,7 @@ markupsafe==3.0.2
     # via jinja2
 marshmallow==3.23.3
     # via cdci-data-analysis
-matplotlib==3.9.4
+matplotlib==3.10.8
     # via oda-api
 mdurl==0.1.2
     # via markdown-it-py
@@ -246,7 +247,7 @@ numpy==2.3.2 ; python_full_version >= '3.11'
     #   pandas
     #   pyerfa
     #   scipy
-oda-api @ git+https://github.com/oda-hub/oda_api.git@f8518e75c11296ba77652efc9b59f62079b58d0a
+oda-api @ git+https://github.com/oda-hub/oda_api.git@948c868ad2f01b1996c10354628c98dcdcdd72a1
     # via cdci-data-analysis
 oda-knowledge-base==0.7.28
     # via cdci-osa-plugin
@@ -340,8 +341,6 @@ pyyaml==6.0.2
     #   bokeh
     #   cdci-data-analysis
     #   oda-knowledge-base
-raven==6.10.0
-    # via cdci-data-analysis
 rdflib==7.1.4
     # via
     #   cwl-utils
