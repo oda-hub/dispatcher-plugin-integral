@@ -388,7 +388,7 @@ dev = [
 requires-dist = [
     { name = "astropy" },
     { name = "cdci-data-analysis" },
-    { name = "ddaclient" },
+    { name = "ddaclient", git = "https://github.com/oda-hub/ddaclient.git?branch=master" },
     { name = "numpy" },
     { name = "oda-knowledge-base", extras = ["rdf", "cwl"] },
     { name = "redis" },
