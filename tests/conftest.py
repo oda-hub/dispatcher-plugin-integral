@@ -88,7 +88,7 @@ def start_mock_dda_server(instrument, config_path):
 
     if data_server_url is not None:
         from flask import Flask
-        from raven.utils.urlparse import urlparse
+        from urllib.parse import urlparse
         from threading import Thread
 
         parse_result = urlparse(data_server_url)
