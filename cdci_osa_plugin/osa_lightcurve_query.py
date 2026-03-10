@@ -243,9 +243,14 @@ class OsaLightCurve(LightCurveProduct):
         data = data[msk_non_zero]
 
         x = data['TIME']
-        try:
-            dx = data.get('XAX_E', data.get('TIMEDEL', float(header['TIMEDEL'])*np.ones(len(x)))/2)
-        except KeyError:
+        colnames = [x.name for x in data.columns]
+        if 'TIMEDEL' in colnames:
+            dx = data['TIMEDEL'] / 2
+        elif 'XAX_E' in colnames:
+            dx = data['XAX_E']
+        elif 'TIMEDEL' in header.keys():
+            dx = float(header['TIMEDEL'])*np.ones(len(x)) / 2
+        else:
             raise RuntimeError(f'no information on time bin length is available through TIMEDEL or XAX_E when plotting lightcurve for {self.name}')
         
         y = data['RATE']
