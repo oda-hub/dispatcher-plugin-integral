@@ -243,12 +243,16 @@ class OsaLightCurve(LightCurveProduct):
         data = data[msk_non_zero]
 
         x = data['TIME']
-        dx = data['TIMEDEL']*0.5
+        try:
+            dx = data.get('XAX_E', data.get('TIMEDEL', float(header['TIMEDEL'])*np.ones(len(x)))/2)
+        except KeyError:
+            raise RuntimeError(f'no information on time bin length is available through TIMEDEL or XAX_E when plotting lightcurve for {self.name}')
+        
         y = data['RATE']
         dy = data['ERROR']
         try:
             mjdref = header['mjdref'] + int(x.min())
-        except:
+        except KeyError:
             mjdref = header['MJDREF'] + int(x.min())
 
         x = x - int(x.min())
