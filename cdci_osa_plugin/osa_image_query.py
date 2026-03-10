@@ -212,7 +212,7 @@ class IsgriMosaicQuery(OsaMosaicQuery):
                                                         meta_data=meta_data)
 
         catalog = CatalogProduct(name='mosaic_catalog',
-                                 catalog=BasicCatalog.from_fits_file(
+                                 catalog=OsaIsgriCatalog.from_fits_file(
                                      '%s/query_catalog.fits' % dummy_cache),
                                  file_name='query_catalog',
                                  file_dir=out_dir)
