@@ -354,7 +354,7 @@ rdflib-jsonld==0.6.2
     # via oda-knowledge-base
 redis==6.4.0
     # via cdci-osa-plugin
-requests==2.32.5
+requests==2.33.0
     # via
     #   astroquery
     #   astroquery-integral
