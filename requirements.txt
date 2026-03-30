@@ -293,7 +293,7 @@ pydot==4.0.1
     # via cwltool
 pyerfa==2.0.1.5
     # via astropy
-pygments==2.19.2
+pygments==2.20.0
     # via
     #   pytest
     #   rich
