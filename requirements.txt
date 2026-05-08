@@ -196,7 +196,7 @@ mdurl==0.1.2
     # via markdown-it-py
 minio==6.0.2
     # via oda-knowledge-base
-mistune==3.0.2
+mistune==3.2.1
     # via schema-salad
 more-itertools==10.8.0
     # via
