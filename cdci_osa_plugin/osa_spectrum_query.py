@@ -394,6 +394,9 @@ class IsgriSpectrumQuery(OsaSpectrumQuery):
         if 'fullbkg' in osa_version_modifiers:
             modules += ["git://iisglobal"]
         
+        if 'vetopatch' in osa_version_modifiers:
+            modules += ["git://vetopatch"]
+        
         assume = ['process_isgri_spectra.ScWSpectraList(input_scwlist=%s)'% scwlist_assumption[0],
                    scwlist_assumption[1],
                   'ddosa.ImageBins(use_ebins=[(%(E1)s,%(E2)s)],use_version="onebin_%(E1)s_%(E2)s")' % dict(E1=E1,E2=E2),
