@@ -27,3 +27,7 @@ test
   - `export ODA_API_TOKEN=$HOME/.oda-api-token`
 
 * `pytest ../cdci_osa_plugin/tests/test_osa.py::test_jemx_image -sv`
+
+When `DISPATCHER_MOCK_KB=yes`, additional allowed OSA versions can be configured
+with the comma-separated `DISPATCHER_MOCK_KB_ADDITIONAL_OSA_VERSIONS`
+environment variable.
