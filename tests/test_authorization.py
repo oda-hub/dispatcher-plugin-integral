@@ -157,7 +157,7 @@ def test_invalid_token_oda_api(dispatcher_long_living_fixture, dispatcher_test_c
             product_type="Real",
             instrument="isgri",
             product="isgri_image",
-            osa_version="OSA10.2",
+            osa_version="OSA11.2",
             E1_keV=40.0,
             E2_keV=200.0,
             scw_list=[f"0665{i:04d}0010.001" for i in range(5)],
@@ -289,7 +289,7 @@ def test_scw_list_file(dispatcher_long_living_fixture, dispatcher_test_conf, lis
 # some combinations of data rights and IC might be disfavored, but let's not enforce it now
 @pytest.mark.parametrize("roles", ["", "integral-private-qla"])
 @pytest.mark.parametrize("integral_data_rights", [None, "public", "all-private"])
-@pytest.mark.parametrize("osa_version", ["public-OSA10.2", "obsolete-OSA11.0", "private-OSA11.2-dev210827.0528-37487", "public-OSA11.2", "invalid-OSA01.2"]) 
+@pytest.mark.parametrize("osa_version", ["obsolete-OSA10.2", "obsolete-OSA11.0", "private-OSA11.2-dev210827.0528-37487", "public-OSA11.2", "invalid-OSA01.2"])
 def test_osa_versions(dispatcher_long_living_fixture, dispatcher_test_conf, roles, integral_data_rights, osa_version):
     server = dispatcher_long_living_fixture
     logger.info("constructed server: %s", server)
@@ -349,7 +349,7 @@ def test_osa_versions(dispatcher_long_living_fixture, dispatcher_test_conf, role
         expected_query_status = None
         expected_job_status = None
         expected_status_code = 400
-        expected_error = 'RequestNotUnderstood():Please note OSA11.0 is being phased out. We consider that for all or almost all likely user requests OSA11.2 shoud be used instead of OSA11.0.'
+        expected_error = f'RequestNotUnderstood():Please note {osa_version} is being phased out. We consider that for all or almost all likely user requests OSA11.2 shoud be used instead of {osa_version}.'
         expected_message = None
     else:
         RuntimeError("programming error")
@@ -385,7 +385,7 @@ def test_nrt_access(dispatcher_long_living_fixture, dispatcher_test_conf, roles,
         "product_type": "isgri_image",
         "query_type": "Dummy",
         "scw_list": [f"0665{i:04d}0010.{scw_version}" for i in range(5)],
-        "osa_version": "OSA10.2",
+        "osa_version": "OSA11.2",
         "integral_data_rights": integral_data_rights
     }
 

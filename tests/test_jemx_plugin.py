@@ -15,7 +15,7 @@ default_params = dict(instrument='jemx',
                         jemx_num='1',
                         product_type='jemx_image',
                         scw_list=['066500230010.001'],
-                        osa_version='OSA10.2',
+                        osa_version='OSA11.2',
                         detection_threshold=5.0,
                         radius=15.,
                         query_type='Real')
