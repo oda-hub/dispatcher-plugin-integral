@@ -18,7 +18,6 @@ def test_osa_versions():
                          'ddosa.ImageBins(use_ebins=[(25.0,80.0)],use_version="onebin_25.0_80.0")', 
                          'ddosa.ImagingConfig(use_SouFit=0,use_version="soufit0")']
                     )
-
     assert IsgriMosaicQuery("name").set_instr_dictionaries(
                     extramodules=[],
                     scwlist_assumption=["sa", "sb"],
@@ -91,3 +90,23 @@ def test_osa_versions():
                          'ddosa.ICRoot(use_ic_root_version="dev")'
                          ]
                     )
+
+
+def test_mock_kb_additional_osa_versions(monkeypatch):
+    from cdci_osa_plugin.osa_common_pars import OSAVersion
+
+    monkeypatch.setenv('DISPATCHER_MOCK_KB', 'yes')
+    monkeypatch.setenv(
+        'DISPATCHER_MOCK_KB_ADDITIONAL_OSA_VERSIONS',
+        'OSA11.2-dev261107.0000-cfpatch, OSA11.2-devanother',
+    )
+
+    osa_version = OSAVersion(
+        value=None,
+        allowed_base_osa_version_values=['OSA11.2'],
+    )
+    osa_version.value = 'OSA11.2-dev261107.0000-cfpatch'
+
+    assert osa_version.value == 'OSA11.2-dev261107.0000-cfpatch'
+    assert 'OSA11.2-devanother' in osa_version._allowed_values
+    assert 'OSA11.2-dev210827.0528-37487' in osa_version._allowed_values
