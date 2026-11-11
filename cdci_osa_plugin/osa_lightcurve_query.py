@@ -601,4 +601,8 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
                   'ddjemx.LCTimeBin(use_time_bin_seconds=%f)' % delta_t,
                   'ddjemx.JEMX(use_num=%d)' % jemx_num]
 
+        if 'vetopatch' in osa_version_modifiers:
+            modules += ["git://vetopatch"]
+        
+
         return target, modules, assume
