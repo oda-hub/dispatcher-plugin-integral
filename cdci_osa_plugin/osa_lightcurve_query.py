@@ -535,6 +535,9 @@ class IsgriLightCurveQuery(OsaLightCurveQuery):
         if osa_subversion != "default-isdc":
             assume.append(f'ddosa.ICRoot(use_ic_root_version="{osa_subversion}")')                  
 
+        if 'vetopatch' in osa_version_modifiers:
+            modules += ["git://vetopatch"]
+
         return target, modules, assume
 
 
@@ -600,9 +603,5 @@ class JemxLightCurveQuery(OsaLightCurveQuery):
                       E1=E1, E2=E2),
                   'ddjemx.LCTimeBin(use_time_bin_seconds=%f)' % delta_t,
                   'ddjemx.JEMX(use_num=%d)' % jemx_num]
-
-        if 'vetopatch' in osa_version_modifiers:
-            modules += ["git://vetopatch"]
-        
 
         return target, modules, assume

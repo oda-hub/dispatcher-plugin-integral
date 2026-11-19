@@ -120,7 +120,7 @@ def test_osa_version_splitting():
 
     assert str(e.value) == ("provided unknown OSA version modifier(s): 'unknown' "
                             "in version 'OSA11.2-devsmth-smth-else', "
-                            "known: 'fullbkg--jemxnrt--rmfoffsetv1'")
+                            "known: 'fullbkg--jemxnrt--rmfoffsetv1--vetopatch'")
 
 
 @pytest.mark.parametrize("instrument", ['isgri', 'jemx'])
