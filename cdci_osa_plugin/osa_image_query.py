@@ -255,6 +255,9 @@ class IsgriMosaicQuery(OsaMosaicQuery):
             assume.append(
                 f'ddosa.ICRoot(use_ic_root_version="{osa_subversion}")')
 
+        if 'vetopatch' in osa_version_modifiers:
+            modules += ["git://vetopatch"]
+
         return target, modules, assume
 
 
@@ -348,8 +351,5 @@ class JemxMosaicQuery(OsaMosaicQuery):
                   'ddjemx.JEnergyBins(use_bins=[(%(E1)s,%(E2)s)])' % dict(
                       E1=E1, E2=E2),
                   'ddjemx.JEMX(use_num=%s)' % jemx_num]
-
-        if 'vetopatch' in osa_version_modifiers:
-            modules += ["git://vetopatch"]
 
         return target, modules, assume
